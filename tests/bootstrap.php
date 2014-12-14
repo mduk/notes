@@ -1,14 +1,5 @@
 <?php
 
-spl_autoload_register( function( $class ) {
-	$class = str_replace( '_', '/', $class );
-	$file = 'src/' . $class . '.php';
-	
-	if ( file_exists( $file ) ) {
-		require_once $file;
-	}
-} );
-
 $pdo = new PDO( 'sqlite::memory:' );
 $pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class NoteMapper extends Mapper {
 	protected $table = 'note';
 	protected $findSelect = array( 'note_id', 'user_id' );
@@ -19,7 +21,7 @@ class NoteMapper extends Mapper {
 		$note->user_id = $source->user_id;
 		$note->body = $source->body;
 
-		$note->user = $this->getMapper( 'UserMapper' )
+		$note->user = $this->getMapper( '\\Mduk\\UserMapper' )
 			->findOneByUserId( $source->user_id );
 
 		return $note;

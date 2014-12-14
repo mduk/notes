@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 interface IdentityMap {
 	public function has( Identity $object );
 	public function set( Identity $object );

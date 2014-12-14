@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class Query {
 	protected $mapper;
 	protected $boundValues = array();

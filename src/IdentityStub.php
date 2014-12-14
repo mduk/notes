@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class IdentityStub implements Identity {
 	protected $identity;
 

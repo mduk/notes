@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class LazyCollection extends Collection {
 	protected $query;
 	

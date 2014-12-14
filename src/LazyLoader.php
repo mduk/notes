@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class LazyLoader {
 	protected $callback;
 	protected $arguments;

@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class Note implements Identity {
 	public $note_id;
 	public $user_id;

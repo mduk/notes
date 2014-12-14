@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class User implements Identity {
 	public $user_id;
 	public $name;

@@ -1,6 +1,8 @@
 <?php
 
-class CollectionTest extends PHPUnit_Framework_TestCase
+namespace Mduk;
+
+class CollectionTest extends \PHPUnit_Framework_TestCase
 {
 	public function testGet() {
 		$c = new Collection( array( 1,2,3,4,5,6,7,8,9,10 ) );
@@ -10,7 +12,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 	}
 	
 	public function testGet_InvalidOffset() {
-		$this->setExpectedException('CollectionException');	
+		$this->setExpectedException('\\Mduk\\CollectionException');	
 		
 		$c = new Collection;
 		$c->get( 4 );

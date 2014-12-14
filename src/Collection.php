@@ -1,6 +1,8 @@
 <?php
 
-class Collection implements Iterator, ArrayAccess, Countable {
+namespace Mduk;
+
+class Collection implements \Iterator, \ArrayAccess, \Countable {
 	protected $objects = array();
 	protected $count = 0;
 	protected $pointer = 0;
@@ -194,6 +196,6 @@ class Collection implements Iterator, ArrayAccess, Countable {
 	}
 }
 
-class CollectionException extends Exception {
+class CollectionException extends \Exception {
 	const INVALID_OFFSET = 1;
 }

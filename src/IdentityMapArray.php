@@ -1,6 +1,8 @@
 <?php
 
-class IdentityMapArray extends ArrayObject implements IdentityMap {
+namespace Mduk;
+
+class IdentityMapArray extends \ArrayObject implements IdentityMap {
 	public function has( Identity $object ) {
 		return isset( $this[ $object->getIdentity() ] );
 	}

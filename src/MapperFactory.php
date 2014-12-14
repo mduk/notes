@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class MapperFactory {
 	protected $mappers = array();
 	protected $pdo;

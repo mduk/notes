@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 /**
  * Method Naming:
  *   query*()        : Build and return a query object
@@ -31,7 +33,7 @@ abstract class Mapper {
 	abstract protected function mapLazy( $object );
 	abstract protected function mapObject( $object );
 	
-	public function __construct( MapperFactory $mapperFactory = null, PDO $pdo, IdentityMap $identityMap = null ) {
+	public function __construct( MapperFactory $mapperFactory = null, \PDO $pdo, IdentityMap $identityMap = null ) {
 		$this->mapperFactory = $mapperFactory;
 		$this->db = $pdo;
 		$this->identityMap = $identityMap ?: new IdentityMapArray;
@@ -99,7 +101,7 @@ abstract class Mapper {
 			$method = substr( $method, 4 );
 		}
 		else {
-			throw new Exception( "Unknown method: $method" );
+			throw new \Exception( "Unknown method: $method" );
 		}
 		
 		// Limit the number of records retrieved
@@ -186,11 +188,11 @@ abstract class Mapper {
 			$count = $result->count();
 
 			if ( $count == 0 ) {
-				throw new Exception( 'Object not found! SQL: ' . $query->toSql( $exec, true ) );
+				throw new \Exception( 'Object not found! SQL: ' . $query->toSql( $exec, true ) );
 			}
 
 			if ( $count > 1 ) {
-				throw new Exception( 'Multiple objects found! SQL: ' . $query->toSql( $exec, true ) );
+				throw new \Exception( 'Multiple objects found! SQL: ' . $query->toSql( $exec, true ) );
 			}
 
 			if ( $exec == 'load' ) {

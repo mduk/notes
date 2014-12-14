@@ -1,6 +1,8 @@
 <?php
 
-class MapperTest extends PHPUnit_Framework_TestCase
+namespace Mduk;
+
+class MapperTest extends \PHPUnit_Framework_TestCase
 {
 	// Test that a specific range can be loaded
 	// Test that an overlapping range can be loaded into the same collection 
@@ -52,7 +54,7 @@ class MapperTest extends PHPUnit_Framework_TestCase
 		try {
 			$mapper->loadOneByUserId( 123 );
 		}
-		catch ( Exception $e ) {
+		catch ( \Exception $e ) {
 			$this->assertTrue( $e->getMessage() == 'Object not found! SQL: SELECT * FROM user WHERE user_id = 123 LIMIT 1' );
 		}
 	}
@@ -61,7 +63,7 @@ class MapperTest extends PHPUnit_Framework_TestCase
 		global $pdo;
 		
 		$factory = new MapperFactory( $pdo );
-		$mapper = $factory->get( 'UserMapper' );
+		$mapper = $factory->get( '\\Mduk\\UserMapper' );
 		$query = new Query( $mapper, array( 'user_id' ), array( '*' ), 'COUNT( user_id )', 'user' );
 	
 		$this->assertTrue( $query->count() == 4 );
@@ -84,7 +86,7 @@ class MapperTest extends PHPUnit_Framework_TestCase
 		
 		$identityMap = new IdentityMapArray;
 		$factory = new MapperFactory( $pdo, $identityMap );
-		$mapper = $factory->get( 'UserMapper' );
+		$mapper = $factory->get( '\\Mduk\\UserMapper' );
 	
 		$users = $mapper->load();
 	

@@ -1,5 +1,7 @@
 <?php
 
+namespace Mduk;
+
 class UserMapper extends Mapper {
 	protected $table = 'user';
 	protected $findSelect = array( 'user_id' );
@@ -20,7 +22,7 @@ class UserMapper extends Mapper {
 		$user->email = $source->email;
 		$user->role = $source->role;
 
-		$user->note = $this->getMapper( 'NoteMapper' )
+		$user->note = $this->getMapper( '\\Mduk\\NoteMapper' )
 			->lazyByUserId( $source->user_id );
 
 		return $user;
