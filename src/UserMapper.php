@@ -2,6 +2,8 @@
 
 namespace Mduk;
 
+use Mduk\Identity\Stub as IdentityStub;
+
 class UserMapper extends Mapper {
 	protected $table = 'user';
 	protected $findSelect = array( 'user_id' );

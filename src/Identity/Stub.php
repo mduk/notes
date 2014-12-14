@@ -1,8 +1,10 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Identity;
 
-class IdentityStub implements Identity {
+use Mduk\Identity;
+
+class Stub implements Identity {
 	protected $identity;
 
 	public function __construct( $identity ) {
