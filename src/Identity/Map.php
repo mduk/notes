@@ -1,8 +1,10 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Identity;
 
-interface IdentityMap {
+use Mduk\Identity;
+
+interface Map {
 	public function has( Identity $object );
 	public function set( Identity $object );
 	public function get( Identity $object );

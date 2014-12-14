@@ -2,6 +2,9 @@
 
 namespace Mduk;
 
+use Mduk\Identity\Map as IdentityMap;
+use Mduk\Identity\Map\Memory as IdentityMapMemory;
+
 /**
  * Method Naming:
  *   query*()        : Build and return a query object
@@ -36,7 +39,7 @@ abstract class Mapper {
 	public function __construct( MapperFactory $mapperFactory = null, \PDO $pdo, IdentityMap $identityMap = null ) {
 		$this->mapperFactory = $mapperFactory;
 		$this->db = $pdo;
-		$this->identityMap = $identityMap ?: new IdentityMapArray;
+		$this->identityMap = $identityMap ?: new IdentityMapMemory;
 	}
 
 	/**

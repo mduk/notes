@@ -2,6 +2,8 @@
 
 namespace Mduk;
 
+use Mduk\Identity\Map\Memory as IdentityMapMemory;
+
 class MapperTest extends \PHPUnit_Framework_TestCase
 {
 	// Test that a specific range can be loaded
@@ -84,7 +86,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 	public function testLoad() {
 		global $pdo;
 		
-		$identityMap = new IdentityMapArray;
+		$identityMap = new IdentityMapMemory;
 		$factory = new MapperFactory( $pdo, $identityMap );
 		$mapper = $factory->get( '\\Mduk\\UserMapper' );
 	
