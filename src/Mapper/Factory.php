@@ -1,8 +1,8 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Mapper;
 
-class MapperFactory {
+class Factory {
 	protected $mappers = array();
 	protected $pdo;
 	protected $identityMap;

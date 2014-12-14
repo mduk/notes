@@ -3,7 +3,7 @@
 namespace Mduk\Mapper;
 
 use Mduk\Mapper;
-use Mduk\MapperFactory;
+use Mduk\Mapper\Factory as Factory;
 
 use Mduk\Collection;
 use Mduk\LazyCollection;
@@ -42,7 +42,7 @@ abstract class Pdo implements Mapper {
 	abstract protected function mapLazy( $object );
 	abstract protected function mapObject( $object );
 	
-	public function __construct( MapperFactory $mapperFactory = null, \PDO $pdo, IdentityMap $identityMap = null ) {
+	public function __construct( Factory $mapperFactory = null, \PDO $pdo, IdentityMap $identityMap = null ) {
 		$this->mapperFactory = $mapperFactory;
 		$this->db = $pdo;
 		$this->identityMap = $identityMap ?: new IdentityMapMemory;
