@@ -1,6 +1,9 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Mapper;
+
+use Mduk\Mapper;
+use Mduk\Collection;
 
 class Query {
 	protected $mapper;

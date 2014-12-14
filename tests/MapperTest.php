@@ -2,6 +2,7 @@
 
 namespace Mduk;
 
+use Mduk\Mapper\Query;
 use Mduk\Identity\Map\Memory as IdentityMapMemory;
 
 class MapperTest extends \PHPUnit_Framework_TestCase

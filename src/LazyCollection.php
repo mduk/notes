@@ -2,6 +2,8 @@
 
 namespace Mduk;
 
+use Mduk\Mapper\Query;
+
 class LazyCollection extends Collection {
 	protected $query;
 	

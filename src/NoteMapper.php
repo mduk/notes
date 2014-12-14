@@ -2,9 +2,10 @@
 
 namespace Mduk;
 
+use Mduk\Mapper\Pdo as PdoMapper;
 use Mduk\Identity\Stub as IdentityStub;
 
-class NoteMapper extends Mapper {
+class NoteMapper extends PdoMapper {
 	protected $table = 'note';
 	protected $findSelect = array( 'note_id', 'user_id' );
 	protected $countSelect = 'COUNT( note_id )';
