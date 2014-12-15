@@ -51,6 +51,10 @@ abstract class Pdo implements Mapper {
 		$this->identityMap = $identityMap ?: new IdentityMapMemory;
 	}
 
+	public function query() {
+		return new Query( $this, $this->findSelect, $this->loadSelect, $this->countSelect, $this->table );
+	}
+
 	/**
 	 * Execute a Count query
 	 */

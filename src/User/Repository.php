@@ -6,6 +6,7 @@ use Mduk\Repository as RepositoryInterface;
 use Mduk\Repository\Factory as RepositoryFactory;
 use Mduk\Mapper\Factory as MapperFactory;
 use Mduk\Identity;
+use Mduk\Mapper\Query;
 
 class Repository implements RepositoryInterface {
 
@@ -15,6 +16,11 @@ class Repository implements RepositoryInterface {
 	public function __construct( RepositoryFactory $repositoryFactory, MapperFactory $mapperFactory ) {
 		$this->repositoryFactory = $repositoryFactory;
 		$this->mapperFactory = $mapperFactory;
+		$this->userMapper = $this->mapperFactory->get( '\\Mduk\\UserMapper' );
+	}
+
+	public function query() {
+		return $this->userMapper->query();
 	}
 
 	public function retrieve( Identity $identity ) {
