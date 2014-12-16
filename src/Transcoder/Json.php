@@ -7,7 +7,7 @@ use Mduk\Identity;
 
 class Json implements Transcoder {
 
-	public function encode( Identity $in ) {
+	public function encode( $in ) {
 		return json_encode( $in );
 	}
 

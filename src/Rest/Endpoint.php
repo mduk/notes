@@ -2,7 +2,7 @@
 
 namespace Mduk\Rest;
 
-use Mduk\Repository\Factory as RepositoryFactory;
+use Mduk\Mapper\Factory as MapperFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
 
@@ -19,11 +19,11 @@ use Symfony\Component\Routing\Route;
 class Endpoint {
 
 	protected $routes;
-	protected $repositoryFactory;
+	protected $mapperFactory;
 
-	public function __construct( array $routes, RepositoryFactory $repositoryFactory ) {
+	public function __construct( array $routes, MapperFactory $mapperFactory ) {
 		$this->routes = $this->initialiseRoutes( $routes );
-		$this->repositoryFactory = $repositoryFactory;
+		$this->mapperFactory = $mapperFactory;
 	}
 
 	public function handle( Request $request ) {
@@ -42,19 +42,25 @@ class Endpoint {
 		$route = $this->matchRoute( $request );
 
 		// What is being requested?
-		$identity = $this->resolveIdentity( $request, $route ); 
-
-		// Where can we find it?
-		$repository = $this->resolveRepository( $request, $route );
+		$query = $this->resolveQuery( $request, $route ); 
 
 		// How should we encode it?
 		$transcoder = $this->resolveTranscoder( $request, $route );
 
-		// Get the object.
-		$object = $repository->retrieve( $identity );
+		// Get the objects.
+		$collection = $query->load();
+
+		/////////////
+		// All this seems to work because of the way collections assume that
+		// if you're only getting one object then just to return that object.
+		// When we ask for page one, it calculates the correct limit and offset
+		// to use, since there's only one object, the limit is one, so the
+		// assumption kicks in.
+		// TODO: Fix Lazy Loading <- That's the fucker
+		////////////
 
 		// Encode it.
-		$encoded = $transcoder->encode( $object );
+		$encoded = $transcoder->encode( $collection->page( 0 ) );
 
 		$response = new Response();
 		$response->setStatusCode(200);
@@ -62,14 +68,13 @@ class Endpoint {
 		return $response;
 	}
 
-	protected function resolveIdentity( $request, $route ) {
-		$path = $request->getPathInfo();
-		$urn = 'urn:' . str_replace( '/', ':', $path );
-		return new IdentityStub( $urn );
-	}
-
-	protected function resolveRepository( $request, $route ) {
-		return $this->repositoryFactory->get( $route['repository'] );
+	protected function resolveQuery( $request, $route ) {
+		$class = $route['query'];
+		$query = new $class( $this->mapperFactory );
+		foreach ( $route['bind'] as $bind ) {
+			$query->bindValue( ':' . $bind, $route[ $bind ] );
+		}
+		return $query;
 	}
 
 	protected function resolveTranscoder( $request, $route ) {
