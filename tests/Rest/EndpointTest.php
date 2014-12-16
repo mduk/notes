@@ -9,7 +9,7 @@ use Mduk\Mapper\Factory as MapperFactory;
 
 class EndpointTest extends \PHPUnit_Framework_TestCase {
 
-	public function testGetUser() {
+	public function setUp() {
 		global $pdo;
 
 		$routes = array(
@@ -20,9 +20,12 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 			)
 		);
 		$mapperFactory = new MapperFactory( $pdo );
+		$this->endpoint = new Endpoint( $routes, $mapperFactory );
+	}
+
+	public function testGetUser() {
 		$request = Request::create( 'http://localhost/user/3' );
-		$endpoint = new Endpoint( $routes, $mapperFactory );
-		$response = $endpoint->handle( $request );
+		$response = $this->endpoint->handle( $request );
 
 		$this->assertTrue( $response instanceof Response );
 
