@@ -17,6 +17,10 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
 				'multiplicity' => 'one'
+			),
+			'/user/{user_id}/note' => array(
+				'query' => '\\Mduk\\Note\\Query\\ByUserId',
+				'bind' => array( 'user_id' )
 			)
 		);
 		$mapperFactory = new MapperFactory( $pdo );
@@ -33,6 +37,16 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$decoded = json_decode( $content );
 
 		$this->assertEquals( $decoded->user_id, 3 );
+	}
+
+	public function testGetNotes() {
+		$request = Request::create( 'http://localhost/user/3/note' );
+		$response = $this->endpoint->handle( $request );
+
+		$content = $response->getContent();
+		$decoded = json_decode( $content );
+
+		$this->assertTrue( is_array( $decoded ), 'Decoded result was not an array' );
 	}
 
 }
