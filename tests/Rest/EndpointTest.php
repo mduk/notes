@@ -15,7 +15,8 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$routes = array(
 			'/user/{user_id}' => array(
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
-				'bind' => array( 'user_id' )
+				'bind' => array( 'user_id' ),
+				'multiplicity' => 'one'
 			)
 		);
 		$mapperFactory = new MapperFactory( $pdo );
@@ -28,7 +29,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
 
-		$this->assertEquals( $decoded[0]->user_id, 3 );
+		$this->assertEquals( $decoded->user_id, 3 );
 	}
 
 }

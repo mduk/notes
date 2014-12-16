@@ -50,8 +50,14 @@ class Endpoint {
 		// Get the objects.
 		$collection = $query->load();
 
+		// What to encode?
+		$encode = $collection->page( 0 );
+		if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
+			$encode = $collection->shift();
+		}
+
 		// Encode them.
-		$encoded = $transcoder->encode( $collection->page( 0 ) );
+		$encoded = $transcoder->encode( $encode );
 
 		// Respond
 		$response = new Response();
