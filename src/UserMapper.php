@@ -15,7 +15,6 @@ class UserMapper extends PdoMapper {
 	}
 
 	protected function mapLazy( $source ) {
-		#return new LazyLoader( array( $this, 'loadOneByUserId' ), array( $source->user_id ) );
 		$mapper = $this;
 		return new LazyLoader( function() use ($mapper, $source) {
 			return $mapper->loadOneByUserId( $source->user_id );

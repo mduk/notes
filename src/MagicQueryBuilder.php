@@ -4,6 +4,21 @@ namespace Mduk;
 
 use Mduk\Mapper\Query;
 
+/**
+ * Method Naming:
+ *   query*()        : Build and return a query object
+ *   lazy*()         : Return a LazyCollection for this query
+ *   find*()         : Locate records and return lazy loaders
+ *   load*()         : Locate and read records in their entirety, return collection of objects.
+ *   count*()        : Count the number of records
+ *   *One*()         : Ensure one object was found, throw an exception if none or more than one object were found. 
+ *   *Range*()       : Retrieve from a given offset and limit the number of records retrieved
+ *   *By<field>*     : Use a particular field to locate the record(s), exact match
+ *   *And<field>*    : Use an additional field to locate the record(s), exact match
+ *   *KeyedBy<field> : Return a collection where the objects have been keyed by a particular field.
+ *                     It is up to the collection how duplicates are handled.
+ *   *Into           : Insert objects into a specific collection instance
+ */
 trait MagicQueryBuilder {
 
 	/**

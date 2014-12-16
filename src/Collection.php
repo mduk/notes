@@ -43,13 +43,19 @@ class Collection implements \Iterator, \ArrayAccess, \Countable {
 	 * If the range extends beyond the end of the collection, an
 	 * exception will be thrown.
 	 *
+	 * If no $limit is provided (in other words, is null), the method will understand that to mean
+	 * you want a single object at a specified $offset to be returned.
+	 * 
+	 * If you do specify a $limit, then you will always get an array back, even if you limited it
+	 * to only one object. It is a range of n to n+1 only.
+	 *
 	 * @param mixed $offset The offset to retrieve from. Either a numeric key, or a string key if $limit == 1.
-	 * @param int $limit The number of objects to retrieve
+	 * @param null|int $limit The number of objects to retrieve.
 	 * @throws CollectionException
 	 * @return mixed Either an array of retrieved objects, or a single object
 	 */
-	public function get( $offset, $limit = 1 ) {
-		if ( $limit == 1 ) {
+	public function get( $offset, $limit = null ) {
+		if ( $limit === null ) {
 			return $this->resolveObject( $offset );
 		}
 

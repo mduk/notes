@@ -7,7 +7,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 	public function testGet() {
 		$c = new Collection( array( 1,2,3,4,5,6,7,8,9,10 ) );
 		
-		$this->assertEquals( 5, $c->get( 4 ) == 5 );
+		$this->assertEquals( 5, $c->get( 4 ) );
+		$this->assertEquals( array( 5 ), $c->get( 4, 1 ) );
 		$this->assertEquals( array( 5, 6, 7 ), $c->get( 4, 3 ) );
 	}
 	

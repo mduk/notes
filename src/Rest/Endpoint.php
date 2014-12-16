@@ -50,18 +50,10 @@ class Endpoint {
 		// Get the objects.
 		$collection = $query->load();
 
-		/////////////
-		// All this seems to work because of the way collections assume that
-		// if you're only getting one object then just to return that object.
-		// When we ask for page one, it calculates the correct limit and offset
-		// to use, since there's only one object, the limit is one, so the
-		// assumption kicks in.
-		// TODO: Fix Lazy Loading <- That's the fucker
-		////////////
-
-		// Encode it.
+		// Encode them.
 		$encoded = $transcoder->encode( $collection->page( 0 ) );
 
+		// Respond
 		$response = new Response();
 		$response->setStatusCode(200);
 		$response->setContent( $encoded );

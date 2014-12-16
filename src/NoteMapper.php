@@ -15,7 +15,10 @@ class NoteMapper extends PdoMapper {
 	}
 
 	protected function mapLazy( $source ) {
-		return new LazyLoader( array( $this, 'loadOneByNoteId' ), array( $source->note_id ) );
+		$mapper = $this;
+		return new LazyLoader( function() use ($mapper, $source) {
+			return $mapper->loadOneByNoteId( $source->note_id );
+		} );
 	}
 
 	protected function mapObject( $source ) {

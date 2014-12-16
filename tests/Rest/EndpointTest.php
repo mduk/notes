@@ -24,9 +24,11 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$response = $endpoint->handle( $request );
 
 		$this->assertTrue( $response instanceof Response );
+
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
-		$this->assertEquals( $decoded->user_id, 3 );
+
+		$this->assertEquals( $decoded[0]->user_id, 3 );
 	}
 
 }

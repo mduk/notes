@@ -18,7 +18,7 @@ class LazyCollection extends Collection {
 	 * already loaded objects, they will be queried, but
 	 * not overwritten in the collection.
 	 */
-	public function get( $offset, $limit = 1 ) {
+	public function get( $offset, $limit = null ) {
 		// Since the count will be incremented when the objects 
 		// are inserted, it is necessary to subtract the number
 		// of objects to be inserted first

@@ -84,7 +84,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue( $users[0]->name == "Daniel" );
 		$this->assertTrue( $users['daniel.kendell@gmail.com']->name == "Daniel" );
 	}
-	
+
 	public function testLoad() {
 		global $pdo;
 		
