@@ -3,6 +3,7 @@
 namespace Mduk\Mapper;
 
 use Mduk\Mapper;
+use Mduk\Mapper\Exception as MapperException;
 use Mduk\Mapper\Factory as Factory;
 use Mduk\MagicQueryBuilder;
 
@@ -65,9 +66,6 @@ abstract class Pdo implements Mapper {
 		return $this->executeQuery( 'find', $query );
 	}
 
-	/**
-	 * TODO: Can't key by anything if finding. Find select query needs amending to include keyfield
-	 */
 	protected function executeQuery( $mode, Query $query ) {
 		$statement = $this->db->prepare( $query->toSql( $mode ) );
 		foreach ( $query->boundValues() as $key => $value ) {
@@ -114,6 +112,18 @@ abstract class Pdo implements Mapper {
 			$offset++;
 		}
 
+		$expect = $query->expect();
+		$count = $collection->count();
+
+		if ( $expect !== null && $expect != $count ) {
+			$e = new MapperException(
+				"Query expected {$expect} but got {$count}",
+				MapperException::UNEXPECTED_ROW_COUNT
+			);
+			$e->rowCount = $count;
+			throw $e;
+		}
+
 		return $collection;
 	}
 
@@ -125,3 +135,4 @@ abstract class Pdo implements Mapper {
 		return strtolower( preg_replace( '/([a-z])([A-Z])/', '$1_$2', $in ) );
 	}
 }
+

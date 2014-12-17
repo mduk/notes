@@ -10,6 +10,7 @@ class ByUserId extends UserQuery {
 	public function __construct( MapperFactory $mapperFactory ) {
 		parent::__construct( $mapperFactory );
 		$this->where( 'user_id = :user_id' );
+		$this->expect( 1 );
 	}
 
 }

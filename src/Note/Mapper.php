@@ -19,7 +19,7 @@ class Mapper extends PdoMapper {
 	protected function mapLazy( $source ) {
 		$mapper = $this;
 		return new LazyLoader( function() use ($mapper, $source) {
-			return $mapper->loadOneByNoteId( $source->note_id );
+			return $mapper->loadOneByNoteId( $source->note_id )->shift();
 		} );
 	}
 

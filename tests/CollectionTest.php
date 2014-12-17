@@ -105,6 +105,11 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 	}
 	
 	public function testCount() {
+		$c = new Collection();
+
+		$this->assertTrue( 0 === count( $c ) );
+		$this->assertTrue( 0 === $c->count() );
+
 		$c = new Collection( array( 1, 2, 3 ) );
 		
 		$this->assertEquals( 3, count( $c ) );

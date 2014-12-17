@@ -4,18 +4,12 @@ namespace Mduk;
 
 class Collection implements \Iterator, \ArrayAccess, \Countable {
 	protected $objects = array();
-	protected $count = 0;
+	protected $count = null;
 	protected $pointer = 0;
 
-	public function __construct( $objects = array(), $count = null ) {
+	public function __construct( array $objects = array(), $count = null ) {
 		$this->objects = $objects;
-
-		if ( $objects != array() && $count == null ) {
-			$this->count = count( $objects );
-		}
-		else {
-			$this->count = $count;
-		}
+		$this->count = $count;
 	}
 
 	/**
@@ -30,8 +24,8 @@ class Collection implements \Iterator, \ArrayAccess, \Countable {
 		$offset = $page * $limit;
 		$end = $offset + $limit;
 
-		if ( $end > $this->count ) {
-			$difference = $end - $this->count;
+		if ( $end > $this->count() ) {
+			$difference = $end - $this->count();
 			$limit = $limit - $difference;
 		}
 
@@ -72,7 +66,7 @@ class Collection implements \Iterator, \ArrayAccess, \Countable {
 	 * Get the number of pages
 	 */
 	public function numPages( $size = 10 ) {
-		return ceil( ( $this->count - 1 ) / $size );
+		return ceil( ( $this->count() - 1 ) / $size );
 	}
 
 	/**
@@ -163,14 +157,18 @@ class Collection implements \Iterator, \ArrayAccess, \Countable {
 	public function offsetUnset( $offset ) {
 		if ( $this->offsetExists( $offset ) ) {
 			unset( $this->objects[ $offset ] );
-			$this->count;
+			$this->count();
 		}
 	}
 
 	// Countable Interface
 
 	public function count() {
-		return $this->count;
+		if ( $this->count ) {
+			return $this->count;
+		}
+
+		return count( $this->objects );
 	}
 
 	/**

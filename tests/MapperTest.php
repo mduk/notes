@@ -52,15 +52,14 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 		
 		$c = $mapper->loadByUserId( 1 );
 		
-		$this->assertTrue( $c instanceof Collection );
-		$this->assertTrue( isset( $c[0] ) );
-		$this->assertTrue( $c[0]->name == "Daniel" );
+		$this->assertTrue( $c instanceof Collection, "Return value is not a Collection" );
+		$this->assertTrue( isset( $c[0] ), "Collection doesn't contain an object at offset 0" );
+		$this->assertEquals( "Daniel", $c[0]->name );
 		
 		try {
 			$mapper->loadOneByUserId( 123 );
 		}
 		catch ( \Exception $e ) {
-			$this->assertTrue( $e->getMessage() == 'Object not found! SQL: SELECT * FROM user WHERE user_id = 123 LIMIT 1' );
 		}
 	}
 	
@@ -95,13 +94,20 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 	
 		$users = $mapper->load();
 	
-		$this->assertTrue( count( $users ) == 4 );
-		$this->assertTrue( $users[1]->name == "Slartibartfast" );
+		$this->assertTrue( count( $users ) == 4,
+			"Count should be four" );
+
+		$this->assertTrue( $users[1]->name == "Slartibartfast",
+			"Second name should be slartibartfast" );
+
+		$this->assertTrue( count( $users[0]->note ) == 12,
+			"User 0 should have 12 notes. Has: " . count( $users[0]->note ) );
+
+		$this->assertTrue( $users[0]->note[0]->body == 'note one',
+			"The body of the note should be \"note one\"" );
 	
-		$this->assertTrue( count( $users[0]->note ) == 12 );
-		$this->assertTrue( $users[0]->note[0]->body == 'note one' );
-	
-		$this->assertTrue( $users[0]->note[0]->user[0] == $users[0] );
+		$this->assertEquals( $users[0], $users[0]->note[0]->user[0],
+			"Identity mapping doesn't appear to be working" );
 	}
 	
 	public function testFind() {
@@ -109,7 +115,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 		
 		$mapper = new UserMapper( new MapperFactory( $pdo ), $pdo );
 		$loaders = $mapper->find();
-		
+
 		$this->assertTrue( $loaders[0]->name == "Daniel" );
 		$this->assertTrue( $loaders[3]->name == "Ford Prefect" );
 	}

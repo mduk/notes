@@ -18,6 +18,7 @@ class Query {
 	protected $where;
 	protected $limit;
 	protected $offset = 0;
+	protected $expect;
 	
 	protected $collection;
 	protected $keyBy;
@@ -53,6 +54,15 @@ class Query {
 		}
 
 		$this->limit = $limit;
+		return $this;
+	}
+
+	public function expect( $expect = null ) {
+		if ( !$expect ) {
+			return $this->expect;
+		}
+
+		$this->expect = $expect;
 		return $this;
 	}
 

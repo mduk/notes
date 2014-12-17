@@ -61,6 +61,7 @@ trait MagicQueryBuilder {
 		
 		// Limit the number of records retrieved
 		if ( strpos( $method, 'One' ) === 0 ) {
+			$query->expect( 1 );
 			$query->limit( 1 );
 			$method = substr( $method, 3 );
 		}
@@ -132,30 +133,10 @@ trait MagicQueryBuilder {
 
 		// Exec: Load/Find
 		if ( $exec == 'load' ) {
-			$result = $query->load();
-		}
-		else {
-			$result = $query->find();
+			return $query->load();
 		}
 
-		// Looking for one record
-		if ( $query->limit() == 1 ) {
-			$count = $result->count();
-
-			if ( $count == 0 ) {
-				throw new \Exception( 'Object not found! SQL: ' . $query->toSql( $exec, true ) );
-			}
-
-			if ( $count > 1 ) {
-				throw new \Exception( 'Multiple objects found! SQL: ' . $query->toSql( $exec, true ) );
-			}
-
-			if ( $exec == 'load' ) {
-				$result = $result->shift();
-			}
-		}
-
-		return $result;
+		return $query->find();
 	}
 
 }

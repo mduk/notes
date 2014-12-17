@@ -3,6 +3,7 @@
 namespace Mduk\Rest;
 
 use Mduk\Mapper\Factory as MapperFactory;
+use Mduk\Mapper\Exception as MapperException;
 use Mduk\Transcoder\Factory as TranscoderFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
@@ -74,6 +75,15 @@ class Endpoint {
 			$response = new Response();
 			$response->setStatusCode( 404 );
 			return $response;
+		}
+		catch ( MapperException $e ) {
+			switch ( $e->getCode() ) {
+				case MapperException::UNEXPECTED_ROW_COUNT:
+					$response = new Response();
+					$status = ( $e->rowCount == 0 ) ? 404 : 500;
+					$response->setStatusCode( $status );
+					return $response;
+			}
 		}
 		catch ( EndpointException $e ) {
 			switch ( $e->getCode() ) {

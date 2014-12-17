@@ -35,7 +35,6 @@ class LazyCollection extends Collection {
 		if ( $this->count === null ) {
 			$this->count = $this->query->count();
 		}
-
 		return parent::count();
 	}
 }
