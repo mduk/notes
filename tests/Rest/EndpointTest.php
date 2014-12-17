@@ -62,7 +62,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( $decoded->user_id, 3 );
 	}
 
-	public function testGetNotes() {
+	public function testGetPaginatedNotes() {
 		$request = Request::create( 'http://localhost/user/1/note' );
 		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
@@ -75,6 +75,16 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( 10, count( $decoded ),
 			'Decoded result should be a first page of 10 items' );
+
+		$request = Request::create( 'http://localhost/user/1/note?page=2' );
+		$request->headers->set( 'Accept', 'application/json' );
+		$response = $this->endpoint->handle( $request );
+
+		$content = $response->getContent();
+		$decoded = json_decode( $content );
+
+		$this->assertEquals( 2, count( $decoded ),
+			'Decoded result should be a second page of 2 items' );
 	}
 
 }

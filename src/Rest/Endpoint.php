@@ -57,7 +57,8 @@ class Endpoint {
 			$collection = $query->load();
 
 			// What to encode?
-			$encode = $collection->page( 0 );
+			$page = $request->query->get( 'page', 1 );
+			$encode = $collection->page( $page - 1 );
 			if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
 				$encode = $collection->shift();
 			}
