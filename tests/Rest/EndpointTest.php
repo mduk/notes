@@ -70,7 +70,11 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
 
-		$this->assertTrue( is_array( $decoded ), 'Decoded result was not an array' );
+		$this->assertTrue( is_array( $decoded ),
+			'Decoded result was not an array' );
+
+		$this->assertEquals( 10, count( $decoded ),
+			'Decoded result should be a first page of 10 items' );
 	}
 
 }
