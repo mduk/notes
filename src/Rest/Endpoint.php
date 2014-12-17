@@ -73,7 +73,7 @@ class Endpoint {
 		$class = $route['query'];
 		$query = new $class( $this->mapperFactory );
 		foreach ( $route['bind'] as $bind ) {
-			$query->bindValue( ':' . $bind, $route[ $bind ] );
+			$query->bindValue( $bind, $route[ $bind ] );
 		}
 		return $query;
 	}

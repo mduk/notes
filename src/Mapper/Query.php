@@ -66,7 +66,7 @@ class Query {
 	}
 
 	public function bindValue( $placeholder, $value ) {
-		$this->boundValues[ $placeholder ] = $value;
+		$this->boundValues[ ':' . $placeholder ] = $value;
 	}
 
 	public function boundValues() {

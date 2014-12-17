@@ -84,7 +84,7 @@ trait MagicQueryBuilder {
 					throw new Exception( 'Missing field value: ' . $field );
 				}
 
-				$query->bindValue( ':' . $field, $value );
+				$query->bindValue( $field, $value );
 			}
 			$where = implode( ' AND ', $where );
 			$query->where( $where );
