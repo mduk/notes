@@ -28,6 +28,13 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$this->endpoint = new Endpoint( $routes, $mapperFactory, $transcoderFactory );
 	}
 
+	public function testNoMatchingRoute() {
+		$request = Request::create( 'http://localhost/not_found' );
+		$request->headers->set( 'Accept', 'application/json' );
+		$response = $this->endpoint->handle( $request );
+		$this->assertEquals( 404, $response->getStatusCode() );
+	}
+
 	public function testGetUser() {
 		$request = Request::create( 'http://localhost/user/3' );
 		$request->headers->set( 'Accept', 'application/json' );

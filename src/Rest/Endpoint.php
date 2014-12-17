@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class Endpoint {
 
@@ -41,32 +42,39 @@ class Endpoint {
 
 	public function handleGet( $request ) {
 
-		// Which Route matches this request?
-		$route = $this->matchRoute( $request );
+		try {
+			// Which Route matches this request?
+			$route = $this->matchRoute( $request );
 
-		// What is being requested?
-		$query = $this->resolveQuery( $request, $route ); 
+			// What is being requested?
+			$query = $this->resolveQuery( $request, $route ); 
 
-		// How should we encode it?
-		$transcoder = $this->resolveTranscoder( $request, $route );
+			// How should we encode it?
+			$transcoder = $this->resolveTranscoder( $request, $route );
 
-		// Get the objects.
-		$collection = $query->load();
+			// Get the objects.
+			$collection = $query->load();
 
-		// What to encode?
-		$encode = $collection->page( 0 );
-		if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
-			$encode = $collection->shift();
+			// What to encode?
+			$encode = $collection->page( 0 );
+			if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
+				$encode = $collection->shift();
+			}
+
+			// Encode them.
+			$encoded = $transcoder->encode( $encode );
+
+			// Respond
+			$response = new Response();
+			$response->setStatusCode( 200 );
+			$response->setContent( $encoded );
+			return $response;
 		}
-
-		// Encode them.
-		$encoded = $transcoder->encode( $encode );
-
-		// Respond
-		$response = new Response();
-		$response->setStatusCode(200);
-		$response->setContent( $encoded );
-		return $response;
+		catch ( ResourceNotFoundException $e ) {
+			$response = new Response();
+			$response->setStatusCode( 404 );
+			return $response;
+		}
 	}
 
 	protected function resolveQuery( $request, $route ) {
