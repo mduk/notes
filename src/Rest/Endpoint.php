@@ -32,47 +32,17 @@ class Endpoint {
 	}
 
 	public function handle( Request $request ) {
-		switch ( $request->getMethod() ) {
-			case Request::METHOD_GET:
-				return $this->handleGet( $request );
-
-			default:
-				throw new \Exception( "Unsupported method" );
-		}
-	}
-
-	public function handleGet( $request ) {
-
 		try {
-			// Which Route matches this request?
-			$route = $this->matchRoute( $request );
+			switch ( $request->getMethod() ) {
+				case Request::METHOD_GET:
+					return $this->handleGet( $request );
 
-			// What is being requested?
-			$query = $this->resolveQuery( $request, $route ); 
-
-			// How should we encode it?
-			$transcoder = $this->resolveTranscoder( $request, $route );
-
-			// Get the objects.
-			$collection = $query->load();
-
-			// What to encode?
-			if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
-				$encode = $collection->shift();
+				default:
+					throw new EndpointException(
+						"Unsupported method",
+						EndpointException::UNSUPPORTED_METHOD
+					);
 			}
-			else {
-				$page = $request->query->get( 'page', 1 );
-				$encode = $collection->page( $page - 1 );
-			}
-
-			// Encode them.
-			$encoded = $transcoder->encode( $encode );
-
-			// Respond
-			$response = new Response();
-			$response->setStatusCode( 200 );
-			$response->setContent( $encoded );
-			return $response;
 		}
 		catch ( ResourceNotFoundException $e ) {
 			$response = new Response();
@@ -94,11 +64,49 @@ class Endpoint {
 					$response = new Response();
 					$response->setStatusCode( 406 );
 					return $response;
+
+				case EndpointException::UNSUPPORTED_METHOD:
+					$response = new Response();
+					$response->setStatusCode( 501 );
+					return $response;
 				
 				default:
 					throw $e;
 			}
 		}
+	}
+
+	public function handleGet( $request ) {
+		// Which Route matches this request?
+		$route = $this->matchRoute( $request );
+
+		// What is being requested?
+		$query = $this->resolveQuery( $request, $route ); 
+
+		// How should we encode it?
+		$transcoder = $this->resolveTranscoder( $request, $route );
+
+		// Get the objects.
+		$collection = $query->load();
+
+		// What to encode?
+		if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
+			$encode = $collection->shift();
+		}
+		else {
+			$page = $request->query->get( 'page', 1 );
+			$encode = $collection->page( $page - 1 );
+		}
+
+		// Encode them.
+		$encoded = $transcoder->encode( $encode );
+
+		// Respond
+		$response = new Response();
+		$response->setStatusCode( 200 );
+		$response->setContent( $encoded );
+		return $response;
+
 	}
 
 	protected function resolveQuery( $request, $route ) {
@@ -151,5 +159,6 @@ class Endpoint {
 
 class EndpointException extends \Exception {
 	const CAN_NOT_FULFIL_ACCEPT_HEADER = 1;
+	const UNSUPPORTED_METHOD = 2;
 }
 

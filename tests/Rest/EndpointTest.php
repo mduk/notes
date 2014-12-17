@@ -51,6 +51,12 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals( 404, $response->getStatusCode() );
 	}
 
+	public function testUnsupportedMethod() {
+		$request = Request::create( 'http://localhost/user/invalid', 'NYANCAT' );
+		$response = $this->endpoint->handle( $request );
+		$this->assertEquals( 501, $response->getStatusCode() );
+	}
+
 	public function testGetUser() {
 		$request = Request::create( 'http://localhost/user/3' );
 		$request->headers->set( 'Accept', 'application/json' );
