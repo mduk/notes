@@ -5,6 +5,7 @@ namespace Mduk;
 use Mduk\Mapper\Query;
 use Mduk\Mapper\Factory as MapperFactory;
 use Mduk\Identity\Map\Memory as IdentityMapMemory;
+use Mduk\User\Mapper as UserMapper;
 
 class MapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -67,7 +68,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 		global $pdo;
 		
 		$factory = new MapperFactory( $pdo );
-		$mapper = $factory->get( '\\Mduk\\UserMapper' );
+		$mapper = $factory->get( '\\Mduk\\User\\Mapper' );
 		$query = new Query( $mapper, array( 'user_id' ), array( '*' ), 'COUNT( user_id )', 'user' );
 	
 		$this->assertTrue( $query->count() == 4 );
@@ -90,7 +91,7 @@ class MapperTest extends \PHPUnit_Framework_TestCase
 		
 		$identityMap = new IdentityMapMemory;
 		$factory = new MapperFactory( $pdo, $identityMap );
-		$mapper = $factory->get( '\\Mduk\\UserMapper' );
+		$mapper = $factory->get( '\\Mduk\\User\\Mapper' );
 	
 		$users = $mapper->load();
 	

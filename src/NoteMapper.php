@@ -27,7 +27,7 @@ class NoteMapper extends PdoMapper {
 		$note->user_id = $source->user_id;
 		$note->body = $source->body;
 
-		$note->user = $this->getMapper( '\\Mduk\\UserMapper' )
+		$note->user = $this->getMapper( '\\Mduk\\User\\Mapper' )
 			->findOneByUserId( $source->user_id );
 
 		return $note;

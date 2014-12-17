@@ -15,7 +15,7 @@ class Repository implements RepositoryInterface {
 	public function __construct( RepositoryFactory $repositoryFactory, MapperFactory $mapperFactory ) {
 		$this->repositoryFactory = $repositoryFactory;
 		$this->mapperFactory = $mapperFactory;
-		$this->userMapper = $this->mapperFactory->get( '\\Mduk\\UserMapper' );
+		$this->userMapper = $this->mapperFactory->get( '\\Mduk\\User\\Mapper' );
 	}
 
 	public function query() {
@@ -23,7 +23,7 @@ class Repository implements RepositoryInterface {
 	}
 
 	public function retrieve( Identity $identity ) {
-		$mapper = $this->mapperFactory->get( '\\Mduk\\UserMapper' );
+		$mapper = $this->mapperFactory->get( '\\Mduk\\User\\Mapper' );
 		$urn = $identity->getIdentity();
 
 		$numericId = substr( $urn, 10 ); // Totally legit
