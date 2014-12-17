@@ -33,9 +33,34 @@ class Endpoint {
 
 	public function handle( Request $request ) {
 		try {
+			// Which Route matches this request?
+			$route = $this->matchRoute( $request );
+
+			// What is being requested?
+			$collection = $this->resolveQuery( $request, $route )->load();
+
 			switch ( $request->getMethod() ) {
 				case Request::METHOD_GET:
-					return $this->handleGet( $request );
+					// How should we encode the response?
+					$transcoder = $this->resolveTranscoder( $request, $route );
+
+					// What to encode?
+					if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
+						$encode = $collection->shift();
+					}
+					else {
+						$page = $request->query->get( 'page', 1 );
+						$encode = $collection->page( $page - 1 );
+					}
+
+					// Encode them.
+					$encoded = $transcoder->encode( $encode );
+
+					// Respond
+					$response = new Response();
+					$response->setStatusCode( 200 );
+					$response->setContent( $encoded );
+					return $response;
 
 				default:
 					throw new EndpointException(
@@ -77,35 +102,6 @@ class Endpoint {
 	}
 
 	public function handleGet( $request ) {
-		// Which Route matches this request?
-		$route = $this->matchRoute( $request );
-
-		// What is being requested?
-		$query = $this->resolveQuery( $request, $route ); 
-
-		// How should we encode it?
-		$transcoder = $this->resolveTranscoder( $request, $route );
-
-		// Get the objects.
-		$collection = $query->load();
-
-		// What to encode?
-		if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
-			$encode = $collection->shift();
-		}
-		else {
-			$page = $request->query->get( 'page', 1 );
-			$encode = $collection->page( $page - 1 );
-		}
-
-		// Encode them.
-		$encoded = $transcoder->encode( $encode );
-
-		// Respond
-		$response = new Response();
-		$response->setStatusCode( 200 );
-		$response->setContent( $encoded );
-		return $response;
 
 	}
 

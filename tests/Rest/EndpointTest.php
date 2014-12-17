@@ -52,7 +52,20 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testUnsupportedMethod() {
+		$request = Request::create( 'http://localhost/user/1', 'NYANCAT' );
+		$response = $this->endpoint->handle( $request );
+		$this->assertEquals( 501, $response->getStatusCode() );
+	}
+
+	public function testThat404TakesPrecedenceOver501() {
 		$request = Request::create( 'http://localhost/user/invalid', 'NYANCAT' );
+		$response = $this->endpoint->handle( $request );
+		$this->assertEquals( 404, $response->getStatusCode() );
+	}
+
+	public function testThat501TakesPrecedenceOver406() {
+		$request = Request::create( 'http://localhost/user/1', 'NYANCAT' );
+		$request->headers->set( 'Accept', 'utter/nonsense' );
 		$response = $this->endpoint->handle( $request );
 		$this->assertEquals( 501, $response->getStatusCode() );
 	}
