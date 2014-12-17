@@ -3,6 +3,7 @@
 namespace Mduk\Rest;
 
 use Mduk\Mapper\Factory as MapperFactory;
+use Mduk\Transcoder\Factory as TranscoderFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
 
@@ -20,10 +21,12 @@ class Endpoint {
 
 	protected $routes;
 	protected $mapperFactory;
+	protected $transcoderFactory;
 
-	public function __construct( array $routes, MapperFactory $mapperFactory ) {
+	public function __construct( array $routes, MapperFactory $mapperFactory, TranscoderFactory $transcoderFactory ) {
 		$this->routes = $this->initialiseRoutes( $routes );
 		$this->mapperFactory = $mapperFactory;
+		$this->transcoderFactory = $transcoderFactory;
 	}
 
 	public function handle( Request $request ) {
@@ -76,7 +79,17 @@ class Endpoint {
 	}
 
 	protected function resolveTranscoder( $request, $route ) {
-		return new JsonTranscoder();
+		$mimes = $request->getAcceptableContentTypes();
+		foreach ( $mimes as $mime ) {
+			try {
+				return $this->transcoderFactory->getForMimeType( $mime );
+			}
+			catch ( \Exception $e ) {
+
+			}
+		}
+		
+		throw new \Exception("No transcoder found for any acceptable mime types: " . implode( ', ', $mimes ) );
 	}
 
 	protected function initialiseRoutes( $routeConfig ) {

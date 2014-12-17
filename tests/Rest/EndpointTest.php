@@ -4,7 +4,7 @@ namespace Mduk\Rest;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Mduk\Repository\Factory as RepositoryFactory;
+use Mduk\Transcoder\Factory as TranscoderFactory;
 use Mduk\Mapper\Factory as MapperFactory;
 
 class EndpointTest extends \PHPUnit_Framework_TestCase {
@@ -23,12 +23,14 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 				'bind' => array( 'user_id' )
 			)
 		);
+		$transcoderFactory = new TranscoderFactory();
 		$mapperFactory = new MapperFactory( $pdo );
-		$this->endpoint = new Endpoint( $routes, $mapperFactory );
+		$this->endpoint = new Endpoint( $routes, $mapperFactory, $transcoderFactory );
 	}
 
 	public function testGetUser() {
 		$request = Request::create( 'http://localhost/user/3' );
+		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
 
 		$this->assertTrue( $response instanceof Response );
@@ -41,6 +43,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 
 	public function testGetNotes() {
 		$request = Request::create( 'http://localhost/user/3/note' );
+		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
 
 		$content = $response->getContent();
