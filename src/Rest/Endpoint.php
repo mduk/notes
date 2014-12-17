@@ -75,6 +75,17 @@ class Endpoint {
 			$response->setStatusCode( 404 );
 			return $response;
 		}
+		catch ( EndpointException $e ) {
+			switch ( $e->getCode() ) {
+				case EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER:
+					$response = new Response();
+					$response->setStatusCode( 406 );
+					return $response;
+				
+				default:
+					throw $e;
+			}
+		}
 	}
 
 	protected function resolveQuery( $request, $route ) {
@@ -97,7 +108,10 @@ class Endpoint {
 			}
 		}
 		
-		throw new \Exception("No transcoder found for any acceptable mime types: " . implode( ', ', $mimes ) );
+		throw new EndpointException(
+			"No transcoder found for any acceptable mime types: " . implode( ', ', $mimes ),
+			EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER
+		);
 	}
 
 	protected function initialiseRoutes( $routeConfig ) {
@@ -111,10 +125,13 @@ class Endpoint {
 
 	protected function matchRoute( $request ) {
 		$context = new RequestContext();
-	//	$context->fromRequest( $request );
 		$matcher = new UrlMatcher($this->routes, $context);
 		return $matcher->matchRequest( $request );
 	}
 
+}
+
+class EndpointException extends \Exception {
+	const CAN_NOT_FULFIL_ACCEPT_HEADER = 1;
 }
 
