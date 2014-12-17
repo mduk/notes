@@ -30,7 +30,7 @@ class Mapper extends PdoMapper {
 		$user->email = $source->email;
 		$user->role = $source->role;
 
-		$user->note = $this->getMapper( '\\Mduk\\NoteMapper' )
+		$user->note = $this->getMapper( '\\Mduk\\Note\\Mapper' )
 			->lazyByUserId( $source->user_id );
 
 		return $user;
