@@ -117,6 +117,7 @@ class Endpoint {
 			if ( !in_array( $mime, $providedContentTypes ) ) {
 				continue;
 			}
+
 			try {
 				return $this->transcoderFactory->getForMimeType( $mime );
 			}
