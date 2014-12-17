@@ -111,8 +111,12 @@ class Endpoint {
 	}
 
 	protected function resolveTranscoder( $request, $route ) {
-		$mimes = $request->getAcceptableContentTypes();
-		foreach ( $mimes as $mime ) {
+		$providedContentTypes = isset( $route['content_types'] ) ? $route['content_types'] : array();
+		$acceptedContentTypes = $request->getAcceptableContentTypes();
+		foreach ( $acceptedContentTypes as $mime ) {
+			if ( !in_array( $mime, $providedContentTypes ) ) {
+				continue;
+			}
 			try {
 				return $this->transcoderFactory->getForMimeType( $mime );
 			}
@@ -122,7 +126,7 @@ class Endpoint {
 		}
 		
 		throw new EndpointException(
-			"No transcoder found for any acceptable mime types: " . implode( ', ', $mimes ),
+			"No transcoder found for any acceptable mime types",
 			EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER
 		);
 	}

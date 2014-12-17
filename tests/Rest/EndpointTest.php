@@ -16,11 +16,13 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 			'/user/{user_id}' => array(
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
-				'multiplicity' => 'one'
+				'multiplicity' => 'one',
+				'content_types' => array( 'application/json' )
 			),
 			'/user/{user_id}/note' => array(
 				'query' => '\\Mduk\\Note\\Query\\ByUserId',
-				'bind' => array( 'user_id' )
+				'bind' => array( 'user_id' ),
+				'content_types' => array( 'application/json' )
 			)
 		);
 		$transcoderFactory = new TranscoderFactory();
@@ -55,6 +57,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$response = $this->endpoint->handle( $request );
 
 		$this->assertTrue( $response instanceof Response );
+		$this->assertEquals( 200, $response->getStatusCode() );
 
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
@@ -66,6 +69,8 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$request = Request::create( 'http://localhost/user/1/note' );
 		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
+
+		$this->assertEquals( 200, $response->getStatusCode() );
 
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
@@ -79,6 +84,8 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$request = Request::create( 'http://localhost/user/1/note?page=2' );
 		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
+
+		$this->assertEquals( 200, $response->getStatusCode() );
 
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
