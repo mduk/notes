@@ -63,7 +63,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetNotes() {
-		$request = Request::create( 'http://localhost/user/3/note' );
+		$request = Request::create( 'http://localhost/user/1/note' );
 		$request->headers->set( 'Accept', 'application/json' );
 		$response = $this->endpoint->handle( $request );
 
