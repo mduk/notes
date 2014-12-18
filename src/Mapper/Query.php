@@ -5,8 +5,6 @@ namespace Mduk\Mapper;
 use Mduk\Mapper;
 use Mduk\Collection;
 
-use Mduk\Mapper\Query\Condition\Set as ConditionSet;
-
 class Query {
 	protected $mapper;
 	protected $boundValues = array();
@@ -42,7 +40,6 @@ class Query {
 
 	public function where( $where = null ) {
 		if (!$where) {
-			$this->where = new ConditionSet( $this );
 			return $this->where;
 		}
 		$this->where = $where;
