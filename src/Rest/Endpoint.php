@@ -101,10 +101,6 @@ class Endpoint {
 		}
 	}
 
-	public function handleGet( $request ) {
-
-	}
-
 	protected function resolveQuery( $request, $route ) {
 		$class = $route['query'];
 		$query = new $class( $this->mapperFactory );
