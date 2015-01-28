@@ -38,6 +38,10 @@ class Query {
 		$this->where = $where;
 	}
 
+	public function setOperation( $operation ) {
+		$this->operation = $operation;
+	}
+
 	public function where( $where = null ) {
 		if (!$where) {
 			return $this->where;
@@ -149,6 +153,19 @@ class Query {
 		}
 
 		return $sql;
+	}
+
+	public function execute() {
+		switch ( $this->operation ) {
+			case 'find':
+				return $this->mapper->executeFind( $this );
+
+			case 'load':
+				return $this->mapper->executeLoad( $this );
+
+			case 'count':
+				return $this->mapper->executeCount( $this );
+		}
 	}
 
 	/**

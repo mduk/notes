@@ -37,7 +37,7 @@ class Endpoint {
 			$route = $this->matchRoute( $request );
 
 			// What is being requested?
-			$collection = $this->resolveQuery( $request, $route )->load();
+			$collection = $this->resolveQuery( $request, $route )->execute();
 
 			switch ( $request->getMethod() ) {
 				case Request::METHOD_GET:
