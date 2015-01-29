@@ -13,16 +13,22 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		global $pdo;
 
 		$routes = array(
+			'/signup' => array(
+				'query' => '\\Mduk\\Signup\\Query\\Submit',
+				'methods' => array( 'POST' )
+			),
 			'/user/{user_id}' => array(
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
 				'multiplicity' => 'one',
-				'content_types' => array( 'application/json' )
+				'content_types' => array( 'application/json' ),
+				'methods' => array( 'GET' )
 			),
 			'/user/{user_id}/note' => array(
 				'query' => '\\Mduk\\Note\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
-				'content_types' => array( 'application/json' )
+				'content_types' => array( 'application/json' ),
+				'methods' => array( 'GET' )
 			)
 		);
 		$transcoderFactory = new TranscoderFactory();
@@ -53,6 +59,12 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 
 	public function testUnsupportedMethod() {
 		$request = Request::create( 'http://localhost/user/1', 'NYANCAT' );
+		$response = $this->endpoint->handle( $request );
+		$this->assertEquals( 501, $response->getStatusCode() );
+	}
+
+	public function testProhibitedMethod() {
+		$request = Request::create( 'http://localhost/signup', 'GET' );
 		$response = $this->endpoint->handle( $request );
 		$this->assertEquals( 501, $response->getStatusCode() );
 	}

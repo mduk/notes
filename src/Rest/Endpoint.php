@@ -39,6 +39,14 @@ class Endpoint {
 			// What is being requested?
 			$collection = $this->resolveQuery( $request, $route )->execute();
 
+			// Deny all methods that weren't declared
+			if ( !isset( $route['methods']) || !in_array( $request->getMethod(), $route['methods'] ) ) {
+				throw new EndpointException(
+					"Unsupported Method",
+					EndpointException::UNSUPPORTED_METHOD
+				);
+			}
+
 			switch ( $request->getMethod() ) {
 				case Request::METHOD_GET:
 					// How should we encode the response?
@@ -104,9 +112,15 @@ class Endpoint {
 	protected function resolveQuery( $request, $route ) {
 		$class = $route['query'];
 		$query = new $class( $this->mapperFactory );
+
+		if ( !isset( $route['bind'] ) ) {
+			return $query;
+		}
+
 		foreach ( $route['bind'] as $bind ) {
 			$query->bindValue( $bind, $route[ $bind ] );
 		}
+
 		return $query;
 	}
 
