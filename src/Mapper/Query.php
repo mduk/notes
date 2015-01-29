@@ -8,7 +8,9 @@ use Mduk\Collection;
 class Query {
 	protected $mapper;
 	protected $boundValues = array();
-	
+
+	protected $operation;
+
 	protected $findSelect;
 	protected $loadSelect;
 	protected $countSelect;
