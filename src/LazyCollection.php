@@ -38,3 +38,4 @@ class LazyCollection extends Collection {
 		return parent::count();
 	}
 }
+
