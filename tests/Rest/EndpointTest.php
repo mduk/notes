@@ -93,7 +93,12 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$content = $response->getContent();
 		$decoded = json_decode( $content );
 
-		$this->assertEquals( $decoded->user_id, 3 );
+		$this->assertInstanceOf( '\\stdClass', $decoded,
+			"Result should be a stdClass" );
+		$this->assertTrue( isset( $decoded->user_id ),
+			"Result should have a user_id property" );
+		$this->assertEquals( $decoded->user_id, 3,
+			"Result should have a user_id property of 3" );
 	}
 
 	public function testGetPaginatedNotes() {
