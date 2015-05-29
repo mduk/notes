@@ -12,20 +12,6 @@ class Collection implements \Iterator, \ArrayAccess, \Countable {
 		$this->count = $count;
 	}
 
-	public function toPrimitive() {
-		$a = $this->objects;
-		foreach ( $a as $k => $v ) {
-			if ( is_a( $v, '\\Mduk\\Model' ) ) {
-				$a[ $k ] = $v->toPrimitive();
-			}
-
-			if ( is_a( $v, '\\Mduk\\Collection' ) ) {
-				$a[ $k ] = $v->toPrimitive();
-			}
-		}
-		return $a;
-	}
-
 	/**
 	 * Retrieve one page of objects, if a page extends beyond
 	 * the end of the collection, the last page is cut short.
