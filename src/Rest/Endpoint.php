@@ -2,8 +2,7 @@
 
 namespace Mduk\Rest;
 
-use Mduk\Mapper\Factory as MapperFactory;
-use Mduk\Mapper\Exception as MapperException;
+use Mduk\Service\Factory as ServiceFactory;
 use Mduk\Transcoder\Factory as TranscoderFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
@@ -22,12 +21,16 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 class Endpoint {
 
 	protected $routes;
-	protected $mapperFactory;
+  protected $serviceFactory;
 	protected $transcoderFactory;
 
-	public function __construct( array $routes, MapperFactory $mapperFactory, TranscoderFactory $transcoderFactory ) {
+	public function __construct(
+    array $routes,
+    ServiceFactory $serviceFactory,
+    TranscoderFactory $transcoderFactory
+  ) {
 		$this->routes = $this->initialiseRoutes( $routes );
-		$this->mapperFactory = $mapperFactory;
+    $this->serviceFactory = $serviceFactory;
 		$this->transcoderFactory = $transcoderFactory;
 	}
 
@@ -35,9 +38,6 @@ class Endpoint {
 		try {
 			// Which Route matches this request?
 			$route = $this->matchRoute( $request );
-
-			// What is being requested?
-			$collection = $this->resolveQuery( $request, $route )->execute();
 
 			// Deny all methods that weren't declared
 			if ( !isset( $route[ $request->getMethod() ] ) ) {
@@ -47,16 +47,32 @@ class Endpoint {
 				);
 			}
 
+      $service = $this->serviceFactory->get( $route['service'] );
       $routeMethod = $route[ $request->getMethod() ];
+
+      // How should we encode the response?
+      $transcoder = $this->resolveTranscoder( $request, $routeMethod );
 
 			switch ( $request->getMethod() ) {
 				case Request::METHOD_GET:
-					// How should we encode the response?
-					$transcoder = $this->resolveTranscoder( $request, $routeMethod );
+          $serviceRequest = $service->request( $routeMethod['call'] );
+ 
+          foreach ( $route['bind'] as $bind ) {
+            $serviceRequest->setParameter( $bind, $route[ $bind ] );
+          }
 
-					// What to encode?
+          $collection = $serviceRequest->execute()->getResults();
+
+					// What to encode? Just one, or a page.
 					if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
 						$encode = $collection->shift();
+
+            // If the multiplicity is one, then we expect one.
+            if ( !$encode ) {
+              $response = new Response();
+              $response->setStatusCode( 404 );
+              return $response;
+            }
 					}
 					else {
 						$page = $request->query->get( 'page', 1 );
@@ -84,6 +100,8 @@ class Endpoint {
 			$response->setStatusCode( 404 );
 			return $response;
 		}
+    /*
+      This might have something to do with making the 404 over 501 test pass again...
 		catch ( MapperException $e ) {
 			switch ( $e->getCode() ) {
 				case MapperException::UNEXPECTED_ROW_COUNT:
@@ -93,6 +111,7 @@ class Endpoint {
 					return $response;
 			}
 		}
+    */
 		catch ( EndpointException $e ) {
 			switch ( $e->getCode() ) {
 				case EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER:
@@ -109,21 +128,6 @@ class Endpoint {
 					throw $e;
 			}
 		}
-	}
-
-	protected function resolveQuery( $request, $route ) {
-		$class = $route['query'];
-		$query = new $class( $this->mapperFactory );
-
-		if ( !isset( $route['bind'] ) ) {
-			return $query;
-		}
-
-		foreach ( $route['bind'] as $bind ) {
-			$query->bindValue( $bind, $route[ $bind ] );
-		}
-
-		return $query;
 	}
 
 	protected function resolveTranscoder( $request, $route ) {
