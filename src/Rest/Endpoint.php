@@ -40,20 +40,22 @@ class Endpoint {
 			$collection = $this->resolveQuery( $request, $route )->execute();
 
 			// Deny all methods that weren't declared
-			if ( !isset( $route['methods']) || !in_array( $request->getMethod(), $route['methods'] ) ) {
+			if ( !isset( $route[ $request->getMethod() ] ) ) {
 				throw new EndpointException(
 					"Unsupported Method",
 					EndpointException::UNSUPPORTED_METHOD
 				);
 			}
 
+      $routeMethod = $route[ $request->getMethod() ];
+
 			switch ( $request->getMethod() ) {
 				case Request::METHOD_GET:
 					// How should we encode the response?
-					$transcoder = $this->resolveTranscoder( $request, $route );
+					$transcoder = $this->resolveTranscoder( $request, $routeMethod );
 
 					// What to encode?
-					if ( isset( $route['multiplicity'] ) && $route['multiplicity'] == 'one' ) {
+					if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
 						$encode = $collection->shift();
 					}
 					else {
@@ -128,12 +130,12 @@ class Endpoint {
 		$providedContentTypes = isset( $route['content_types'] ) ? $route['content_types'] : array();
 		$acceptedContentTypes = $request->getAcceptableContentTypes();
 		foreach ( $acceptedContentTypes as $mime ) {
-			if ( !in_array( $mime, $providedContentTypes ) ) {
+      if ( !isset( $providedContentTypes[ $mime ] ) ) {
 				continue;
 			}
 
 			try {
-				return $this->transcoderFactory->getForMimeType( $mime );
+				return $this->transcoderFactory->getTranscoder( $providedContentTypes[ $mime ] );
 			}
 			catch ( \Exception $e ) {
 

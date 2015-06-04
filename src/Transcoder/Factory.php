@@ -4,9 +4,21 @@ namespace Mduk\Transcoder;
 
 class Factory {
 	protected $mimes = array(
-		'application/json' => '\\Mduk\\Transcoder\\Json'
+		'application/json' => '\\Mduk\\Transcoder\\Json',
+		'text/html' => '\\Mduk\\Transcoder\\Html'
 	);
 	protected $transcoders = array();
+
+  public function getTranscoder( $uri ) {
+    $bits = parse_url( $uri );
+    $class = $bits['path'];
+    $params = [];
+    if ( isset( $bits['query'] ) ) {
+      parse_str( $bits['query'], $params );
+    }
+
+    return new $class( $params );
+  }
 
 	public function getForMimeType( $mime ) {
 		if ( !isset( $this->mimes[ $mime ] ) ) {

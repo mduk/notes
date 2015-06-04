@@ -15,20 +15,31 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		$routes = array(
 			'/signup' => array(
 				'query' => '\\Mduk\\Signup\\Query\\Submit',
-				'methods' => array( 'POST' )
+        'POST' => [
+          'content_types' => [
+            'application/json' => '\\Mduk\\Transcoder\\Json'
+          ]
+        ]
 			),
 			'/user/{user_id}' => array(
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
-				'multiplicity' => 'one',
-				'content_types' => array( 'application/json' ),
-				'methods' => array( 'GET' )
+        'GET' => [
+          'multiplicity' => 'one',
+          'content_types' => [
+            'text/html' => '\\Mduk\\Transcoder\\Html?template=user',
+            'application/json' => '\\Mduk\\Transcoder\\Json'
+          ],
+        ]
 			),
 			'/user/{user_id}/note' => array(
 				'query' => '\\Mduk\\Note\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
-				'content_types' => array( 'application/json' ),
-				'methods' => array( 'GET' )
+        'GET' => [
+          'content_types' => [
+            'application/json' => '\\Mduk\\Transcoder\\Json'
+          ]
+        ]
 			)
 		);
 		$transcoderFactory = new TranscoderFactory();
