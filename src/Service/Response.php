@@ -9,7 +9,7 @@ class Response {
   protected $query;
   protected $results;
 
-  public function __construct( Query $q ) {
+  public function __construct( Request $q ) {
     $this->query = $q;
   }
 
@@ -27,7 +27,7 @@ class Response {
     return $this->results;
   }
 
-  public function getQuery() {
+  public function getRequest() {
     return $this->query;
   }
 }

@@ -4,7 +4,7 @@ namespace Mduk\Service;
 
 use Mduk\Service;
 
-class Query {
+class Request {
   protected $service;
   protected $call;
 
