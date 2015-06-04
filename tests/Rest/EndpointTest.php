@@ -13,14 +13,6 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 		global $pdo;
 
 		$routes = array(
-			'/signup' => array(
-				'query' => '\\Mduk\\Signup\\Query\\Submit',
-        'POST' => [
-          'content_types' => [
-            'application/json' => '\\Mduk\\Transcoder\\Json'
-          ]
-        ]
-			),
 			'/user/{user_id}' => array(
 				'query' => '\\Mduk\\User\\Query\\ByUserId',
 				'bind' => array( 'user_id' ),
@@ -75,7 +67,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testProhibitedMethod() {
-		$request = Request::create( 'http://localhost/signup', 'GET' );
+		$request = Request::create( 'http://localhost/user/1/note', 'POST' );
 		$response = $this->endpoint->handle( $request );
 		$this->assertEquals( 501, $response->getStatusCode() );
 	}
