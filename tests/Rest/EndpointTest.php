@@ -4,9 +4,9 @@ namespace Mduk\Rest;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Mduk\Transcoder\Factory as TranscoderFactory;
+
+use Mduk\Factory;
 use Mduk\Mapper\Factory as MapperFactory;
-use Mduk\Service\Factory as ServiceFactory;
 
 use Mduk\User\Mapper as UserMapper;
 use Mduk\User\Service as UserService;
@@ -17,7 +17,7 @@ use Mduk\Note\Service as NoteService;
 class EndpointTest extends \PHPUnit_Framework_TestCase {
 
   protected function initTranscoderFactory() {
-    $transcoderFactory = new TranscoderFactory;
+    $transcoderFactory = new Factory;
 
     $transcoderFactory->setFactory( 'generic/json', function() {
       return new \Mduk\Transcoder\Json;
@@ -34,7 +34,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
     global $pdo;
 
     $mapperFactory = new MapperFactory( $pdo );
-    $serviceFactory = new ServiceFactory();
+    $serviceFactory = new Factory();
 
     $serviceFactory->setFactory( 'user', function() use ( $mapperFactory, $pdo ) {
       return new UserService( new UserMapper( $mapperFactory, $pdo ) );

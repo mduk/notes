@@ -2,10 +2,8 @@
 
 namespace Mduk\Rest;
 
-use Mduk\Service\Factory as ServiceFactory;
+use Mduk\Factory;
 use Mduk\Service\Exception as ServiceException;
-
-use Mduk\Transcoder\Factory as TranscoderFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
 
@@ -28,8 +26,8 @@ class Endpoint {
 
   public function __construct(
     array $routes,
-    ServiceFactory $serviceFactory,
-    TranscoderFactory $transcoderFactory
+    Factory $serviceFactory,
+    Factory $transcoderFactory
   ) {
     $this->routes = $this->initialiseRoutes( $routes );
     $this->serviceFactory = $serviceFactory;
