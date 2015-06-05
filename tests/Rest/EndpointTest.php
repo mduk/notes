@@ -50,9 +50,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
   public function setUp() {
     $routes = [
       '/user/{user_id}' => [
-        'query' => '\\Mduk\\User\\Query\\ByUserId',
         'service' => 'user',
-
         'bind' => [ 'user_id' ],
         'GET' => [
           'call' => 'getById',
@@ -64,9 +62,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         ]
       ],
       '/user/{user_id}/note' => [
-        'query' => '\\Mduk\\Note\\Query\\ByUserId',
         'service' => 'note',
-
         'bind' => [ 'user_id' ],
         'GET' => [
           'call' => 'getByUserId',
