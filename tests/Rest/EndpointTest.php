@@ -28,7 +28,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         'GET' => [
           'call' => 'getById',
           'multiplicity' => 'one',
-          'content_types' => [
+          'transcoders' => [
             'text/html' => '\\Mduk\\Transcoder\\Html?template=user',
             'application/json' => '\\Mduk\\Transcoder\\Json'
           ],
@@ -41,7 +41,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         'bind' => array( 'user_id' ),
         'GET' => [
           'call' => 'getByUserId',
-          'content_types' => [
+          'transcoders' => [
             'application/json' => '\\Mduk\\Transcoder\\Json'
           ]
         ]

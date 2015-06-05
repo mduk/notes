@@ -127,7 +127,7 @@ class Endpoint {
   }
 
   protected function resolveTranscoder( $request, $route ) {
-    $providedContentTypes = isset( $route['content_types'] ) ? $route['content_types'] : array();
+    $providedContentTypes = isset( $route['transcoders'] ) ? $route['transcoders'] : array();
     $acceptedContentTypes = $request->getAcceptableContentTypes();
     foreach ( $acceptedContentTypes as $mime ) {
       if ( !isset( $providedContentTypes[ $mime ] ) ) {
