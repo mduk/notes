@@ -47,8 +47,16 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         ]
       ]
     ];
-    $transcoderFactory = new TranscoderFactory();
+    $transcoderFactory = new TranscoderFactory;
+    $transcoderFactory->setFactory( 'generic/json', function() {
+      return new \Mduk\Transcoder\Json;
+    } );
+    $transcoderFactory->setFactory( 'html/template/page/user', function() {
+      return new \Mduk\User\Transcoder\Html\Page( dirname( __FILE__ ) . '/../../templates/' );
+    } );
+
     $mapperFactory = new MapperFactory( $pdo );
+
     $serviceFactory = new ServiceFactory();
 
     $serviceFactory->setFactory( 'user', function() use ( $mapperFactory, $pdo ) {

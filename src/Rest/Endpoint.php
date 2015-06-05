@@ -135,7 +135,7 @@ class Endpoint {
       }
 
       try {
-        return $this->transcoderFactory->getTranscoder( $providedContentTypes[ $mime ] );
+        return $this->transcoderFactory->get( $providedContentTypes[ $mime ] );
       }
       catch ( \Exception $e ) {
 

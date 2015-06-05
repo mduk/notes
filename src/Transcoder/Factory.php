@@ -2,17 +2,9 @@
 
 namespace Mduk\Transcoder;
 
-class Factory {
-  public function getTranscoder( $transcoder ) {
-    switch ( $transcoder ) {
-      case 'generic/json':
-        return new Json;
+use Mduk\Factory as BaseFactory;
 
-      case 'html/template/page/user':
-        return new \Mduk\User\Transcoder\Html\Page( dirname( __FILE__ ) . '/../../templates/' );
-    }
-  }
+class Factory extends BaseFactory {
+
 }
-
-class FactoryException extends \Exception {}
 

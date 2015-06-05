@@ -2,19 +2,9 @@
 
 namespace Mduk\Service;
 
-class Factory {
-  public function get( $type ) {
-    if ( !isset( $this->factories[ $type ] ) ) {
-      throw new \Exception( "No factory for type: {$type}" );
-    }
+use Mduk\Factory as BaseFactory;
 
-    $factory = $this->factories[ $type ];
+class Factory extends BaseFactory {
 
-    return $factory();
-  }
-
-  public function setFactory( $type, \Closure $factory ) {
-    $this->factories[ $type ] = $factory;
-  }
 }
 
