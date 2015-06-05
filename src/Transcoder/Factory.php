@@ -3,13 +3,14 @@
 namespace Mduk\Transcoder;
 
 class Factory {
-	protected $transcoders = [
-    'generic/json' => '\\Mduk\\Transcoder\\Json'
-  ];
-
   public function getTranscoder( $transcoder ) {
-    $class = $this->transcoders[ $transcoder ];
-    return new $class( $params );
+    switch ( $transcoder ) {
+      case 'generic/json':
+        return new Json;
+
+      case 'html/template/page/user':
+        return new \Mduk\User\Transcoder\Html\Page( dirname( __FILE__ ) . '/../../templates/' );
+    }
   }
 }
 

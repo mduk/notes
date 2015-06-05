@@ -132,6 +132,20 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
       "Result should have a user_id property of 3" );
   }
 
+  public function testGetHtmlUser() {
+    $request = Request::create( 'http://localhost/user/3' );
+    $request->headers->set( 'Accept', 'text/html' );
+    $response = $this->endpoint->handle( $request );
+
+    $this->assertTrue( $response instanceof Response );
+    $this->assertEquals( 200, $response->getStatusCode() );
+
+    $content = $response->getContent();
+
+    $this->assertContains( '<html>', $content,
+      "Response body should contain an html tag." );
+  }
+
   public function testGetPaginatedNotes() {
     $request = Request::create( 'http://localhost/user/1/note' );
     $request->headers->set( 'Accept', 'application/json' );
