@@ -16,9 +16,38 @@ use Mduk\Note\Service as NoteService;
 
 class EndpointTest extends \PHPUnit_Framework_TestCase {
 
-  public function setUp() {
+  protected function initTranscoderFactory() {
+    $transcoderFactory = new TranscoderFactory;
+
+    $transcoderFactory->setFactory( 'generic/json', function() {
+      return new \Mduk\Transcoder\Json;
+    } );
+
+    $transcoderFactory->setFactory( 'html/template/page/user', function() {
+      return new \Mduk\User\Transcoder\Html\Page( dirname( __FILE__ ) . '/../../templates/' );
+    } );
+
+    return $transcoderFactory;
+  }
+
+  protected function initServiceFactory() {
     global $pdo;
 
+    $mapperFactory = new MapperFactory( $pdo );
+    $serviceFactory = new ServiceFactory();
+
+    $serviceFactory->setFactory( 'user', function() use ( $mapperFactory, $pdo ) {
+      return new UserService( new UserMapper( $mapperFactory, $pdo ) );
+    } );
+
+    $serviceFactory->setFactory( 'note', function() use ( $mapperFactory, $pdo ) {
+      return new NoteService( new NoteMapper( $mapperFactory, $pdo ) );
+    } );
+
+    return $serviceFactory;
+  }
+
+  public function setUp() {
     $routes = [
       '/user/{user_id}' => [
         'query' => '\\Mduk\\User\\Query\\ByUserId',
@@ -47,27 +76,8 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         ]
       ]
     ];
-    $transcoderFactory = new TranscoderFactory;
-    $transcoderFactory->setFactory( 'generic/json', function() {
-      return new \Mduk\Transcoder\Json;
-    } );
-    $transcoderFactory->setFactory( 'html/template/page/user', function() {
-      return new \Mduk\User\Transcoder\Html\Page( dirname( __FILE__ ) . '/../../templates/' );
-    } );
 
-    $mapperFactory = new MapperFactory( $pdo );
-
-    $serviceFactory = new ServiceFactory();
-
-    $serviceFactory->setFactory( 'user', function() use ( $mapperFactory, $pdo ) {
-      return new UserService( new UserMapper( $mapperFactory, $pdo ) );
-    } );
-
-    $serviceFactory->setFactory( 'note', function() use ( $mapperFactory, $pdo ) {
-      return new NoteService( new NoteMapper( $mapperFactory, $pdo ) );
-    } );
-
-    $this->endpoint = new Endpoint( $routes, $serviceFactory, $transcoderFactory );
+    $this->endpoint = new Endpoint( $routes, $this->initServiceFactory(), $this->initTranscoderFactory() );
   }
 
   public function testInvalidAcceptType() {
