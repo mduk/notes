@@ -3,6 +3,8 @@
 namespace Mduk\Rest;
 
 use Mduk\Service\Factory as ServiceFactory;
+use Mduk\Service\Exception as ServiceException;
+
 use Mduk\Transcoder\Factory as TranscoderFactory;
 
 use Mduk\Identity\Stub as IdentityStub;
@@ -47,71 +49,65 @@ class Endpoint {
         );
       }
 
+      $routeMethod = $route[ $request->getMethod() ];
+
       $service = $this->serviceFactory->get( $route['service'] );
       $routeMethod = $route[ $request->getMethod() ];
 
       // How should we encode the response?
       $transcoder = $this->resolveTranscoder( $request, $routeMethod );
 
-      switch ( $request->getMethod() ) {
-        case Request::METHOD_GET:
-          $serviceRequest = $service->request( $routeMethod['call'] );
- 
-          foreach ( $route['bind'] as $bind ) {
-            $serviceRequest->setParameter( $bind, $route[ $bind ] );
-          }
+      $serviceRequest = $service->request( $routeMethod['call'] );
 
-          $collection = $serviceRequest->execute()->getResults();
-
-          // What to encode? Just one, or a page.
-          if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
-            $encode = $collection->shift();
-
-            // If the multiplicity is one, then we expect one.
-            if ( !$encode ) {
-              $response = new Response();
-              $response->setStatusCode( 404 );
-              return $response;
-            }
-          }
-          else {
-            $page = $request->query->get( 'page', 1 );
-            $encode = $collection->page( $page - 1 );
-          }
-
-          // Encode them.
-          $encoded = $transcoder->encode( $encode );
-
-          // Respond
-          $response = new Response();
-          $response->setStatusCode( 200 );
-          $response->setContent( $encoded );
-          return $response;
-
-        default:
-          throw new EndpointException(
-            "Unsupported method",
-            EndpointException::UNSUPPORTED_METHOD
-          );
+      foreach ( $route['bind'] as $bind ) {
+        $serviceRequest->setParameter( $bind, $route[ $bind ] );
       }
+
+      $collection = $serviceRequest->execute()->getResults();
+
+      // What to encode? Just one, or a page.
+      if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
+        $encode = $collection->shift();
+
+        // If the multiplicity is one, then we expect one.
+        if ( !$encode ) {
+          $response = new Response();
+          $response->setStatusCode( 404 );
+          return $response;
+        }
+      }
+      else {
+        $page = $request->query->get( 'page', 1 );
+        $encode = $collection->page( $page - 1 );
+      }
+
+      // Encode them.
+      $encoded = $transcoder->encode( $encode );
+
+      // Respond
+      $response = new Response();
+      $response->setStatusCode( 200 );
+      $response->setContent( $encoded );
+      return $response;
     }
     catch ( ResourceNotFoundException $e ) {
       $response = new Response();
       $response->setStatusCode( 404 );
       return $response;
     }
-    /*
-      This might have something to do with making the 404 over 501 test pass again...
-    catch ( MapperException $e ) {
+    catch ( ServiceException $e ) {
       switch ( $e->getCode() ) {
-        case MapperException::UNEXPECTED_ROW_COUNT:
+        case ServiceException::RESOURCE_NOT_FOUND:
           $response = new Response();
-          $status = ( $e->rowCount == 0 ) ? 404 : 500;
-          $response->setStatusCode( $status );
+          $response->setStatusCode( 404 );
+          return $response;
+
+        default:
+          $response = new Response();
+          $response->setStatusCode( 500 );
           return $response;
       }
     }
-    */
     catch ( EndpointException $e ) {
       switch ( $e->getCode() ) {
         case EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER:

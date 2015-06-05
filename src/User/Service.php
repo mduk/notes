@@ -5,6 +5,7 @@ namespace Mduk\User;
 use Mduk\Service as ServiceInterface;
 use Mduk\Service\Request as ServiceRequest;
 use Mduk\Service\Response as ServiceResponse;
+use Mduk\Service\Exception as ServiceException;
 
 class Service implements ServiceInterface {
 
@@ -32,7 +33,16 @@ class Service implements ServiceInterface {
   }
 
   protected function getById( $user_id, ServiceResponse $r ) {
-    return $r->setResults( $this->userMapper->findByUserId( $user_id ) );
+    $collection = $this->userMapper->findByUserId( $user_id );
+
+    if ( $collection->count() == 0 ) {
+      throw new Service\Exception(
+        "Invalid User ID: {$user_id}",
+        Service\Exception::RESOURCE_NOT_FOUND
+      );
+    }
+
+    return $r->setResults( $collection );
   }
 
 }
