@@ -19,12 +19,12 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
   public function setUp() {
     global $pdo;
 
-    $routes = array(
-      '/user/{user_id}' => array(
+    $routes = [
+      '/user/{user_id}' => [
         'query' => '\\Mduk\\User\\Query\\ByUserId',
         'service' => 'user',
 
-        'bind' => array( 'user_id' ),
+        'bind' => [ 'user_id' ],
         'GET' => [
           'call' => 'getById',
           'multiplicity' => 'one',
@@ -33,20 +33,20 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
             'application/json' => 'generic/json'
           ],
         ]
-      ),
-      '/user/{user_id}/note' => array(
+      ],
+      '/user/{user_id}/note' => [
         'query' => '\\Mduk\\Note\\Query\\ByUserId',
         'service' => 'note',
 
-        'bind' => array( 'user_id' ),
+        'bind' => [ 'user_id' ],
         'GET' => [
           'call' => 'getByUserId',
           'transcoders' => [
             'application/json' => 'generic/json'
           ]
         ]
-      )
-    );
+      ]
+    ];
     $transcoderFactory = new TranscoderFactory();
     $mapperFactory = new MapperFactory( $pdo );
     $serviceFactory = new ServiceFactory();
