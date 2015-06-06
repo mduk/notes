@@ -28,7 +28,15 @@ class Shim implements Service {
     $result = call_user_func_array( $callback, $args );
 
     if ( is_array( $result ) ) {
-      $results = new Collection( $result );
+      $isAssoc = ( array_keys( $result ) !== range( 0, count( $result ) - 1 ) );
+
+      if ( !$isAssoc ) {
+        $results = new Collection( $result );
+      }
+      else {
+        $results = new Collection;
+        $results[] = $result;
+      }
     }
     else {
       $results = new Collection;
