@@ -88,6 +88,7 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
           'multiplicity' => 'one',
           'transcoders' => [
             'outgoing' => [
+              'text/plain' => 'generic/text',
               'text/html' => 'html/template/page/user',
               'application/json' => 'generic/json'
             ]
@@ -194,6 +195,20 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
       "Result should have a user_id property" );
     $this->assertEquals( $decoded->user_id, 3,
       "Result should have a user_id property of 3" );
+  }
+
+  public function testGetTextUser() {
+    $request = Request::create( 'http://localhost/user/3' );
+    $request->headers->set( 'Accept', 'text/plain' );
+    $response = $this->endpoint->handle( $request );
+
+    $this->assertTrue( $response instanceof Response );
+    $this->assertEquals( 200, $response->getStatusCode() );
+
+    $content = $response->getContent();
+
+    $this->assertContains( "Mduk\\User Object\n(", $content,
+      "Response should look like a PHP print dump of a Mduk\\User object." );
   }
 
   public function testGetHtmlUser() {
