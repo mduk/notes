@@ -36,10 +36,10 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
   }
 
   protected function initServiceFactory() {
-    global $pdo;
+    global $pdo, $log;
 
     $mapperFactory = new MapperFactory( $pdo );
-    $serviceFactory = new Factory();
+    $serviceFactory = new Factory( [], $log );
 
     $serviceFactory->setFactory( 'user', function() use ( $mapperFactory, $pdo ) {
       return new UserService( new UserMapper( $mapperFactory, $pdo ) );
