@@ -1,6 +1,6 @@
 <?php
 
-namespace Mduk\Transcoder;
+namespace Mduk\Transcoder\Generic;
 
 use Mduk\Transcoder;
 

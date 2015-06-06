@@ -21,11 +21,11 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
     $transcoderFactory = new Factory;
 
     $transcoderFactory->setFactory( 'generic/text', function() {
-      return new \Mduk\Transcoder\Text;
+      return new \Mduk\Transcoder\Generic\Text;
     } );
 
     $transcoderFactory->setFactory( 'generic/json', function() {
-      return new \Mduk\Transcoder\Json;
+      return new \Mduk\Transcoder\Generic\Json;
     } );
 
     $transcoderFactory->setFactory( 'html/template/page/user', function() {
