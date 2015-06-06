@@ -48,7 +48,7 @@ class Endpoint {
       if ( !isset( $route[ $request->getMethod() ] ) ) {
         throw new EndpointException(
           "Unsupported Method",
-          EndpointException::UNSUPPORTED_METHOD
+          EndpointException::METHOD_NOT_ALLOWED
         );
       }
 
@@ -160,7 +160,7 @@ class Endpoint {
           $response->setStatusCode( 406 );
           return $response;
 
-        case EndpointException::UNSUPPORTED_METHOD:
+        case EndpointException::METHOD_NOT_ALLOWED:
           $response = new Response();
           $response->setStatusCode( 501 );
           return $response;
@@ -209,7 +209,7 @@ class Endpoint {
 }
 
 class EndpointException extends \Exception {
-  const UNSUPPORTED_METHOD = 2;
+  const METHOD_NOT_ALLOWED = 405;
   const NOT_ACCEPTABLE = 406;
   const UNSUPPORTED_MEDIA_TYPE = 415;
 }
