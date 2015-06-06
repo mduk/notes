@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use Mduk\Factory;
+use Mduk\Service\Shim as ServiceShim;
 use Mduk\Mapper\Factory as MapperFactory;
 
 use Mduk\User\Mapper as UserMapper;
@@ -18,6 +19,10 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
 
   protected function initTranscoderFactory() {
     $transcoderFactory = new Factory;
+
+    $transcoderFactory->setFactory( 'generic/text', function() {
+      return new \Mduk\Transcoder\Text;
+    } );
 
     $transcoderFactory->setFactory( 'generic/json', function() {
       return new \Mduk\Transcoder\Json;
@@ -44,11 +49,37 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
       return new NoteService( new NoteMapper( $mapperFactory, $pdo ) );
     } );
 
+    $serviceFactory->setFactory( 'mustache', function() {
+      $renderer = new \Mustache_Engine( [
+        'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../../templates' )
+      ] );
+
+      $shim = new ServiceShim;
+      $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
+      return $shim;
+    } );
+
     return $serviceFactory;
   }
 
   public function setUp() {
     $routes = [
+      '/srv/mustache/{template}' => [
+        'service' => 'mustache',
+        'bind' => [ 'template' ],
+        'POST' => [
+          'call' => 'render',
+          'multiplicity' => 'one',
+          'transcoders' => [
+            'incoming' => [
+              'application/json' => 'generic/json'
+            ],
+            'outgoing' => [
+              'text/plain' => 'generic/text'
+            ]
+          ]
+        ]
+      ],
       '/user/{user_id}' => [
         'service' => 'user',
         'bind' => [ 'user_id' ],
@@ -56,8 +87,10 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
           'call' => 'getById',
           'multiplicity' => 'one',
           'transcoders' => [
-            'text/html' => 'html/template/page/user',
-            'application/json' => 'generic/json'
+            'outgoing' => [
+              'text/html' => 'html/template/page/user',
+              'application/json' => 'generic/json'
+            ]
           ],
         ]
       ],
@@ -67,7 +100,9 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
         'GET' => [
           'call' => 'getByUserId',
           'transcoders' => [
-            'application/json' => 'generic/json'
+            'outgoing' => [
+              'application/json' => 'generic/json'
+            ]
           ]
         ]
       ]
@@ -125,6 +160,21 @@ class EndpointTest extends \PHPUnit_Framework_TestCase {
     $request->headers->set( 'Accept', 'utter/nonsense' );
     $response = $this->endpoint->handle( $request );
     $this->assertEquals( 501, $response->getStatusCode() );
+  }
+
+  public function testMustacheServiceEndpoint() {
+    $request = Request::create( 'http://localhost/srv/mustache/hello', 'POST', [], [], [], [], json_encode( (object) [
+      'name' => 'Slartibartfast'
+    ] ) );
+    $request->headers->set( 'Content-Type', 'application/json' );
+    $request->headers->set( 'Accept', 'text/plain' );
+
+    $response = $this->endpoint->handle( $request );
+
+    $this->assertEquals( 200, $response->getStatusCode(),
+      "Request should have been executed without errors." );
+    $this->assertContains( 'Slartibartfast', $response->getContent(),
+      "Request response body must contain the name provided in the request body" );
   }
 
   public function testGetUser() {

@@ -7,6 +7,7 @@ use Mduk\Service;
 class Request {
   protected $service;
   protected $call;
+  protected $payload;
 
   public function __construct( Service $service, $call ) {
     $this->service = $service;
@@ -35,6 +36,10 @@ class Request {
 
   public function getParameter( $key ) {
     return $this->parameters[ $key ];
+  }
+
+  public function getPayload() {
+    return $this->payload;
   }
 
   public function execute() {

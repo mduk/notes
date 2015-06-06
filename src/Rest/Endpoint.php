@@ -36,10 +36,15 @@ class Endpoint {
 
   public function handle( Request $request ) {
     try {
+
+// ------------------------------------------------------------------------------------------------------------------------
       // Which Route matches this request?
+
       $route = $this->matchRoute( $request );
 
-      // Deny all methods that weren't declared
+// ------------------------------------------------------------------------------------------------------------------------
+      // Deny all HTTP methods that weren't declared
+
       if ( !isset( $route[ $request->getMethod() ] ) ) {
         throw new EndpointException(
           "Unsupported Method",
@@ -47,23 +52,65 @@ class Endpoint {
         );
       }
 
+// ------------------------------------------------------------------------------------------------------------------------
+      // Drill down into configuration
+
       $routeMethod = $route[ $request->getMethod() ];
+      $incomingTranscoders = ( isset( $routeMethod['transcoders']['incoming'] ) )
+        ? $routeMethod['transcoders']['incoming']
+        : [];
+      $outgoingTranscoders = ( isset( $routeMethod['transcoders']['outgoing'] ) )
+        ? $routeMethod['transcoders']['outgoing']
+        : [];
+
+// ------------------------------------------------------------------------------------------------------------------------
+      // Get the Service object
 
       $service = $this->serviceFactory->get( $route['service'] );
-      $routeMethod = $route[ $request->getMethod() ];
 
+// ------------------------------------------------------------------------------------------------------------------------
       // How should we encode the response?
-      $transcoder = $this->resolveTranscoder( $request, $routeMethod );
+
+      $outgoingTranscoder = $this->resolveTranscoder(
+        $request->getAcceptableContentTypes(),
+        $outgoingTranscoders,
+        EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER
+      );
+
+// ------------------------------------------------------------------------------------------------------------------------
+      // Prepare the Service Request
 
       $serviceRequest = $service->request( $routeMethod['call'] );
+
+// ------------------------------------------------------------------------------------------------------------------------
+      // Bind parameters to the Service Request
 
       foreach ( $route['bind'] as $bind ) {
         $serviceRequest->setParameter( $bind, $route[ $bind ] );
       }
 
+// ------------------------------------------------------------------------------------------------------------------------
+      // If the HTTP request carries a body, decode it and assign it as the Service Request Payload
+
+      $content = $request->getContent();
+      if ( $content ) {
+        $incomingTranscoder = $this->resolveTranscoder(
+          [ $request->headers->get( 'Content-Type' ) ],
+          $incomingTranscoders,
+          EndpointException::UNSUPPORTED_MEDIA_TYPE
+        );
+        $payload = $incomingTranscoder->decode( $content );
+        $serviceRequest->setPayload( $payload );
+      }
+
+// ------------------------------------------------------------------------------------------------------------------------
+      // Execute the Service Request and get the Results Collection
+
       $collection = $serviceRequest->execute()->getResults();
 
-      // What to encode? Just one, or a page.
+// ------------------------------------------------------------------------------------------------------------------------
+      // Are we only expecting one Result object, or many?
+
       if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
         $encode = $collection->shift();
 
@@ -80,7 +127,7 @@ class Endpoint {
       }
 
       // Encode them.
-      $encoded = $transcoder->encode( $encode );
+      $encoded = $outgoingTranscoder->encode( $encode );
 
       // Respond
       $response = new Response();
@@ -124,16 +171,14 @@ class Endpoint {
     }
   }
 
-  protected function resolveTranscoder( $request, $route ) {
-    $providedContentTypes = isset( $route['transcoders'] ) ? $route['transcoders'] : array();
-    $acceptedContentTypes = $request->getAcceptableContentTypes();
+  protected function resolveTranscoder( $acceptedContentTypes, $mimeTranscoders, $exceptionCode ) {
     foreach ( $acceptedContentTypes as $mime ) {
-      if ( !isset( $providedContentTypes[ $mime ] ) ) {
+      if ( !isset( $mimeTranscoders[ $mime ] ) ) {
         continue;
       }
 
       try {
-        return $this->transcoderFactory->get( $providedContentTypes[ $mime ] );
+        return $this->transcoderFactory->get( $mimeTranscoders[ $mime ] );
       }
       catch ( \Exception $e ) {
 
@@ -141,8 +186,8 @@ class Endpoint {
     }
 
     throw new EndpointException(
-      "No transcoder found for any acceptable mime types",
-      EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER
+      "{$exceptionCode} No transcoder found for given mime types: " . print_r( $mimeTranscoders, true ),
+      $exceptionCode
     );
   }
 
@@ -166,5 +211,6 @@ class Endpoint {
 class EndpointException extends \Exception {
   const CAN_NOT_FULFIL_ACCEPT_HEADER = 1;
   const UNSUPPORTED_METHOD = 2;
+  const UNSUPPORTED_MEDIA_TYPE = 415;
 }
 
