@@ -11,6 +11,7 @@ class Response {
 
   public function __construct( Request $q ) {
     $this->query = $q;
+    $this->results = new Collection;
   }
 
   public function setResults( Collection $c ) {
