@@ -74,7 +74,7 @@ class Endpoint {
       $outgoingTranscoder = $this->resolveTranscoder(
         $request->getAcceptableContentTypes(),
         $outgoingTranscoders,
-        EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER
+        EndpointException::NOT_ACCEPTABLE
       );
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ class Endpoint {
     }
     catch ( EndpointException $e ) {
       switch ( $e->getCode() ) {
-        case EndpointException::CAN_NOT_FULFIL_ACCEPT_HEADER:
+        case EndpointException::NOT_ACCEPTABLE:
           $response = new Response();
           $response->setStatusCode( 406 );
           return $response;
@@ -209,8 +209,8 @@ class Endpoint {
 }
 
 class EndpointException extends \Exception {
-  const CAN_NOT_FULFIL_ACCEPT_HEADER = 1;
   const UNSUPPORTED_METHOD = 2;
+  const NOT_ACCEPTABLE = 406;
   const UNSUPPORTED_MEDIA_TYPE = 415;
 }
 
