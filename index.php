@@ -9,6 +9,7 @@ use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
 use Mduk\Gowi\Application as BaseApp;
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
+use Mduk\Gowi\Factory;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 
