@@ -200,9 +200,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $routes->add( $routePattern, $route );
   }
 
-  $context = new RequestContext();
-  $matcher = new UrlMatcher( $routes, $context );
-  $route = $matcher->matchRequest( $req );
+  try {
+    $context = new RequestContext();
+    $matcher = new UrlMatcher( $routes, $context );
+    $route = $matcher->matchRequest( $req );
+  }
+  catch ( ResourceNotFoundException $e ) {
+    return $res->notFound()
+      ->text( $req->getUri() . "\nNot Found" );
+  }
 
   $app->setConfig( [ 'active_route' => $route ] );
 } ) );
