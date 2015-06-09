@@ -105,13 +105,18 @@ class Endpoint {
       $collection = $serviceRequest->execute()->getResults();
 
 // ------------------------------------------------------------------------------------------------------------------------
-      // Are we only expecting one Result object, or many?
+      // What is the multiplicity?
 
-      if ( isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ) {
+      $singular = isset( $routeMethod['multiplicity'] ) && $routeMethod['multiplicity'] == 'one' ? true : false;
+
+// ------------------------------------------------------------------------------------------------------------------------
+      // Select what to encode
+
+      if ( $singular ) {
         $encode = $collection->shift();
 
         // If the multiplicity is one, then we expect one.
-        if ( !$encode ) {
+        if ( $singular && !$encode ) {
           $response = new Response();
           $response->setStatusCode( 404 );
           return $response;
