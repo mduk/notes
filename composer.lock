@@ -171,7 +171,7 @@
             "source": {
                 "type": "git",
                 "url": "/Users/daniel/dev/dot",
-                "reference": "8260031db13ee9707bf5e21e2e9da86b5d5cc0aa"
+                "reference": "b9bf7c5f824f5d6f06c95ff8d8124b3d1586839b"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.7"
@@ -188,7 +188,7 @@
                     "email": "daniel@kendell.org"
                 }
             ],
-            "time": "2015-06-09 00:26:02"
+            "time": "2015-06-09 00:58:12"
         },
         {
             "name": "mduk/gowi",
