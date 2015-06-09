@@ -172,13 +172,13 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $app->setService( 'transcoder',new Factory( [
     'generic/text' => function() {
-      return new Transcoder\Generic\Text;
+      return new \Mduk\Gowi\Transcoder\Generic\Text;
     },
     'generic/json' => function() {
-      return new Transcoder\Generic\Json;
+      return new \Mduk\Gowi\Transcoder\Generic\Json;
     },
     'generic/form' => function() {
-      return new Transcoder\Generic\Form;
+      return new \Mduk\Gowi\Transcoder\Generic\Form;
     }
   ] ) );
 
