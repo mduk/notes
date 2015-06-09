@@ -16,6 +16,7 @@
     "mduk/dot": "dev-master",
     "mduk/gowi": "dev-sagrada",
     "mduk/gowi-service": "dev-master",
+    "mduk/gowi-collection": "dev-master",
     "psr/log": "~1.0",
 		"symfony/http-foundation": "2.6.1",
 		"symfony/routing": "2.6.1",

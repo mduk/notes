@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d362b313f4b4f3169ad0beb7a8120dbd",
+    "hash": "fed406e1612535197858c9348dd492d8",
     "packages": [
         {
             "name": "mduk/dot",
@@ -69,12 +69,40 @@
             "time": "2015-06-09 20:45:14"
         },
         {
+            "name": "mduk/gowi-collection",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "/Users/daniel/dev/gowi-collection",
+                "reference": "0a943afb5c0efd7624dc106e22b36226165b895c"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mduk\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Daniel Kendell",
+                    "email": "daniel@kendell.org"
+                }
+            ],
+            "time": "2015-06-09 19:21:06"
+        },
+        {
             "name": "mduk/gowi-service",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "/Users/daniel/dev/gowi-service",
-                "reference": "8c3d14b4fe52dc9ac9dfdf95a42b5b778837ddfe"
+                "reference": "b6c1c0c90770b1688a6816599931496253502cc3"
+            },
+            "require": {
+                "mduk/gowi-collection": "dev-master"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.2"
@@ -91,7 +119,7 @@
                     "email": "daniel@kendell.org"
                 }
             ],
-            "time": "2015-06-06 19:04:26"
+            "time": "2015-06-09 23:10:45"
         },
         {
             "name": "monolog/monolog",
@@ -1341,7 +1369,8 @@
     "stability-flags": {
         "mduk/dot": 20,
         "mduk/gowi": 20,
-        "mduk/gowi-service": 20
+        "mduk/gowi-service": 20,
+        "mduk/gowi-collection": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
