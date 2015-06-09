@@ -6,11 +6,21 @@
 			"email": "daniel@kendell.org"
 		}
 	],
+  "repositories": [
+    { "type": "vcs", "url": "/Users/daniel/dev/gowi-collection" },
+    { "type": "vcs", "url": "/Users/daniel/dev/gowi-service" },
+    { "type": "vcs", "url": "/Users/daniel/dev/gowi" },
+    { "type": "vcs", "url": "/Users/daniel/dev/dot" }
+  ],
 	"require": {
+    "mduk/dot": "dev-master",
+    "mduk/gowi": "dev-master",
+    "mduk/gowi-service": "dev-master",
     "psr/log": "~1.0",
 		"symfony/http-foundation": "2.6.1",
 		"symfony/routing": "2.6.1",
-    "mustache/mustache": "~2.8"
+    "mustache/mustache": "~2.8",
+    "tave/forecast-io-php": "~1.3"
 	},
 	"require-dev": {
     "monolog/monolog": "~1.13",
