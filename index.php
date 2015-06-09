@@ -218,7 +218,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   }
 
   $app->setConfig( [
-    'active_route_method' => $app->getConfig( 'active_route' )[ $req->getMethod() ]
+    'active_route_method' => $app->getConfig( 'active_route.' . $req->getMethod() )
   ] );
 } ) );
 
@@ -226,7 +226,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Select Response MIME type
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $supportedTypes = array_keys( $app->getConfig('active_route_method')['transcoders']['outgoing'] );
+  $supportedTypes = array_keys( $app->getConfig('active_route_method.transcoders.outgoing') );
   $acceptedTypes = $req->getAcceptableContentTypes();
   $selectedType = false;
 
@@ -336,7 +336,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $content = $req->getContent();
   if ( $content ) {
-    $transcoder = $app->getConfig('request')['transcoder'];
+    $transcoder = $app->getConfig('request.transcoder');
     $payload = $transcoder->decode( $content );
     $app->setConfig( [ 'request' => [
       'payload' => $payload
@@ -359,8 +359,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $serviceRequest->setParameter( $bind, $route[ $bind ] );
   }
 
-  if ( isset( $app->getConfig( 'request' )['payload'] ) ) {
-    $serviceRequest->setPayload( $app->getConfig( 'request' )['payload'] );
+  if ( $app->getConfig( 'request.payload') ) {
+    $serviceRequest->setPayload( $app->getConfig( 'request.payload') );
   }
 
   $collection = $serviceRequest->execute()->getResults();
@@ -379,9 +379,9 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Encode and send HTTP Response
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $transcoder = $app->getConfig('response')['transcoder'];
-  $routeConfig = $app->getConfig('active_route')[ $req->getMethod() ];
-  $encode = $app->getConfig('service')['response'];
+  $transcoder = $app->getConfig('response.transcoder');
+  $routeConfig = $app->getConfig('active_route_method');
+  $encode = $app->getConfig('service.response');
 
   if ( isset( $routeConfig['multiplicity'] ) && $routeConfig['multiplicity'] == 'one' ) {
     $encode = $encode->shift();
