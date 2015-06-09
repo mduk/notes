@@ -64,11 +64,6 @@ class Endpoint {
         : [];
 
 // ------------------------------------------------------------------------------------------------------------------------
-      // Get the Service object
-
-      $service = $this->serviceFactory->get( $route['service'] );
-
-// ------------------------------------------------------------------------------------------------------------------------
       // How should we encode the response?
 
       $outgoingTranscoder = $this->resolveTranscoder(
@@ -78,9 +73,10 @@ class Endpoint {
       );
 
 // ------------------------------------------------------------------------------------------------------------------------
-      // Prepare the Service Request
+      // Get the Service object
 
-      $serviceRequest = $service->request( $routeMethod['call'] );
+      $serviceRequest = $this->serviceFactory->get( $route['service'] )
+        ->request( $routeMethod['call'] );
 
 // ------------------------------------------------------------------------------------------------------------------------
       // Bind parameters to the Service Request
@@ -126,10 +122,14 @@ class Endpoint {
         $encode = $collection->page( $page - 1 );
       }
 
+// ------------------------------------------------------------------------------------------------------------------------
       // Encode them.
+
       $encoded = $outgoingTranscoder->encode( $encode );
 
+// ------------------------------------------------------------------------------------------------------------------------
       // Respond
+
       $response = new Response();
       $response->setStatusCode( 200 );
       $response->setContent( $encoded );
