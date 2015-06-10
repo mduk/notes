@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "226b8d2dfdb2dd7be46b2d9372c5a5da",
+    "hash": "c440127193ef23579bab5b8991ac2a5d",
     "packages": [
         {
             "name": "mduk/dot",
@@ -33,7 +33,7 @@
         },
         {
             "name": "mduk/gowi",
-            "version": "dev-sagrada",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "/Users/daniel/dev/gowi",
