@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fed406e1612535197858c9348dd492d8",
+    "hash": "231cd55b4321074684762fd4d2925254",
     "packages": [
         {
             "name": "mduk/dot",
@@ -37,7 +37,7 @@
             "source": {
                 "type": "git",
                 "url": "/Users/daniel/dev/gowi",
-                "reference": "0c3100d8d57600a6c36c7e4f244a3be32e5a429f"
+                "reference": "d90fe0d5f7ebf436d94bfa465d10a22a885d6d89"
             },
             "require": {
                 "monolog/monolog": "~1.10",
@@ -66,7 +66,7 @@
                 }
             ],
             "description": "A PHP starting point for those who just want to Get On With It.",
-            "time": "2015-06-09 20:45:14"
+            "time": "2015-06-10 20:41:23"
         },
         {
             "name": "mduk/gowi-collection",
@@ -92,34 +92,6 @@
                 }
             ],
             "time": "2015-06-09 19:21:06"
-        },
-        {
-            "name": "mduk/gowi-service",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "/Users/daniel/dev/gowi-service",
-                "reference": "b6c1c0c90770b1688a6816599931496253502cc3"
-            },
-            "require": {
-                "mduk/gowi-collection": "dev-master"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mduk\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Daniel Kendell",
-                    "email": "daniel@kendell.org"
-                }
-            ],
-            "time": "2015-06-09 23:10:45"
         },
         {
             "name": "monolog/monolog",
@@ -1369,7 +1341,6 @@
     "stability-flags": {
         "mduk/dot": 20,
         "mduk/gowi": 20,
-        "mduk/gowi-service": 20,
         "mduk/gowi-collection": 20
     },
     "prefer-stable": false,

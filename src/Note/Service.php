@@ -2,9 +2,9 @@
 
 namespace Mduk\Note;
 
-use Mduk\Service as ServiceInterface;
-use Mduk\Service\Request as ServiceRequest;
-use Mduk\Service\Response as ServiceResponse;
+use Mduk\Gowi\Service as ServiceInterface;
+use Mduk\Gowi\Service\Request as ServiceRequest;
+use Mduk\Gowi\Service\Response as ServiceResponse;
 
 class Service implements ServiceInterface {
 
@@ -29,7 +29,7 @@ class Service implements ServiceInterface {
   }
 
   protected function getByUserId( $user_id, ServiceResponse $r ) {
-    return $r->setResults( $this->noteMapper->findByUserId( $user_id ) );
+    return $r->setResults( $this->noteMapper->loadByUserId( $user_id ) );
   }
 
 }

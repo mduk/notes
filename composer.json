@@ -8,14 +8,12 @@
 	],
   "repositories": [
     { "type": "vcs", "url": "/Users/daniel/dev/gowi-collection" },
-    { "type": "vcs", "url": "/Users/daniel/dev/gowi-service" },
     { "type": "vcs", "url": "/Users/daniel/dev/gowi" },
     { "type": "vcs", "url": "/Users/daniel/dev/dot" }
   ],
 	"require": {
     "mduk/dot": "dev-master",
     "mduk/gowi": "dev-sagrada",
-    "mduk/gowi-service": "dev-master",
     "mduk/gowi-collection": "dev-master",
     "psr/log": "~1.0",
 		"symfony/http-foundation": "2.6.1",

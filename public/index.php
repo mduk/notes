@@ -12,6 +12,7 @@ use Mduk\Gowi\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
+use Mduk\Gowi\Service\Shim as ServiceShim;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,11 +50,51 @@ $config = [
   'debug' => true,
   'routes' => [
 
+    '/' => [
+      'service' => 'user',
+      'GET' => [
+        'call' => 'listAll',
+        'transcoders' => [
+          'outgoing' => [
+            'application/json' => 'generic/json',
+            '*/*' => 'generic/json'
+          ]
+        ]
+      ]
+    ],
+
+    '/users/{user_id}' => [
+      'service' => 'user',
+      'GET' => [
+        'call' => 'getById',
+        'bind' => [ 'user_id' ],
+        'multiplicity' => 'one',
+        'transcoders' => [
+          'outgoing' => [
+            'application/json' => 'generic/json'
+          ]
+        ]
+      ]
+    ],
+
+    '/users/{user_id}/notes' => [
+      'service' => 'note',
+      'GET' => [
+        'call' => 'getByUserId',
+        'bind' => [ 'user_id' ],
+        'transcoders' => [
+          'outgoing' => [
+            'application/json' => 'generic/json',
+          ]
+        ]
+      ]
+    ],
+
     '/srv/mustache/{template}' => [
       'service' => 'mustache',
-      'bind' => [ 'template' ],
       'POST' => [
         'call' => 'render',
+        'bind' => [ 'template' ],
         'multiplicity' => 'one',
         'transcoders' => [
           'incoming' => [
@@ -81,16 +122,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   } );
 */
 } ) );
-
-// Request Config
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $app->setConfig( [
-    'request' => [
-      'content_type' => $req->headers->get( 'Content-Type' ),
-      'accept' => $req->headers->get( 'Accept' )
-    ]
-  ] );
-} ));
 
 // Initialise DB
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
@@ -156,10 +187,10 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $app->setService( 'note', new Note\Service( new Note\Mapper( $mapperFactory, $pdo ) ) );
 
   $renderer = new \Mustache_Engine( [
-    'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/templates' )
+    'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
   ] );
 
-  $shim = new Service\Shim;
+  $shim = new ServiceShim;
   $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
   $app->setService( 'mustache', $shim );
   
@@ -245,7 +276,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   }
 
   if ( !$selectedType ) {
-    $res->setContent('Bad Accept header');
+    $res->setContent("Bad Accept header\n" . $req->headers->get('Accept') );
     return $res;
   }
 
@@ -362,7 +393,16 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $serviceRequest = $app->getService( $route['service'] )
     ->request( $routeMethod['call'] );
 
-  foreach ( $route['bind'] as $bind ) {
+  $bindParams = [];
+
+  if ( isset( $routeMethod['bind'] ) ) {
+    if ( !is_array( $routeMethod['bind'] ) ) {
+      throw new \Exception( "Parameter 'bind' must be an array.");
+    }
+    $bindParams = $routeMethod['bind'];
+  }
+
+  foreach ( $bindParams as $bind ) {
     $serviceRequest->setParameter( $bind, $route[ $bind ] );
   }
 
@@ -393,8 +433,16 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   if ( isset( $routeConfig['multiplicity'] ) && $routeConfig['multiplicity'] == 'one' ) {
     $encode = $encode->shift();
   }
+  else {
+    $encode = [
+      'total' => $encode->count(),
+      'page' => 1,
+      'pages' => $encode->numPages(),
+      'objects' => $encode->page(0)->getAll()
+    ];
+  }
 
-  $res->setContent( $encode );
+  $res->setContent( $transcoder->encode( $encode ) );
   return $res;
 } ));
 

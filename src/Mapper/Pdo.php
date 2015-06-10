@@ -2,12 +2,13 @@
 
 namespace Mduk\Mapper;
 
+use Mduk\Gowi\Collection\Paged as Collection;
+
 use Mduk\Mapper;
 use Mduk\Mapper\Exception as MapperException;
 use Mduk\Mapper\Factory as Factory;
 use Mduk\MagicQueryBuilder;
 
-use Mduk\Collection;
 use Mduk\LazyCollection;
 
 use Mduk\Identity\Map as IdentityMap;
