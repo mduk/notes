@@ -311,8 +311,9 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
       }
 
       try {
-        return $app->getService( 'transcoder' )
+        $transcoder = $app->getService( 'transcoder' )
           ->get( $mimeTranscoders[ $mime ] );
+        return [ $mime, $transcoder ];
       } catch ( \Exception $e ) {}
     }
 
@@ -335,12 +336,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
       ? $routeMethod['transcoders']['incoming']
       : [];
 
-    $incomingTranscoder = $resolve(
+    $resolved = $resolve(
       [ $req->headers->get( 'Content-Type' ) ],
       $incomingTranscoders
     );
+    $mime = $resolved[0];
+    $incomingTranscoder = $resolved[1];
 
     $app->setConfig( [ 'request' => [
+      'content_type' => $mime,
       'transcoder' => $incomingTranscoder
     ] ] );
   }
@@ -369,12 +373,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     json_encode( $req->getAcceptableContentTypes() )
   );
 
-  $outgoingTranscoder = $resolve(
+  $resolved = $resolve(
     $req->getAcceptableContentTypes(),
     $outgoingTranscoders
   );
+  $mime = $resolved[0];
+  $outgoingTranscoder = $resolved[1];
 
   $app->setConfig( [ 'response' => [
+    'content_type' => $mime,
     'transcoder' => $outgoingTranscoder
   ] ] );
 
@@ -451,6 +458,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     ];
   }
 
+  $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
   $res->setContent( $transcoder->encode( $encode ) );
   return $res;
 } ));
