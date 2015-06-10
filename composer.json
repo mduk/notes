@@ -1,5 +1,5 @@
 {
-	"name": "mduk/lazyloading",
+	"name": "mduk/notes",
 	"authors": [
 		{
 			"name": "Daniel Kendell",
@@ -7,7 +7,6 @@
 		}
 	],
   "repositories": [
-    { "type": "vcs", "url": "/Users/daniel/dev/gowi-collection" },
     { "type": "vcs", "url": "/Users/daniel/dev/gowi" },
     { "type": "vcs", "url": "/Users/daniel/dev/dot" }
   ],
