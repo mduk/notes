@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "231cd55b4321074684762fd4d2925254",
+    "hash": "226b8d2dfdb2dd7be46b2d9372c5a5da",
     "packages": [
         {
             "name": "mduk/dot",
@@ -37,7 +37,7 @@
             "source": {
                 "type": "git",
                 "url": "/Users/daniel/dev/gowi",
-                "reference": "d90fe0d5f7ebf436d94bfa465d10a22a885d6d89"
+                "reference": "78f479e090c0ac8b04557609f69f3a6ec29e2685"
             },
             "require": {
                 "monolog/monolog": "~1.10",
@@ -66,32 +66,7 @@
                 }
             ],
             "description": "A PHP starting point for those who just want to Get On With It.",
-            "time": "2015-06-10 20:41:23"
-        },
-        {
-            "name": "mduk/gowi-collection",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "/Users/daniel/dev/gowi-collection",
-                "reference": "0a943afb5c0efd7624dc106e22b36226165b895c"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.7"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mduk\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Daniel Kendell",
-                    "email": "daniel@kendell.org"
-                }
-            ],
-            "time": "2015-06-09 19:21:06"
+            "time": "2015-06-10 23:13:40"
         },
         {
             "name": "monolog/monolog",
@@ -1340,8 +1315,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "mduk/dot": 20,
-        "mduk/gowi": 20,
-        "mduk/gowi-collection": 20
+        "mduk/gowi": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

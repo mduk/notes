@@ -2,6 +2,7 @@
 
 namespace Mduk;
 
+use Mduk\Gowi\Collection;
 use Mduk\Mapper\Query;
 
 class LazyCollection extends Collection {

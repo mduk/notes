@@ -3,7 +3,7 @@
 namespace Mduk\Mapper;
 
 use Mduk\Mapper;
-use Mduk\Collection;
+use Mduk\Gowi\Collection;
 
 class Query {
 	protected $mapper;
