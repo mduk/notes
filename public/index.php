@@ -63,6 +63,18 @@ $config = [
       ]
     ],
 
+    '/users' => [
+      'service' => 'user',
+      'GET' => [
+        'call' => 'getAll',
+        'transcoders' => [
+          'outgoing' => [
+            'application/json' => 'generic/json'
+          ]
+        ]
+      ]
+    ],
+
     '/users/{user_id}' => [
       'service' => 'user',
       'GET' => [
@@ -418,10 +430,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
 } ) );
 
-#$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-#  return $res->ok()->text( print_r( $app, true ) );
-#} ) );
-
 // ----------------------------------------------------------------------------------------------------
 // Encode and send HTTP Response
 // ----------------------------------------------------------------------------------------------------
@@ -434,11 +442,12 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $encode = $encode->shift();
   }
   else {
+    $page = (int) $req->query->get( 'page', 0 );
     $encode = [
       'total' => $encode->count(),
-      'page' => 1,
+      'page' => $page,
       'pages' => $encode->numPages(),
-      'objects' => $encode->page(0)->getAll()
+      'objects' => $encode->page( $page )->getAll()
     ];
   }
 

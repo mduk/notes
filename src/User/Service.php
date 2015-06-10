@@ -22,20 +22,20 @@ class Service implements ServiceInterface {
   public function execute( ServiceRequest $req, ServiceResponse $r ) {
     switch ( $req->getCall() ) {
 
-      case 'listAll':
-        return $this->listAll( $r );
+      case 'getAll':
+        return $this->getAll( $r );
 
       case 'getById':
         $user_id = $req->getParameter( 'user_id' );
         return $this->getById( $user_id, $r );
 
       default:
-        throw new \Exception( "unknown call to user service: {$q->getCall()}" );
+        throw new \Exception( "unknown call to user service: {$r->getCall()}" );
 
     }
   }
 
-  protected function listAll( ServiceResponse $r ) {
+  protected function getAll( ServiceResponse $r ) {
     return $r->setResults(
       $this->userMapper->load()
     );
