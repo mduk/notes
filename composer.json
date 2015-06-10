@@ -7,8 +7,8 @@
 		}
 	],
   "repositories": [
-    { "type": "vcs", "url": "/Users/daniel/dev/gowi" },
-    { "type": "vcs", "url": "/Users/daniel/dev/dot" }
+    { "type": "vcs", "url": "https://github.com/mduk/gowi.git" },
+    { "type": "vcs", "url": "https://github.com/mduk/dot.git" }
   ],
 	"require": {
     "mduk/dot": "dev-master",
