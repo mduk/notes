@@ -55,7 +55,7 @@ $config = [
       'GET' => [
         'call' => 'listAll',
         'transcoders' => [
-          'outgoing' => [
+          'response' => [
             'application/json' => 'generic/json',
             '*/*' => 'generic/json'
           ]
@@ -68,7 +68,7 @@ $config = [
       'GET' => [
         'call' => 'getAll',
         'transcoders' => [
-          'outgoing' => [
+          'response' => [
             'application/json' => 'generic/json'
           ]
         ]
@@ -82,7 +82,7 @@ $config = [
         'bind' => [ 'user_id' ],
         'multiplicity' => 'one',
         'transcoders' => [
-          'outgoing' => [
+          'response' => [
             'application/json' => 'generic/json'
           ]
         ]
@@ -95,7 +95,7 @@ $config = [
         'call' => 'getByUserId',
         'bind' => [ 'user_id' ],
         'transcoders' => [
-          'outgoing' => [
+          'response' => [
             'application/json' => 'generic/json',
           ]
         ]
@@ -109,11 +109,11 @@ $config = [
         'bind' => [ 'template' ],
         'multiplicity' => 'one',
         'transcoders' => [
-          'incoming' => [
+          'request' => [
             'application/json' => 'generic/json',
             'application/x-www-form-urlencoded' => 'generic/form'
           ],
-          'outgoing' => [
+          'response' => [
             'text/html' => 'generic/text',
             'text/plain' => 'generic/text'
           ]
@@ -276,7 +276,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Select Response MIME type
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $supportedTypes = array_keys( $app->getConfig('active_route_method.transcoders.outgoing') );
+  $supportedTypes = array_keys( $app->getConfig('active_route_method.transcoders.response') );
   $acceptedTypes = $req->getAcceptableContentTypes();
   $selectedType = false;
 
@@ -332,20 +332,20 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $content = $req->getContent();
   if ( $content ) {
-    $incomingTranscoders = ( isset( $routeMethod['transcoders']['incoming'] ) )
-      ? $routeMethod['transcoders']['incoming']
+    $requestTranscoders = ( isset( $routeMethod['transcoders']['request'] ) )
+      ? $routeMethod['transcoders']['request']
       : [];
 
     $resolved = $resolve(
       [ $req->headers->get( 'Content-Type' ) ],
-      $incomingTranscoders
+      $requestTranscoders
     );
     $mime = $resolved[0];
-    $incomingTranscoder = $resolved[1];
+    $requestTranscoder = $resolved[1];
 
     $app->setConfig( [ 'request' => [
       'content_type' => $mime,
-      'transcoder' => $incomingTranscoder
+      'transcoder' => $requestTranscoder
     ] ] );
   }
 
@@ -361,11 +361,11 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $log->debug(
     'Offered Types: ' .
-    json_encode( array_keys( $routeMethod['transcoders']['outgoing'] ) )
+    json_encode( array_keys( $routeMethod['transcoders']['response'] ) )
   );
 
-  $outgoingTranscoders = ( isset( $routeMethod['transcoders']['outgoing'] ) )
-    ? $routeMethod['transcoders']['outgoing']
+  $responseTranscoders = ( isset( $routeMethod['transcoders']['response'] ) )
+    ? $routeMethod['transcoders']['response']
     : [];
 
   $log->debug(
@@ -375,14 +375,14 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $resolved = $resolve(
     $req->getAcceptableContentTypes(),
-    $outgoingTranscoders
+    $responseTranscoders
   );
   $mime = $resolved[0];
-  $outgoingTranscoder = $resolved[1];
+  $responseTranscoder = $resolved[1];
 
   $app->setConfig( [ 'response' => [
     'content_type' => $mime,
-    'transcoder' => $outgoingTranscoder
+    'transcoder' => $responseTranscoder
   ] ] );
 
 } ) );
