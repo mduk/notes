@@ -24,6 +24,18 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
+class NotFoundResponseStage implements Stage {
+  public function execute( GowiApplication $app, Request $req, Response $res ) {
+    $res->setStatusCode( 404 );
+    $res->headers->set( 'Content-Type', 'text/plain' );
+    $res->setContent(
+      "404 Not Found\n" .
+      $req->getUri()
+    );
+    return $res;
+  }
+}
+
 class MethodNotAllowedResponseStage implements Stage {
   public function execute( GowiApplication $app, Request $req, Response $res ) {
     $res->setStatusCode( 405 );
@@ -300,8 +312,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $route = $matcher->matchRequest( $req );
   }
   catch ( ResourceNotFoundException $e ) {
-    return $res->notFound()
-      ->text( $req->getUri() . "\nNot Found" );
+    return new NotFoundResponseStage;
   }
 
   $app->setConfig( [ 'active_route' => $route ] );
