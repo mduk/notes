@@ -24,7 +24,7 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-class NotAcceptableResponseStage extends ResponseStage {
+class NotAcceptableResponseStage implements Stage {
   public function execute( GowiApplication $app, Request $req, Response $res ) {
     $res->setStatusCode( 406 );
     $res->headers->set( 'Content-Type', 'text/plain' );
