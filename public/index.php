@@ -552,7 +552,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $encode = $encode->shift();
   }
   else {
-    $page = (int) $req->query->get( 'page', 0 );
+    $page = (int) $req->query->get( 'page', 1 );
     $encode = [
       'total' => $encode->count(),
       'page' => $page,
