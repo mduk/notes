@@ -291,8 +291,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $mapperFactory = new Mapper\Factory( $pdo );
 
-  $app->setService( 'user', new User\Service( new User\Mapper( $mapperFactory, $pdo ) ) );
-  $app->setService( 'note', new Note\Service( new Note\Mapper( $mapperFactory, $pdo ) ) );
+  $app->setService( 'user', new User\Service( $mapperFactory->get( '\\Mduk\\User\\Mapper' ) ) );
+  $app->setService( 'note', new Note\Service( $mapperFactory->get( '\\Mduk\\Note\\Mapper' ) ) );
 
   $renderer = new \Mustache_Engine( [
     'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
