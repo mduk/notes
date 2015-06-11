@@ -24,48 +24,13 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-abstract class ResponseStage implements Stage {
-
-  abstract protected function statusCode();
-  abstract protected function contentType();
-  abstract protected function body();
-
-  protected function application() {
-    return $this->application;
-  }
-
-  protected function request() {
-    return $this->request;
-  }
-
-  protected function response() {
-    return $this->response;
-  }
-
-  public function execute( GowiApplication $app, Request $req, Response $res ) {
-    $this->application = $app;
-    $this->request = $req;
-    $this->response = $res;
-
-    $res->setStatusCode( $this->statusCode() );
-    $res->headers->set( 'Content-Type', $this->contentType() );
-    $res->setContent( $this->body() );
-    return $res;
-  }
-}
-
 class NotAcceptableResponseStage extends ResponseStage {
-  protected function statusCode() {
-    return 406;
-  }
-
-  protected function contentType() {
-    return 'text/plain';
-  }
-
-  protected function body() {
-    return "406 Not Acceptable\n" .
-      $this->request()->headers->get( 'Accept' );
+  public function execute( GowiApplication $app, Request $req, Response $res ) {
+    $res->setStatusCode( 406 );
+    $res->headers->set( 'Content-Type', 'text/plain' );
+    $res->setContent( "406 Not Acceptable\n" .
+      $req->headers->get( 'Accept' ) );
+    return $res;
   }
 }
 
