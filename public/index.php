@@ -47,11 +47,6 @@ class Application extends BaseApp {
   }
 }
 
-/*
-  Html transcoders need to be cleverer than this.
-  Where html is human-facing, shit gets blurry.
-  The data needs to be massaged first.
-*/
 class MustacheTranscoder implements Transcoder {
   protected $template;
   protected $masseur;
