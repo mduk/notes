@@ -40,7 +40,7 @@ class NotFoundResponseStage implements Stage {
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
       "404 Not Found\n" .
-      $this->request()->getUri()
+      $req->getUri()
     );
     return $res;
   }
@@ -52,7 +52,7 @@ class MethodNotAllowedResponseStage implements Stage {
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
       "405 Method Not Allowed\n" .
-      $this->request()->getMethod() . ' is not allowed on ' . $this->request()->getUri()
+      $req->getMethod() . ' is not allowed on ' . $req->getUri()
     );
     return $res;
   }
