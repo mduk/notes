@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "hash": "08c569b762f35225dca968f6091a90b6",
@@ -11,7 +11,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "/Users/daniel/dev/dot",
+                "url": "https://github.com/mduk/dot.git",
                 "reference": "977f0a80f5d4e43133b646967ddc8d5ac615c838"
             },
             "require-dev": {
@@ -36,8 +36,14 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "/Users/daniel/dev/gowi",
-                "reference": "78f479e090c0ac8b04557609f69f3a6ec29e2685"
+                "url": "https://github.com/mduk/gowi.git",
+                "reference": "fe00e73e20ccc68c0e7d1ad966d02fb7775fb8c6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mduk/gowi/zipball/fe00e73e20ccc68c0e7d1ad966d02fb7775fb8c6",
+                "reference": "fe00e73e20ccc68c0e7d1ad966d02fb7775fb8c6",
+                "shasum": ""
             },
             "require": {
                 "monolog/monolog": "~1.10",
@@ -66,7 +72,11 @@
                 }
             ],
             "description": "A PHP starting point for those who just want to Get On With It.",
-            "time": "2015-06-10 23:13:40"
+            "support": {
+                "source": "https://github.com/mduk/gowi/tree/master",
+                "issues": "https://github.com/mduk/gowi/issues"
+            },
+            "time": "2015-06-10 23:48:40"
         },
         {
             "name": "monolog/monolog",

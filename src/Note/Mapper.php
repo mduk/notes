@@ -30,7 +30,7 @@ class Mapper extends PdoMapper {
 		$note->body = $source->body;
 
 		$note->user = $this->getMapper( '\\Mduk\\User\\Mapper' )
-			->findOneByUserId( $source->user_id );
+			->loadOneByUserId( $source->user_id );
 
 		return $note;
 	}

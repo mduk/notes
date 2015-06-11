@@ -13,6 +13,7 @@ use Mduk\Gowi\Factory;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
+use Mduk\Gowi\Transcoder;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +47,27 @@ class Application extends BaseApp {
   }
 }
 
+class MustacheTranscoder implements Transcoder {
+  protected $template;
+
+  public function __construct( $template ) {
+    $this->template = $template;
+  }
+
+  public function encode( $in ) {
+    $renderer = new \Mustache_Engine( [
+      'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
+    ] );
+
+
+    return $renderer->render( $this->template, $in );
+  }
+
+  public function decode( $in ) {
+    throw new \Exception( "Can't decode from html" );
+  }
+}
+
 $config = [
   'debug' => true,
   'routes' => [
@@ -56,8 +78,7 @@ $config = [
         'call' => 'listAll',
         'transcoders' => [
           'response' => [
-            'application/json' => 'generic/json',
-            '*/*' => 'generic/json'
+            'application/json' => 'generic/json'
           ]
         ]
       ]
@@ -69,6 +90,7 @@ $config = [
         'call' => 'getAll',
         'transcoders' => [
           'response' => [
+            'text/html' => 'html/user_list',
             'application/json' => 'generic/json'
           ]
         ]
@@ -83,6 +105,7 @@ $config = [
         'multiplicity' => 'one',
         'transcoders' => [
           'response' => [
+            'text/html' => 'html/user_page',
             'application/json' => 'generic/json'
           ]
         ]
@@ -96,7 +119,8 @@ $config = [
         'bind' => [ 'user_id' ],
         'transcoders' => [
           'response' => [
-            'application/json' => 'generic/json',
+            'text/html' => 'html/note_list',
+            'application/json' => 'generic/json'
           ]
         ]
       ]
@@ -222,6 +246,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     },
     'generic/form' => function() {
       return new \Mduk\Gowi\Transcoder\Generic\Form;
+    },
+    'html/user_page' => function() {
+      return new MustacheTranscoder( 'user_page' );
+    },
+    'html/note_list' => function() {
+      return new MustacheTranscoder( 'note_list' );
+    },
+    'html/user_list' => function() {
+      return new MustacheTranscoder( 'user_list' );
     }
   ] ) );
 
