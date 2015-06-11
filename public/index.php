@@ -6,7 +6,7 @@ require_once 'vendor/autoload.php';
 
 use Mduk\Dot;
 use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
-use Mduk\Gowi\Application as BaseApp;
+use Mduk\Gowi\Application as GowiApplication;
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
@@ -15,8 +15,8 @@ use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 use Mduk\Gowi\Transcoder;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Mduk\Gowi\Http\Request;
+use Mduk\Gowi\Http\Response;
 
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -24,7 +24,19 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
-class Application extends BaseApp {
+class MethodNotAllowedResponseStage implements Stage {
+  public function execute( GowiApplication $app, Request $req, Response $res ) {
+    $res->setStatusCode( 405 );
+    $res->headers->set( 'Content-Type', 'text/plain' );
+    $res->setContent(
+      "405 Method Not Allowed\n" .
+      $req->getMethod() . ' is not allowed on ' . $req->getUri()
+    );
+    return $res;
+  }
+}
+
+class Application extends GowiApplication {
   public function __construct( $baseDir, $config ) {
     parent::__construct( $baseDir );
     $this->config = new Dot( $config );
@@ -300,10 +312,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   if ( !$app->getConfig('active_route.' . $req->getMethod() ) ) {
-    $res->setStatusCode( 405 );
-    $res->headers->set( 'Content-Type', 'text/plain' );
-    $res->setContent( $req->getMethod() . ' is not allowed on ' . $req->getUri() );
-    return $res;
+    return new MethodNotAllowedResponseStage;
   }
 
   $app->setConfig( [
