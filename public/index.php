@@ -24,6 +24,18 @@ use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
+class NotAcceptableResponseStage implements Stage {
+  public function execute( GowiApplication $app, Request $req, Response $res ) {
+    $res->setStatusCode( 406 );
+    $res->headers->set( 'Content-Type', 'text/plain' );
+    $res->setContent(
+      "406 Not Acceptable\n" .
+      $req->headers->get( 'Accept' )
+    );
+    return $res;
+  }
+}
+
 class NotFoundResponseStage implements Stage {
   public function execute( GowiApplication $app, Request $req, Response $res ) {
     $res->setStatusCode( 404 );
@@ -347,8 +359,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   }
 
   if ( !$selectedType ) {
-    $res->setContent("Bad Accept header\n" . $req->headers->get('Accept') );
-    return $res;
+    return new NotAcceptableResponseStage;
   }
 
   $app->setConfig( [
