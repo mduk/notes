@@ -47,11 +47,18 @@ class Application extends BaseApp {
   }
 }
 
+/*
+  Html transcoders need to be cleverer than this.
+  Where html is human-facing, shit gets blurry.
+  The data needs to be massaged first.
+*/
 class MustacheTranscoder implements Transcoder {
   protected $template;
+  protected $masseur;
 
-  public function __construct( $template ) {
+  public function __construct( $template, \Closure $masseur = null ) {
     $this->template = $template;
+    $this->masseur = $masseur ?: function( $in ) { return $in; };
   }
 
   public function encode( $in ) {
@@ -59,8 +66,9 @@ class MustacheTranscoder implements Transcoder {
       'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
     ] );
 
-
-    return $renderer->render( $this->template, $in );
+    $masseur = $this->masseur;
+    $massaged = $masseur( $in );
+    return $renderer->render( $this->template, $massaged );
   }
 
   public function decode( $in ) {
@@ -251,7 +259,10 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
       return new MustacheTranscoder( 'user_page' );
     },
     'html/note_list' => function() {
-      return new MustacheTranscoder( 'note_list' );
+      return new MustacheTranscoder( 'note_list', function( $in ) {
+        $in['user'] = $in['objects'][0]->user[0];
+        return $in;;
+      } );
     },
     'html/user_list' => function() {
       return new MustacheTranscoder( 'user_list' );
