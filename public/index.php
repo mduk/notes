@@ -403,51 +403,25 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
-// (Artifact of using stub stages for both transcoder selection stages)
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $app->setService( 'resolve', function( $acceptedContentTypes, $mimeTranscoders ) use ($app) {
-    foreach ( $acceptedContentTypes as $mime ) {
-      $app->getService('log')->debug( $mime );
-      if ( !isset( $mimeTranscoders[ $mime ] ) ) {
-        continue;
-      }
-
-      try {
-        $transcoder = $app->getService( 'transcoder' )
-          ->get( $mimeTranscoders[ $mime ] );
-        return [ $mime, $transcoder ];
-      } catch ( \Exception $e ) {}
-    }
-
-    $types = implode( ', ', $acceptedContentTypes );
-    throw new \Exception( "No transcoder found for: {$types}" );
-  } );
-} ) );
-
-// ----------------------------------------------------------------------------------------------------
 // Select Request Transcoder
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $resolve = $app->getService('resolve');
   $routeMethod = $app->getConfig( 'active_route_method' );
 
   $content = $req->getContent();
   if ( $content ) {
+    $requestContentType = $req->headers->get( 'Content-Type' );
+
     $requestTranscoders = ( isset( $routeMethod['transcoders']['request'] ) )
       ? $routeMethod['transcoders']['request']
       : [];
 
-    $resolved = $resolve(
-      [ $req->headers->get( 'Content-Type' ) ],
-      $requestTranscoders
-    );
-    $mime = $resolved[0];
-    $requestTranscoder = $resolved[1];
+    $requestTranscoder = $app->getService( 'transcoder' )
+      ->get( $requestTranscoders[ $requestContentType ] );
 
     $app->setConfig( [ 'request' => [
-      'content_type' => $mime,
+      'content_type' => $requestContentType,
       'transcoder' => $requestTranscoder
     ] ] );
   }
@@ -459,7 +433,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $resolve = $app->getService('resolve');
   $routeMethod = $app->getConfig( 'active_route_method' );
 
   $log->debug(
@@ -476,12 +449,22 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     json_encode( $req->getAcceptableContentTypes() )
   );
 
-  $resolved = $resolve(
-    $req->getAcceptableContentTypes(),
-    $responseTranscoders
-  );
-  $mime = $resolved[0];
-  $responseTranscoder = $resolved[1];
+  foreach ( $req->getAcceptableContentTypes() as $mime ) {
+    $app->getService('log')->debug( $mime );
+    if ( !isset( $responseTranscoders[ $mime ] ) ) {
+      continue;
+    }
+
+    try {
+      $responseTranscoder = $app->getService( 'transcoder' )
+        ->get( $responseTranscoders[ $mime ] );
+    } catch ( \Exception $e ) {}
+  }
+
+  if ( !$responseTranscoder ) {
+    $types = implode( ', ', $acceptedContentTypes );
+    throw new \Exception( "No transcoder found for: {$types}" );
+  }
 
   $app->setConfig( [ 'response' => [
     'content_type' => $mime,
