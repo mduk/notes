@@ -245,7 +245,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
 
-  $app->setService( 'transcoder',new Factory( [
+  $app->setService( 'transcoder', new Factory( [
     'generic/text' => function() {
       return new \Mduk\Gowi\Transcoder\Generic\Text;
     },
