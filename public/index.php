@@ -117,6 +117,22 @@ $config = [
       ]
     ],
 
+    '/about' => [
+      'service' => 'mustache',
+      'GET' => [
+        'call' => 'render',
+        'parameters' => [
+          'template' => 'about'
+        ],
+        'multiplicity' => 'one',
+        'transcoders' => [
+          'response' => [
+            'text/html' => 'generic/text'
+          ]
+        ]
+      ]
+    ],
+
     '/users' => [
       'service' => 'user',
       'GET' => [
@@ -451,6 +467,14 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $serviceRequest = $app->getService( $route['service'] )
     ->request( $routeMethod['call'] );
+
+  $params = ( isset( $routeMethod['parameters'] ) )
+    ? $routeMethod['parameters']
+    : [];
+
+  foreach ( $params as $param => $value ) {
+    $serviceRequest->setParameter( $param, $value );
+  }
 
   $bindParams = [];
 
