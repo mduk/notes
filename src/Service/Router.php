@@ -50,7 +50,7 @@ class Router implements GowiService {
       $route = $matcher->match( $path );
     }
     catch ( SfResourceNotFoundException $e ) {
-      throw new \Exception("ROUTER SERVICE: There is no route for {$uri}");
+      throw new Router\Exception("There is no route for {$path}");
     }
 
     return $response->addResult( $route );

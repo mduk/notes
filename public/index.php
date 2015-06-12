@@ -5,6 +5,7 @@ namespace Mduk;
 require_once 'vendor/autoload.php';
 
 use Mduk\Service\Router as RouterService;
+use Mduk\Service\Router\Exception as RouterServiceException;
 
 use Mduk\Dot;
 use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
@@ -347,15 +348,19 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Match a route
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $app->setConfig( [
-    'active_route' => $app->getService( 'router' )
-      ->request( 'route' )
-      ->setParameter( 'path', $req->getPathInfo() )
-      ->execute()
-      ->getResults()
-      ->shift()
-  ] );
-
+  try {
+    $app->setConfig( [
+      'active_route' => $app->getService( 'router' )
+        ->request( 'route' )
+        ->setParameter( 'path', $req->getPathInfo() )
+        ->execute()
+        ->getResults()
+        ->shift()
+    ] );
+  }
+  catch ( RouterServiceException $e ) {
+    return new NotFoundResponseStage;
+  }
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
