@@ -150,7 +150,9 @@ $config = [
       'service' => 'user',
       'GET' => [
         'call' => 'getById',
-        'bind' => [ 'user_id' ],
+        'bind' => [
+          'route' => [ 'user_id' ]
+        ],
         'multiplicity' => 'one',
         'transcoders' => [
           'response' => [
@@ -165,7 +167,9 @@ $config = [
       'service' => 'note',
       'GET' => [
         'call' => 'getByUserId',
-        'bind' => [ 'user_id' ],
+        'bind' => [
+          'route' => [ 'user_id' ]
+        ],
         'transcoders' => [
           'response' => [
             'text/html' => 'html/note_list',
@@ -179,7 +183,9 @@ $config = [
       'service' => 'mustache',
       'POST' => [
         'call' => 'render',
-        'bind' => [ 'template' ],
+        'bind' => [
+          'route' => [ 'template' ],
+        ],
         'multiplicity' => 'one',
         'transcoders' => [
           'request' => [
@@ -193,6 +199,25 @@ $config = [
         ]
       ]
     ],
+
+    '/srv/router' => [
+      'service' => 'router',
+      'POST' => [
+        'call' => 'route',
+        'bind' => [
+          'payload' => [ 'path' ],
+        ],
+        'multiplicity' => 'one',
+        'transcoders' => [
+          'request' => [
+            'application/json' => 'generic/json'
+          ],
+          'response' => [
+            'application/json' => 'generic/json'
+          ]
+        ]
+      ]
+    ]
 
   ]
 ];
@@ -214,7 +239,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 
   $schema = <<<SQL
-CREATE TABLE user ( 
+CREATE TABLE user (
   user_id INT PRIMARY KEY NOT NULL,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -280,7 +305,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $shim = new ServiceShim;
   $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
   $app->setService( 'mustache', $shim );
-  
+
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -461,12 +486,14 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Service Request
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  
+
   $route = $app->getConfig( 'active_route' );
   $routeMethod = $app->getConfig( 'active_route_method' );
 
   $serviceRequest = $app->getService( $route['service'] )
     ->request( $routeMethod['call'] );
+
+  // Bind Default Parameters
 
   $params = ( isset( $routeMethod['parameters'] ) )
     ? $routeMethod['parameters']
@@ -476,21 +503,35 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $serviceRequest->setParameter( $param, $value );
   }
 
-  $bindParams = [];
+  // Bind Route Parameters
 
-  if ( isset( $routeMethod['bind'] ) ) {
-    if ( !is_array( $routeMethod['bind'] ) ) {
-      throw new \Exception( "Parameter 'bind' must be an array.");
-    }
-    $bindParams = $routeMethod['bind'];
-  }
+  $bindRouteParams = ( isset( $routeMethod['bind']['route'] ) )
+    ? $routeMethod['bind']['route']
+    : [];
 
-  foreach ( $bindParams as $bind ) {
+  foreach ( $bindRouteParams as $bind ) {
     $serviceRequest->setParameter( $bind, $route[ $bind ] );
   }
 
   if ( $app->getConfig( 'request.payload') ) {
-    $serviceRequest->setPayload( $app->getConfig( 'request.payload') );
+    $payload = $app->getConfig( 'request.payload' );
+    $serviceRequest->setPayload( $payload );
+
+    // Bind Payload Parameters
+
+    $bindPayloadParams = ( isset( $routeMethod['bind']['payload'] ) )
+      ? $routeMethod['bind']['payload']
+      : [];
+
+    foreach ( $bindPayloadParams as $param ) {
+      if ( is_array( $payload ) ) {
+        $value = $payload[ $param ];
+      }
+      else if ( is_object( $payload ) ) {
+        $value = $payload->$param;
+      }
+      $serviceRequest->setParameter( $param, $value );
+    }
   }
 
   $collection = $serviceRequest->execute()->getResults();
