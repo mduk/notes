@@ -107,8 +107,8 @@ $config = [
   'routes' => [
 
     '/' => [
-      'service' => 'user',
       'GET' => [
+        'service' => 'user',
         'call' => 'listAll',
         'transcoders' => [
           'response' => [
@@ -119,8 +119,8 @@ $config = [
     ],
 
     '/about' => [
-      'service' => 'mustache',
       'GET' => [
+        'service' => 'mustache',
         'call' => 'render',
         'parameters' => [
           'template' => 'about'
@@ -135,8 +135,8 @@ $config = [
     ],
 
     '/users' => [
-      'service' => 'user',
       'GET' => [
+        'service' => 'user',
         'call' => 'getAll',
         'transcoders' => [
           'response' => [
@@ -148,8 +148,8 @@ $config = [
     ],
 
     '/users/{user_id}' => [
-      'service' => 'user',
       'GET' => [
+        'service' => 'user',
         'call' => 'getById',
         'bind' => [
           'route' => [ 'user_id' ]
@@ -165,8 +165,8 @@ $config = [
     ],
 
     '/users/{user_id}/notes' => [
-      'service' => 'note',
       'GET' => [
+        'service' => 'note',
         'call' => 'getByUserId',
         'bind' => [
           'route' => [ 'user_id' ]
@@ -181,8 +181,8 @@ $config = [
     ],
 
     '/srv/mustache/{template}' => [
-      'service' => 'mustache',
       'POST' => [
+        'service' => 'mustache',
         'call' => 'render',
         'bind' => [
           'route' => [ 'template' ],
@@ -202,10 +202,11 @@ $config = [
     ],
 
     '/srv/router' => [
-      'service' => 'router',
       'POST' => [
+        'service' => 'router',
         'call' => 'route',
         'bind' => [
+          'query' => [ 'path' ],
           'payload' => [ 'path' ],
         ],
         'multiplicity' => 'one',
@@ -306,7 +307,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $shim = new ServiceShim;
   $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
   $app->setService( 'mustache', $shim );
-
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -353,34 +353,25 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
       'active_route' => $app->getService( 'router' )
         ->request( 'route' )
         ->setParameter( 'path', $req->getPathInfo() )
+        ->setParameter( 'method', $req->getMethod() )
         ->execute()
         ->getResults()
         ->shift()
     ] );
   }
-  catch ( RouterServiceException $e ) {
+  catch ( RouterServiceException\NotFound $e ) {
     return new NotFoundResponseStage;
   }
-} ) );
-
-// ----------------------------------------------------------------------------------------------------
-// Block invalid method calls
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  if ( !$app->getConfig('active_route.' . $req->getMethod() ) ) {
+  catch ( RouterServiceException\MethodNotAllowed $e ) {
     return new MethodNotAllowedResponseStage;
   }
-
-  $app->setConfig( [
-    'active_route_method' => $app->getConfig( 'active_route.' . $req->getMethod() )
-  ] );
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
 // Select Response MIME type
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $supportedTypes = array_keys( $app->getConfig('active_route_method.transcoders.response') );
+  $supportedTypes = array_keys( $app->getConfig('active_route.config.transcoders.response') );
   $acceptedTypes = $req->getAcceptableContentTypes();
   $selectedType = false;
 
@@ -407,7 +398,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $routeMethod = $app->getConfig( 'active_route_method' );
+  $routeMethod = $app->getConfig( 'active_routed' );
 
   $content = $req->getContent();
   if ( $content ) {
@@ -433,16 +424,12 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $routeMethod = $app->getConfig( 'active_route_method' );
+  $transcoders = $app->getConfig( 'active_route.config.transcoders.response' );
 
   $log->debug(
     'Offered Types: ' .
-    json_encode( array_keys( $routeMethod['transcoders']['response'] ) )
+    json_encode( array_keys( $transcoders ) )
   );
-
-  $responseTranscoders = ( isset( $routeMethod['transcoders']['response'] ) )
-    ? $routeMethod['transcoders']['response']
-    : [];
 
   $log->debug(
     'Acceptable Types: ' .
@@ -451,24 +438,24 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   foreach ( $req->getAcceptableContentTypes() as $mime ) {
     $app->getService('log')->debug( $mime );
-    if ( !isset( $responseTranscoders[ $mime ] ) ) {
+    if ( !isset( $transcoders[ $mime ] ) ) {
       continue;
     }
 
     try {
-      $responseTranscoder = $app->getService( 'transcoder' )
-        ->get( $responseTranscoders[ $mime ] );
+      $transcoder = $app->getService( 'transcoder' )
+        ->get( $transcoders[ $mime ] );
     } catch ( \Exception $e ) {}
   }
 
-  if ( !$responseTranscoder ) {
-    $types = implode( ', ', $acceptedContentTypes );
+  if ( !$transcoder ) {
+    $types = implode( ', ', $req->getAcceptableContentTypes() );
     throw new \Exception( "No transcoder found for: {$types}" );
   }
 
   $app->setConfig( [ 'response' => [
     'content_type' => $mime,
-    'transcoder' => $responseTranscoder
+    'transcoder' => $transcoder
   ] ] );
 
 } ) );
@@ -491,52 +478,67 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Service Request
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
+  $service = $app->getConfig( 'active_route.config.service' );
+  $call = $app->getConfig( 'active_route.config.call' );
 
-  $route = $app->getConfig( 'active_route' );
-  $routeMethod = $app->getConfig( 'active_route_method' );
+  $serviceRequest = $app->getService( $service )
+    ->request( $call );
 
-  $serviceRequest = $app->getService( $route['service'] )
-    ->request( $routeMethod['call'] );
+  $parameterBindings = $app->getConfig( 'active_route.config.bind' );
 
-  // Bind Default Parameters
+  foreach ( $parameterBindings as $bind => $params ) {
+    switch ( $bind ) {
+      case 'payload':
+        $payload = $app->getConfig( 'request.payload' );
+        foreach ( $params as $param ) {
+          if ( is_array( $payload ) ) {
+            if ( !isset( $payload[ $param ] ) ) {
+              throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
+            }
 
-  $params = ( isset( $routeMethod['parameters'] ) )
-    ? $routeMethod['parameters']
-    : [];
+            $value = $payload[ $param ];
+          }
+          else if ( is_object( $payload ) ) {
+            if ( !isset( $payload->$param ) ) {
+              throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
+            }
 
-  foreach ( $params as $param => $value ) {
-    $serviceRequest->setParameter( $param, $value );
+            $value = $payload->$param;
+          }
+          $serviceRequest->setParameter( $param, $value );
+        }
+        break;
+
+      case 'query':
+        foreach ( $params as $param ) {
+          if ( !$request->query->has( $param ) ) {
+            throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
+          }
+          $serviceRequest->setParameter(
+            $param,
+            $request->query->get( $param )
+          );
+        }
+        break;
+
+      case 'route':
+        $routeParams = $app->getConfig( 'active_route.params' );
+        foreach ( $params as $param ) {
+          if ( !isset( $routeParams[ $param ] ) ) {
+            throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
+          }
+          $serviceRequest->setParameter( $param, $routeParams[ $param ] );
+        }
+        break;
+
+      default:
+        throw new \Exception("SERVICE REQUEST: Unknown bind '{$bind}'");
+    }
   }
 
-  // Bind Route Parameters
-
-  $bindRouteParams = ( isset( $routeMethod['bind']['route'] ) )
-    ? $routeMethod['bind']['route']
-    : [];
-
-  foreach ( $bindRouteParams as $bind ) {
-    $serviceRequest->setParameter( $bind, $route[ $bind ] );
-  }
-
-  if ( $app->getConfig( 'request.payload') ) {
+  if ( $app->getConfig( 'request.payload' ) ) {
     $payload = $app->getConfig( 'request.payload' );
     $serviceRequest->setPayload( $payload );
-
-    // Bind Payload Parameters
-
-    $bindPayloadParams = ( isset( $routeMethod['bind']['payload'] ) )
-      ? $routeMethod['bind']['payload']
-      : [];
-
-    foreach ( $bindPayloadParams as $param ) {
-      if ( is_array( $payload ) ) {
-        $value = $payload[ $param ];
-      }
-      else if ( is_object( $payload ) ) {
-        $value = $payload->$param;
-      }
-      $serviceRequest->setParameter( $param, $value );
-    }
   }
 
   $collection = $serviceRequest->execute()->getResults();

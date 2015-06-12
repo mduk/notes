@@ -29,30 +29,57 @@ class Router implements GowiService {
     switch ( $request->getCall() ) {
       case 'route':
         $path = $request->getParameter( 'path' );
-        return $this->route( $path, $response );
+        $method = $request->getParameter( 'method' );
+        return $this->route( $path, $method, $response );
     }
   }
   
   protected function initialiseRouter() {
     $this->routes = new SfRouteCollection();
     foreach ( $this->config as $routePattern => $routeParams ) {
-      $route = new SfRoute( $routePattern, $routeParams );
+      $route = new SfRoute( $routePattern );
       $this->routes->add( $routePattern, $route );
     }
   }
 
-  protected function route( $path, $response ) {
+  protected function route( $path, $method, $response ) {
+    $params = $this->routePath( $path );
+    $route = $params['_route'];
+    unset( $params['_route'] );
+
+    $activeRoute = $this->config[ $route ];
+
+    if ( !isset( $activeRoute[ $method ] ) ) {
+      throw new Router\Exception\MethodNotAllowed(
+        "Method Not Allowed\n" .
+        "[path] {$path}\n" .
+        "[method] {$method}"
+      );
+    }
+
+    $config = $this->config[ $route ][ $method ];
+
+    return $response->addResult( [
+      'route' => $route,
+      'params' => $params,
+      'config' => $config
+    ] );
+
+  }
+
+  protected function routePath( $path ) {
     try {
       $matcher = new SfUrlMatcher(
         $this->routes,
         new SfRequestContext()
       );
-      $route = $matcher->match( $path );
+      return $matcher->match( $path );
     }
     catch ( SfResourceNotFoundException $e ) {
-      throw new Router\Exception("There is no route for {$path}");
+      throw new Router\Exception\NotFound(
+        "Not Found\n" .
+        "[path] {$path}"
+      );
     }
-
-    return $response->addResult( $route );
   }
 }
