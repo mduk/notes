@@ -4,6 +4,8 @@ namespace Mduk;
 
 require_once 'vendor/autoload.php';
 
+use Mduk\Service\Router as RouterService;
+
 use Mduk\Dot;
 use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
 use Mduk\Gowi\Application as GowiApplication;
@@ -17,12 +19,6 @@ use Mduk\Gowi\Transcoder;
 
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
-
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\Route;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class NotAcceptableResponseStage implements Stage {
   public function execute( GowiApplication $app, Request $req, Response $res ) {
@@ -252,6 +248,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
 
+  $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
+
   $pdo = $app->getService( 'pdo' );
 
   $mapperFactory = new Mapper\Factory( $pdo );
@@ -308,24 +306,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Match a route
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $routeConfig = $app->getConfig( 'routes' );
+  $app->setConfig( [
+    'active_route' => $app->getService( 'router' )
+      ->request( 'route' )
+      ->setParameter( 'path', $req->getPathInfo() )
+      ->execute()
+      ->getResults()
+      ->shift()
+  ] );
 
-  $routes = new RouteCollection();
-  foreach ( $routeConfig as $routePattern => $routeParams ) {
-    $route = new Route( $routePattern, $routeParams );
-    $routes->add( $routePattern, $route );
-  }
-
-  try {
-    $context = new RequestContext();
-    $matcher = new UrlMatcher( $routes, $context );
-    $route = $matcher->matchRequest( $req );
-  }
-  catch ( ResourceNotFoundException $e ) {
-    return new NotFoundResponseStage;
-  }
-
-  $app->setConfig( [ 'active_route' => $route ] );
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
