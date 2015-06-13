@@ -194,7 +194,6 @@ $app->setConfigArray( [
           ],
         ],
         'response' => [
-          'default_type' => 'application/json',
           'transcoders' => [
             'application/json' => 'generic/json',
             '*/*' => 'generic/json'
@@ -363,7 +362,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   }
 
   if ( $selectedType == '*/*' ) {
-    $selectedType = $app->getConfig( 'active_route.config.response.default_type' );
+    $selectedType = array_shift( $supportedTypes );
   }
 
   if ( !$selectedType ) {
