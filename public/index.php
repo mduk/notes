@@ -67,13 +67,13 @@ class Application extends GowiApplication {
     }
   }
 
-  public function getConfig( $rootKey = null ) {
+  public function getConfig( $rootKey = null, $default = null ) {
     if ( !$rootKey ) throw new \Exception('Just a spike. not implemented');
     try {
       return $this->config->get( $rootKey );
     }
     catch ( DotInvalidKeyException $e ) {
-      return false;
+      return $default;
     }
   }
 }
@@ -484,7 +484,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $serviceRequest = $app->getService( $service )
     ->request( $call );
 
-  $parameterBindings = $app->getConfig( 'active_route.config.bind' );
+  $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
 
   foreach ( $parameterBindings as $bind => $params ) {
     switch ( $bind ) {
