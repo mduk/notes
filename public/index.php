@@ -205,21 +205,22 @@ $config = [
     ],
 
     '/srv/router' => [
-      'POST' => [
+      'GET' => [
         'service' => 'router',
         'call' => 'route',
         'parameters' => [ 'path', 'method' ],
         'bind' => [
-          'query' => [ 'path', 'method' ],
-          'payload' => [ 'path', 'method' ],
+          'query' => [ 'path', 'method' ]
         ],
         'multiplicity' => 'one',
         'transcoders' => [
           'request' => [
-            'application/json' => 'generic/json'
+            'application/json' => 'generic/json',
+            '*/*' => 'generic/json'
           ],
           'response' => [
-            'application/json' => 'generic/json'
+            'application/json' => 'generic/json',
+            '*/*' => 'generic/json'
           ]
         ]
       ]
