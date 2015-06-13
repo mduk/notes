@@ -61,10 +61,8 @@ class Application extends GowiApplication {
     $this->config = new Dot( $config );
   }
 
-  public function setConfig( array $array ) {
-    foreach ( $array as $k => $v ) {
-      $this->config->set( $k, $v );
-    }
+  public function setConfig( $k, $v ) {
+    $this->config->set( $k, $v );
   }
 
   public function getConfig( $rootKey = null, $default = null ) {
@@ -349,15 +347,14 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   try {
-    $app->setConfig( [
-      'active_route' => $app->getService( 'router' )
-        ->request( 'route' )
-        ->setParameter( 'path', $req->getPathInfo() )
-        ->setParameter( 'method', $req->getMethod() )
-        ->execute()
-        ->getResults()
-        ->shift()
-    ] );
+    $app->setConfig( 'active_route', $app->getService( 'router' )
+      ->request( 'route' )
+      ->setParameter( 'path', $req->getPathInfo() )
+      ->setParameter( 'method', $req->getMethod() )
+      ->execute()
+      ->getResults()
+      ->shift()
+    );
   }
   catch ( RouterServiceException\NotFound $e ) {
     return new NotFoundResponseStage;
@@ -386,11 +383,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     return new NotAcceptableResponseStage;
   }
 
-  $app->setConfig( [
-    'response' => [
-      'content_type' => $selectedType
-    ]
-  ] );
+  $app->setConfig( 'response.content_type', $selectedType );
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -407,10 +400,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $requestTranscoder = $app->getService( 'transcoder' )
       ->get( $requestTranscoders[ $requestContentType ] );
 
-    $app->setConfig( [ 'request' => [
-      'content_type' => $requestContentType,
-      'transcoder' => $requestTranscoder
-    ] ] );
+    $app->setConfig( 'request.content_type', $requestContentType );
+    $app->setConfig( 'request.transcoder', $requestTranscoder );
   }
 
 } ) );
@@ -449,11 +440,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     throw new \Exception( "No transcoder found for: {$types}" );
   }
 
-  $app->setConfig( [ 'response' => [
-    'content_type' => $mime,
-    'transcoder' => $transcoder
-  ] ] );
-
+  $app->setConfig( 'response.content_type', $mime );
+  $app->setConfig( 'response.transcoder', $transcoder );
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -464,9 +452,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   if ( $content ) {
     $transcoder = $app->getConfig('request.transcoder');
     $payload = $transcoder->decode( $content );
-    $app->setConfig( [ 'request' => [
-      'payload' => $payload
-    ] ] );
+    $app->setConfig( 'request.payload', $payload );
   }
 } ));
 
@@ -548,10 +534,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $collection = $serviceRequest->execute()->getResults();
 
-  $app->setConfig( [ 'service' => [
-    'response' => $collection
-  ] ] );
-
+  $app->setConfig( 'service.response', $collection );
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -575,8 +558,22 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     ];
   }
 
+  $app->setConfig( 'response.body', $transcoder->encode( $encode ) );
+} ) );
+
+$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
+  if ( $app->getConfig( 'response.content_type' ) == '*/*' ) {
+    $app->setConfig( 'response.body',
+      '<h1>HEADER!</h1>' .
+      $app->getConfig( 'response.body' ) .
+      '<h1>FOOTER!</h1>'
+    );
+  }
+} ) );
+
+$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
-  $res->setContent( $transcoder->encode( $encode ) );
+  $res->setContent( $app->getConfig( 'response.body' ) );
   return $res;
 } ));
 
