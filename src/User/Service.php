@@ -19,7 +19,11 @@ class Service implements ServiceInterface {
   }
 
   public function request( $call ) {
-    return new ServiceRequest( $this, $call, $this->requiredParameters[ $call ] );
+    $required = [];
+    if ( isset( $this->requiredParameters[ $call ] ) ) {
+      $required = $this->requiredParameters[ $call ];
+    }
+    return new ServiceRequest( $this, $call, $required );
   }
 
   public function execute( ServiceRequest $req, ServiceResponse $r ) {

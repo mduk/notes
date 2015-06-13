@@ -151,6 +151,7 @@ $config = [
       'GET' => [
         'service' => 'user',
         'call' => 'getById',
+        'parameters' => [ 'user_id' ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
@@ -168,6 +169,7 @@ $config = [
       'GET' => [
         'service' => 'note',
         'call' => 'getByUserId',
+        'parameters' => [ 'user_id' ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
@@ -184,6 +186,7 @@ $config = [
       'POST' => [
         'service' => 'mustache',
         'call' => 'render',
+        'parameters' => [ 'template' ],
         'bind' => [
           'route' => [ 'template' ],
         ],
@@ -205,6 +208,7 @@ $config = [
       'POST' => [
         'service' => 'router',
         'call' => 'route',
+        'parameters' => [ 'path', 'method' ],
         'bind' => [
           'query' => [ 'path', 'method' ],
           'payload' => [ 'path', 'method' ],
@@ -480,6 +484,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $serviceRequest = $app->getService( $service )
     ->request( $call );
 
+  $parameters = [];
   $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
 
   foreach ( $parameterBindings as $bind => $params ) {
@@ -501,7 +506,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
             $value = $payload->$param;
           }
-          $serviceRequest->setParameter( $param, $value );
+          $parameters[ $param ] = $value;
         }
         break;
 
@@ -510,26 +515,34 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
           if ( !$req->query->get( $param ) ) {
             throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
           }
-          $serviceRequest->setParameter(
-            $param,
-            $req->query->get( $param )
-          );
+          $parameters[ $param ] = $req->query->get( $param );
         }
         break;
 
       case 'route':
-        $routeParams = $app->getConfig( 'active_route.params' );
+        $routeParameters = $app->getConfig( 'active_route.params' );
         foreach ( $params as $param ) {
-          if ( !isset( $routeParams[ $param ] ) ) {
+          if ( !isset( $routeParameters[ $param ] ) ) {
             throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
           }
-          $serviceRequest->setParameter( $param, $routeParams[ $param ] );
+          $parameters[ $param ] = $routeParameters[ $param ];
         }
         break;
 
       default:
         throw new \Exception("SERVICE REQUEST: Unknown bind '{$bind}'");
     }
+  }
+
+  $requiredParameters = $serviceRequest->getRequiredParameters();
+  foreach ( $requiredParameters as $required ) {
+    if ( !isset( $parameters[ $required ] ) ) {
+      throw new \Exception( "SERVICE REQUEST: Parameter {$required} is required" );
+    }
+  }
+
+  foreach ( $parameters as $pk => $pv ) {
+    $serviceRequest->setParameter( $pk, $pv );
   }
 
   if ( $app->getConfig( 'request.payload' ) ) {
