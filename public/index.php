@@ -9,7 +9,7 @@ use Mduk\Service\Router\Exception as RouterServiceException;
 
 use Mduk\Dot;
 use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
-use Mduk\Gowi\Application as GowiApplication;
+use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
@@ -22,7 +22,7 @@ use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
 class NotAcceptableResponseStage implements Stage {
-  public function execute( GowiApplication $app, Request $req, Response $res ) {
+  public function execute( Application $app, Request $req, Response $res ) {
     $res->setStatusCode( 406 );
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent( "406 Not Acceptable\n" .
@@ -32,7 +32,7 @@ class NotAcceptableResponseStage implements Stage {
 }
 
 class NotFoundResponseStage implements Stage {
-  public function execute( GowiApplication $app, Request $req, Response $res ) {
+  public function execute( Application $app, Request $req, Response $res ) {
     $res->setStatusCode( 404 );
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
@@ -44,7 +44,7 @@ class NotFoundResponseStage implements Stage {
 }
 
 class MethodNotAllowedResponseStage implements Stage {
-  public function execute( GowiApplication $app, Request $req, Response $res ) {
+  public function execute( Application $app, Request $req, Response $res ) {
     $res->setStatusCode( 405 );
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
@@ -52,27 +52,6 @@ class MethodNotAllowedResponseStage implements Stage {
       $req->getMethod() . ' is not allowed on ' . $req->getUri()
     );
     return $res;
-  }
-}
-
-class Application extends GowiApplication {
-  public function __construct( $baseDir, $config ) {
-    parent::__construct( $baseDir );
-    $this->config = new Dot( $config );
-  }
-
-  public function setConfig( $k, $v ) {
-    $this->config->set( $k, $v );
-  }
-
-  public function getConfig( $rootKey = null, $default = null ) {
-    if ( !$rootKey ) throw new \Exception('Just a spike. not implemented');
-    try {
-      return $this->config->get( $rootKey );
-    }
-    catch ( DotInvalidKeyException $e ) {
-      return $default;
-    }
   }
 }
 
@@ -100,7 +79,9 @@ class MustacheTranscoder implements Transcoder {
   }
 }
 
-$config = [
+$app = new Application( dirname( __FILE__ ) );
+
+$app->setConfigArray( [
   'debug' => true,
   'routes' => [
 
@@ -220,9 +201,8 @@ $config = [
     ]
 
   ]
-];
+] );
 
-$app = new Application( dirname( __FILE__ ), $config );
 
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   error_reporting( E_ALL );
@@ -391,7 +371,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $routeMethod = $app->getConfig( 'active_routed' );
+  $routeMethod = $app->getConfig( 'active_route' );
 
   $content = $req->getContent();
   if ( $content ) {
@@ -527,7 +507,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $serviceRequest->setParameter( $pk, $pv );
   }
 
-  if ( $app->getConfig( 'request.payload' ) ) {
+  if ( $app->getConfig( 'request.payload', false ) ) {
     $payload = $app->getConfig( 'request.payload' );
     $serviceRequest->setPayload( $payload );
   }
@@ -542,7 +522,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $transcoder = $app->getConfig('response.transcoder');
-  $multiplicity = $app->getConfig('active_route.config.multiplicity');
+  $multiplicity = $app->getConfig('active_route.config.multiplicity', 'many' );
   $encode = $app->getConfig('service.response');
 
   if ( $multiplicity == 'one' ) {
