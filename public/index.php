@@ -507,12 +507,12 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
       case 'query':
         foreach ( $params as $param ) {
-          if ( !$request->query->has( $param ) ) {
+          if ( !$req->query->get( $param ) ) {
             throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
           }
           $serviceRequest->setParameter(
             $param,
-            $request->query->get( $param )
+            $req->query->get( $param )
           );
         }
         break;
