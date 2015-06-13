@@ -7,8 +7,6 @@ require_once 'vendor/autoload.php';
 use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
-use Mduk\Dot;
-use Mduk\Dot\Exception\InvalidKey as DotInvalidKeyException;
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
