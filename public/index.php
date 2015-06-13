@@ -151,7 +151,6 @@ $config = [
       'GET' => [
         'service' => 'user',
         'call' => 'getById',
-        'parameters' => [ 'user_id' ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
@@ -169,7 +168,6 @@ $config = [
       'GET' => [
         'service' => 'note',
         'call' => 'getByUserId',
-        'parameters' => [ 'user_id' ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
@@ -186,7 +184,6 @@ $config = [
       'POST' => [
         'service' => 'mustache',
         'call' => 'render',
-        'parameters' => [ 'template' ],
         'bind' => [
           'route' => [ 'template' ],
         ],
@@ -208,7 +205,6 @@ $config = [
       'GET' => [
         'service' => 'router',
         'call' => 'route',
-        'parameters' => [ 'path', 'method' ],
         'bind' => [
           'query' => [ 'path', 'method' ]
         ],
@@ -484,7 +480,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $serviceRequest = $app->getService( $service )
     ->request( $call );
 
-  $parameters = [];
+  $parameters = $app->getConfig( 'active_route.config.parameters', [] );
   $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
 
   foreach ( $parameterBindings as $bind => $params ) {
