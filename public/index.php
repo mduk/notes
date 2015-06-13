@@ -563,10 +563,10 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $transcoder = $app->getConfig('response.transcoder');
-  $routeConfig = $app->getConfig('active_route_method');
+  $multiplicity = $app->getConfig('active_route.config.multiplicity');
   $encode = $app->getConfig('service.response');
 
-  if ( isset( $routeConfig['multiplicity'] ) && $routeConfig['multiplicity'] == 'one' ) {
+  if ( $multiplicity == 'one' ) {
     $encode = $encode->shift();
   }
   else {
