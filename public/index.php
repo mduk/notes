@@ -215,8 +215,7 @@ $config = [
         'multiplicity' => 'one',
         'transcoders' => [
           'request' => [
-            'application/json' => 'generic/json',
-            '*/*' => 'generic/json'
+            'application/json' => 'generic/json'
           ],
           'response' => [
             'application/json' => 'generic/json',
