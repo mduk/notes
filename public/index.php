@@ -206,8 +206,8 @@ $config = [
         'service' => 'router',
         'call' => 'route',
         'bind' => [
-          'query' => [ 'path' ],
-          'payload' => [ 'path' ],
+          'query' => [ 'path', 'method' ],
+          'payload' => [ 'path', 'method' ],
         ],
         'multiplicity' => 'one',
         'transcoders' => [

@@ -15,6 +15,9 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException as SfResourceN
 class Router implements GowiService {
   protected $config;
   protected $routes;
+  protected $requiredParameters = [
+    'route' => [ 'path', 'method' ]
+  ];
 
   public function __construct( $config ) {
     $this->config = $config;
@@ -22,7 +25,7 @@ class Router implements GowiService {
   }
 
   public function request( $call ) {
-    return new GowiServiceRequest( $this, $call );
+    return new GowiServiceRequest( $this, $call, $this->requiredParameters[ $call ] );
   }
 
   public function execute( GowiServiceRequest $request, GowiServiceResponse $response ) {

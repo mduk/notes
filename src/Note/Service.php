@@ -9,13 +9,16 @@ use Mduk\Gowi\Service\Response as ServiceResponse;
 class Service implements ServiceInterface {
 
   protected $noteMapper;
+  protected $requiredParameters = [
+    'getByUserId' => [ 'user_id' ]
+  ];
 
   public function __construct( Mapper $mapper ) {
     $this->noteMapper = $mapper;
   }
 
   public function request( $call ) {
-    return new ServiceRequest( $this, $call );
+    return new ServiceRequest( $this, $call, $this->requiredParameters[ $call ] );
   }
 
   public function execute( ServiceRequest $q, ServiceResponse $r ) {

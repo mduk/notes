@@ -10,13 +10,16 @@ use Mduk\Gowi\Service\Exception as ServiceException;
 class Service implements ServiceInterface {
 
   protected $userMapper;
+  protected $requiredParameters = [
+    'getById' => [ 'user_id' ]
+  ];
 
   public function __construct( Mapper $mapper ) {
     $this->userMapper = $mapper;
   }
 
   public function request( $call ) {
-    return new ServiceRequest( $this, $call );
+    return new ServiceRequest( $this, $call, $this->requiredParameters );
   }
 
   public function execute( ServiceRequest $req, ServiceResponse $r ) {
