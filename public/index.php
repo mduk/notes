@@ -87,8 +87,8 @@ $app->setConfigArray( [
       'GET' => [
         'service' => 'user',
         'call' => 'listAll',
-        'transcoders' => [
-          'response' => [
+        'response' => [
+          'transcoders' => [
             'application/json' => 'generic/json'
           ]
         ]
@@ -103,8 +103,8 @@ $app->setConfigArray( [
           'template' => 'about'
         ],
         'multiplicity' => 'one',
-        'transcoders' => [
-          'response' => [
+        'response' => [
+          'transcoders' => [
             'text/html' => 'generic/text'
           ]
         ]
@@ -115,8 +115,8 @@ $app->setConfigArray( [
       'GET' => [
         'service' => 'user',
         'call' => 'getAll',
-        'transcoders' => [
-          'response' => [
+        'response' => [
+          'transcoders' => [
             'text/html' => 'html/user_list',
             'application/json' => 'generic/json'
           ]
@@ -132,8 +132,8 @@ $app->setConfigArray( [
           'route' => [ 'user_id' ]
         ],
         'multiplicity' => 'one',
-        'transcoders' => [
-          'response' => [
+        'response' => [
+          'transcoders' => [
             'text/html' => 'html/user_page',
             'application/json' => 'generic/json'
           ]
@@ -148,8 +148,8 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'user_id' ]
         ],
-        'transcoders' => [
-          'response' => [
+        'response' => [
+          'transcoders' => [
             'text/html' => 'html/note_list',
             'application/json' => 'generic/json'
           ]
@@ -165,12 +165,14 @@ $app->setConfigArray( [
           'route' => [ 'template' ],
         ],
         'multiplicity' => 'one',
-        'transcoders' => [
-          'request' => [
+        'request' => [
+          'transcoders' => [
             'application/json' => 'generic/json',
             'application/x-www-form-urlencoded' => 'generic/form'
-          ],
-          'response' => [
+          ]
+        ],
+        'response' => [
+          'transcoders' => [
             'text/html' => 'generic/text',
             'text/plain' => 'generic/text'
           ]
@@ -186,11 +188,13 @@ $app->setConfigArray( [
           'query' => [ 'path', 'method' ]
         ],
         'multiplicity' => 'one',
-        'transcoders' => [
-          'request' => [
+        'request' => [
+          'transcoders' => [
             'application/json' => 'generic/json'
           ],
-          'response' => [
+        ],
+        'response' => [
+          'transcoders' => [
             'application/json' => 'generic/json',
             '*/*' => 'generic/json'
           ]
@@ -346,7 +350,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Select Response MIME type
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $supportedTypes = array_keys( $app->getConfig('active_route.config.transcoders.response') );
+  $supportedTypes = array_keys( $app->getConfig('active_route.config.response.transcoders') );
   $acceptedTypes = $req->getAcceptableContentTypes();
   $selectedType = false;
 
@@ -374,7 +378,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $content = $req->getContent();
   if ( $content ) {
     $requestContentType = $req->headers->get( 'Content-Type' );
-    $requestTranscoders = $app->getConfig( 'active_route.config.transcoders.request' );
+    $requestTranscoders = $app->getConfig( 'active_route.config.request.transcoders' );
     $requestTranscoder = $app->getService( 'transcoder' )
       ->get( $requestTranscoders[ $requestContentType ] );
 
@@ -389,7 +393,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $log = $app->getService('log');
-  $transcoders = $app->getConfig( 'active_route.config.transcoders.response' );
+  $transcoders = $app->getConfig( 'active_route.config.response.transcoders' );
 
   $log->debug(
     'Offered Types: ' .
