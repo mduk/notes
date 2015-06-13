@@ -403,11 +403,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $content = $req->getContent();
   if ( $content ) {
     $requestContentType = $req->headers->get( 'Content-Type' );
-
-    $requestTranscoders = ( isset( $routeMethod['transcoders']['request'] ) )
-      ? $routeMethod['transcoders']['request']
-      : [];
-
+    $requestTranscoders = $app->getConfig( 'active_route.config.transcoders.request' );
     $requestTranscoder = $app->getService( 'transcoder' )
       ->get( $requestTranscoders[ $requestContentType ] );
 
