@@ -544,16 +544,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 } ) );
 
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  if ( $app->getConfig( 'response.content_type' ) == '*/*' ) {
-    $app->setConfig( 'response.body',
-      '<h1>HEADER!</h1>' .
-      $app->getConfig( 'response.body' ) .
-      '<h1>FOOTER!</h1>'
-    );
-  }
-} ) );
-
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
   $res->setContent( $app->getConfig( 'response.body' ) );
   return $res;
