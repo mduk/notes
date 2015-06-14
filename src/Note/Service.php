@@ -21,13 +21,15 @@ class Service implements ServiceInterface {
     return new ServiceRequest( $this, $call, $this->requiredParameters[ $call ] );
   }
 
-  public function execute( ServiceRequest $q, ServiceResponse $r ) {
-    switch ( $q->getCall() ) {
+  public function execute( ServiceRequest $req, ServiceResponse $res ) {
+    switch ( $req->getCall() ) {
 
       case 'getByUserId':
-        $user_id = $q->getParameter( 'user_id' );
-        return $this->getByUserId( $user_id, $r );
+        $user_id = $req->getParameter( 'user_id' );
+        return $this->getByUserId( $user_id, $res );
 
+      default:
+        throw new \Exception( "unknown call to user service: {$req->getCall()}" );
     }
   }
 

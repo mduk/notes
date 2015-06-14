@@ -26,19 +26,18 @@ class Service implements ServiceInterface {
     return new ServiceRequest( $this, $call, $required );
   }
 
-  public function execute( ServiceRequest $req, ServiceResponse $r ) {
+  public function execute( ServiceRequest $req, ServiceResponse $res ) {
     switch ( $req->getCall() ) {
 
       case 'getAll':
-        return $this->getAll( $r );
+        return $this->getAll( $res );
 
       case 'getById':
         $user_id = $req->getParameter( 'user_id' );
-        return $this->getById( $user_id, $r );
+        return $this->getById( $user_id, $res );
 
       default:
-        throw new \Exception( "unknown call to user service: {$r->getCall()}" );
-
+        throw new \Exception( "unknown call to user service: {$req->getCall()}" );
     }
   }
 
