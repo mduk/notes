@@ -302,13 +302,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   try {
-    $app->setConfig( 'active_route', $app->getService( 'router' )
-      ->request( 'route' )
-      ->setParameter( 'path', $req->getPathInfo() )
-      ->setParameter( 'method', $req->getMethod() )
-      ->execute()
-      ->getResults()
-      ->shift()
+    $app->setConfig(
+      'active_route',
+      $app->getService( 'router' )
+        ->request( 'route' )
+        ->setParameter( 'path', $req->getPathInfo() )
+        ->setParameter( 'method', $req->getMethod() )
+        ->execute()
+        ->getResults()
+        ->shift()
     );
   }
   catch ( RouterServiceException\NotFound $e ) {
