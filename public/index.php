@@ -409,6 +409,8 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     json_encode( $req->getAcceptableContentTypes() )
   );
 
+  $transcoder = null;
+
   foreach ( $req->getAcceptableContentTypes() as $mime ) {
     $app->getService('log')->debug( $mime );
     if ( !isset( $transcoders[ $mime ] ) ) {
