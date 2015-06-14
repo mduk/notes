@@ -85,11 +85,15 @@ $app->setConfigArray( [
 
     '/' => [
       'GET' => [
-        'service' => 'user',
-        'call' => 'listAll',
+        'service' => 'mustache',
+        'call' => 'render',
+        'parameters' => [
+          'template' => 'index'
+        ],
+        'multiplicity' => 'one',
         'response' => [
           'transcoders' => [
-            'application/json' => 'generic/json'
+            'text/html' => 'generic/text'
           ]
         ]
       ]
