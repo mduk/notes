@@ -196,7 +196,6 @@ $app->setConfigArray( [
         'response' => [
           'transcoders' => [
             'application/json' => 'generic/json',
-            '*/*' => 'generic/json'
           ]
         ]
       ]
@@ -351,6 +350,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $supportedTypes = array_keys( $app->getConfig('active_route.config.response.transcoders') );
+  $supportedTypes[] = '*/*';
   $acceptedTypes = $req->getAcceptableContentTypes();
   $selectedType = false;
 
@@ -393,42 +393,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
-// Select Response Transcoder
+// Initialise Response Transcoder
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $log = $app->getService('log');
+  $contentType = $app->getConfig( 'response.content_type' );
   $transcoders = $app->getConfig( 'active_route.config.response.transcoders' );
 
-  $log->debug(
-    'Offered Types: ' .
-    json_encode( array_keys( $transcoders ) )
-  );
+  $transcoder = $app->getService( 'transcoder' )
+    ->get( $transcoders[ $contentType ] );
 
-  $log->debug(
-    'Acceptable Types: ' .
-    json_encode( $req->getAcceptableContentTypes() )
-  );
-
-  $transcoder = null;
-
-  foreach ( $req->getAcceptableContentTypes() as $mime ) {
-    $app->getService('log')->debug( $mime );
-    if ( !isset( $transcoders[ $mime ] ) ) {
-      continue;
-    }
-
-    try {
-      $transcoder = $app->getService( 'transcoder' )
-        ->get( $transcoders[ $mime ] );
-    } catch ( \Exception $e ) {}
-  }
-
-  if ( !$transcoder ) {
-    $types = implode( ', ', $req->getAcceptableContentTypes() );
-    throw new \Exception( "No transcoder found for: {$types}" );
-  }
-
-  $app->setConfig( 'response.content_type', $mime );
   $app->setConfig( 'response.transcoder', $transcoder );
 } ) );
 
