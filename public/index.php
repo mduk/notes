@@ -7,6 +7,10 @@ require_once 'vendor/autoload.php';
 use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
+use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
+use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
+use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
+
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
@@ -18,40 +22,6 @@ use Mduk\Gowi\Transcoder;
 
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
-
-class NotAcceptableResponseStage implements Stage {
-  public function execute( Application $app, Request $req, Response $res ) {
-    $res->setStatusCode( 406 );
-    $res->headers->set( 'Content-Type', 'text/plain' );
-    $res->setContent( "406 Not Acceptable\n" .
-      $req->headers->get( 'Accept' ) );
-    return $res;
-  }
-}
-
-class NotFoundResponseStage implements Stage {
-  public function execute( Application $app, Request $req, Response $res ) {
-    $res->setStatusCode( 404 );
-    $res->headers->set( 'Content-Type', 'text/plain' );
-    $res->setContent(
-      "404 Not Found\n" .
-      $req->getUri()
-    );
-    return $res;
-  }
-}
-
-class MethodNotAllowedResponseStage implements Stage {
-  public function execute( Application $app, Request $req, Response $res ) {
-    $res->setStatusCode( 405 );
-    $res->headers->set( 'Content-Type', 'text/plain' );
-    $res->setContent(
-      "405 Method Not Allowed\n" .
-      $req->getMethod() . ' is not allowed on ' . $req->getUri()
-    );
-    return $res;
-  }
-}
 
 class MustacheTranscoder implements Transcoder {
   protected $template;
