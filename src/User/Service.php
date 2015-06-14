@@ -10,12 +10,14 @@ use Mduk\Gowi\Service\Exception as ServiceException;
 class Service implements ServiceInterface {
 
   protected $userMapper;
+  protected $pdo;
   protected $requiredParameters = [
     'getById' => [ 'user_id' ]
   ];
 
-  public function __construct( Mapper $mapper ) {
+  public function __construct( Mapper $mapper, \PDO $pdo ) {
     $this->userMapper = $mapper;
+    $this->pdo = $pdo;
   }
 
   public function request( $call ) {
@@ -36,9 +38,23 @@ class Service implements ServiceInterface {
         $user_id = $req->getParameter( 'user_id' );
         return $this->getById( $user_id, $res );
 
+      case 'create':
+        $user = $req->getPayload();
+        return $this->create( $user, $res );
+
       default:
         throw new \Exception( "unknown call to user service: {$req->getCall()}" );
     }
+  }
+
+  protected function create( $user, ServiceResponse $r ) {
+    $stmt = $this->pdo->prepare('INSERT INTO user ( name, email, role ) VALUES ( :name, :email, :role ) ');
+    $stmt->bindValue( ':name', $user->name );
+    $stmt->bindValue( ':email', $user->email );
+    $stmt->bindValue( ':role', $user->role );
+    $stmt->execute();
+
+    return $r->addResult( 1 );
   }
 
   protected function getAll( ServiceResponse $r ) {

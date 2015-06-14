@@ -95,6 +95,21 @@ $app->setConfigArray( [
             'application/json' => 'generic/json'
           ]
         ]
+      ],
+      'POST' => [
+        'service' => 'user',
+        'call' => 'create',
+        'multiplicity' => 'one',
+        'request' => [
+          'transcoders' => [
+            'application/json' => 'generic/json'
+          ]
+        ],
+        'response' => [
+          'transcoders' => [
+            'application/json' => 'generic/json'
+          ]
+        ]
       ]
     ],
 
@@ -216,7 +231,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $mapperFactory = new Mapper\Factory( $pdo );
 
-  $app->setService( 'user', new User\Service( $mapperFactory->get( '\\Mduk\\User\\Mapper' ) ) );
+  $app->setService( 'user', new User\Service( $mapperFactory->get( '\\Mduk\\User\\Mapper' ), $pdo ) );
   $app->setService( 'note', new Note\Service( $mapperFactory->get( '\\Mduk\\Note\\Mapper' ) ) );
 
   $renderer = new \Mustache_Engine( [
