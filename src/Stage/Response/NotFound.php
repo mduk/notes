@@ -4,8 +4,8 @@ namespace Mduk\Stage\Response;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
-use Mduk\Gowi\Http\Request as HttpRequest;
-use Mduk\Gowi\Http\Response as HttpResponse;
+use Mduk\Gowi\Http\Request;
+use Mduk\Gowi\Http\Response;
 
 class NotFoundResponseStage implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
