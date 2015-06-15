@@ -3,6 +3,7 @@
 namespace Mduk\Stage\Response;
 
 use Mduk\Gowi\Application;
+use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 
