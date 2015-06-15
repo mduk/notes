@@ -7,7 +7,7 @@ use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class MethodNotAllowedResponseStage implements Stage {
+class MethodNotAllowed implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $res->setStatusCode( 405 );
     $res->headers->set( 'Content-Type', 'text/plain' );

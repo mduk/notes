@@ -7,7 +7,7 @@ use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class NotFoundResponseStage implements Stage {
+class NotFound implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $res->setStatusCode( 404 );
     $res->headers->set( 'Content-Type', 'text/plain' );
