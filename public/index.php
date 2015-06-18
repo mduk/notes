@@ -8,6 +8,7 @@ use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
 use Mduk\Stage\ServiceRequest as ServiceRequestStage;
+use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
@@ -385,25 +386,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     $app->setConfig( 'request.payload', $payload );
   }
 } ));
-
-class ContextStage extends ServiceRequestStage {
-  public function execute( Application $app, HttpRequest $req, HttpResponse $res ) {
-    $contextQueries = $app->getConfig( 'active_route.config.context', [] );
-    $context = [];
-    
-    foreach ( $contextQueries as $contextKey => $querySpec ) {
-      $service = $querySpec['service'];
-      $call = $querySpec['call'];
-      $parameters = ( isset( $querySpec['parameters'] ) ) ? $querySpec['parameters'] : [];
-      $parameterBindings = ( isset( $querySpec['bind'] ) ) ? $querySpec['bind'] : [];
-      $multiplicity = ( isset( $querySpec['multiplicity'] ) ) ? $querySpec['multiplicity'] : 'many';
-
-      $contextValue = $this->buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req );
-
-      $app->setConfig( "context.{$contextKey}", $contextValue );
-    }
-  }
-}
 
 // ----------------------------------------------------------------------------------------------------
 // Execute Service Request
