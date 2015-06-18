@@ -7,6 +7,7 @@ require_once 'vendor/autoload.php';
 use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
+use Mduk\Stage\ServiceRequest as ServiceRequestStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
@@ -18,10 +19,8 @@ use Mduk\Gowi\Factory;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
+use Mduk\Service\Remote as RemoteService;
 use Mduk\Gowi\Transcoder;
-
-use Mduk\Gowi\Http\Request;
-use Mduk\Gowi\Http\Response;
 
 class MustacheTranscoder implements Transcoder {
   protected $template;
@@ -32,10 +31,16 @@ class MustacheTranscoder implements Transcoder {
     $this->masseur = $masseur ?: function( $in ) { return $in; };
   }
 
-  public function encode( $in ) {
+  public function encode( $in, array $context = null ) {
     $renderer = new \Mustache_Engine( [
       'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
     ] );
+
+    if ( $context ) {
+      foreach ( $context as $key => $request ) {
+        $in['context'][ $key ] = $request->execute()->getResults();
+      }
+    }
 
     $masseur = $this->masseur;
     $massaged = $masseur( $in );
@@ -136,6 +141,16 @@ $app->setConfigArray( [
         'call' => 'getByUserId',
         'bind' => [
           'route' => [ 'user_id' ]
+        ],
+        'context' => [
+          'user' => [
+            'service' => 'user',
+            'call' => 'getById',
+            'bind' => [
+              'route' => [ 'user_id' ]
+            ],
+            'multiplicity' => 'one'
+          ]
         ],
         'response' => [
           'transcoders' => [
@@ -262,10 +277,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
       return new MustacheTranscoder( 'user_page' );
     },
     'html/note_list' => function() {
-      return new MustacheTranscoder( 'note_list', function( $in ) {
-        $in['user'] = $in['objects'][0]->user[0];
-        return $in;;
-      } );
+      return new MustacheTranscoder( 'note_list' );
     },
     'html/user_list' => function() {
       return new MustacheTranscoder( 'user_list' );
@@ -374,94 +386,49 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   }
 } ));
 
-// ----------------------------------------------------------------------------------------------------
-// Service Request
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $service = $app->getConfig( 'active_route.config.service' );
-  $call = $app->getConfig( 'active_route.config.call' );
+class ContextStage extends ServiceRequestStage {
+  public function execute( Application $app, HttpRequest $req, HttpResponse $res ) {
+    $contextQueries = $app->getConfig( 'active_route.config.context', [] );
+    $context = [];
+    
+    foreach ( $contextQueries as $contextKey => $querySpec ) {
+      $service = $querySpec['service'];
+      $call = $querySpec['call'];
+      $parameters = ( isset( $querySpec['parameters'] ) ) ? $querySpec['parameters'] : [];
+      $parameterBindings = ( isset( $querySpec['bind'] ) ) ? $querySpec['bind'] : [];
+      $multiplicity = ( isset( $querySpec['multiplicity'] ) ) ? $querySpec['multiplicity'] : 'many';
 
-  $serviceRequest = $app->getService( $service )
-    ->request( $call );
+      $contextValue = $this->buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req );
 
-  $parameters = $app->getConfig( 'active_route.config.parameters', [] );
-  $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
-
-  foreach ( $parameterBindings as $bind => $params ) {
-    switch ( $bind ) {
-      case 'payload':
-        $payload = $app->getConfig( 'request.payload' );
-        foreach ( $params as $param ) {
-          if ( is_array( $payload ) ) {
-            if ( !isset( $payload[ $param ] ) ) {
-              throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
-            }
-
-            $value = $payload[ $param ];
-          }
-          else if ( is_object( $payload ) ) {
-            if ( !isset( $payload->$param ) ) {
-              throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
-            }
-
-            $value = $payload->$param;
-          }
-          $parameters[ $param ] = $value;
-        }
-        break;
-
-      case 'query':
-        foreach ( $params as $param ) {
-          if ( !$req->query->get( $param ) ) {
-            throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
-          }
-          $parameters[ $param ] = $req->query->get( $param );
-        }
-        break;
-
-      case 'route':
-        $routeParameters = $app->getConfig( 'active_route.params' );
-        foreach ( $params as $param ) {
-          if ( !isset( $routeParameters[ $param ] ) ) {
-            throw new \Exception( "SERVICE REQUEST: {$bind}.{$param} not found." );
-          }
-          $parameters[ $param ] = $routeParameters[ $param ];
-        }
-        break;
-
-      default:
-        throw new \Exception("SERVICE REQUEST: Unknown bind '{$bind}'");
+      $app->setConfig( "context.{$contextKey}", $contextValue );
     }
   }
-
-  $requiredParameters = $serviceRequest->getRequiredParameters();
-  foreach ( $requiredParameters as $required ) {
-    if ( !isset( $parameters[ $required ] ) ) {
-      throw new \Exception( "SERVICE REQUEST: Parameter {$required} is required" );
-    }
-  }
-
-  foreach ( $parameters as $pk => $pv ) {
-    $serviceRequest->setParameter( $pk, $pv );
-  }
-
-  if ( $app->getConfig( 'request.payload', false ) ) {
-    $payload = $app->getConfig( 'request.payload' );
-    $serviceRequest->setPayload( $payload );
-  }
-
-  $collection = $serviceRequest->execute()->getResults();
-
-  $app->setConfig( 'service.response', $collection );
-} ) );
+}
 
 // ----------------------------------------------------------------------------------------------------
-// Encode and send HTTP Response
+// Execute Service Request
+// ----------------------------------------------------------------------------------------------------
+$app->addStage( new ServiceRequestStage );
+
+// ----------------------------------------------------------------------------------------------------
+// Resolve Context
+// ----------------------------------------------------------------------------------------------------
+$app->addStage( new ContextStage );
+
+#$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
+#  echo '<pre>';
+#  print_r( $app->getConfigArray() );
+#  exit;
+#} ) );
+
+// ----------------------------------------------------------------------------------------------------
+// Encode Service Response
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $transcoder = $app->getConfig('response.transcoder');
   $multiplicity = $app->getConfig('active_route.config.multiplicity', 'many' );
   $encode = $app->getConfig('service.response');
+  $context = $app->getConfig('context');
 
   if ( $multiplicity == 'one' ) {
     $encode = $encode->shift();
@@ -476,9 +443,12 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     ];
   }
 
-  $app->setConfig( 'response.body', $transcoder->encode( $encode ) );
+  $app->setConfig( 'response.body', $transcoder->encode( $encode, $context ) );
 } ) );
 
+// ----------------------------------------------------------------------------------------------------
+// Send HTTP Response
+// ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
   $res->setContent( $app->getConfig( 'response.body' ) );
