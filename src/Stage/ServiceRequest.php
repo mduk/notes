@@ -14,11 +14,10 @@ class ServiceRequest implements Stage {
     $parameters = $app->getConfig( 'active_route.config.parameters', [] );
     $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
 
-    $collection = $this->buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req )
-      ->execute()
-      ->getResults();
-
-    $app->setConfig( 'service.response', $collection );
+    $app->setConfig(
+      'service.request',
+      $this->buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req )
+    );
   }
 
   protected function buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req ) {

@@ -8,6 +8,7 @@ use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
 use Mduk\Stage\ServiceRequest as ServiceRequestStage;
+use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
@@ -409,7 +410,7 @@ $app->addStage( new ContextStage );
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $transcoder = $app->getConfig('response.transcoder');
   $multiplicity = $app->getConfig('active_route.config.multiplicity', 'many' );
-  $encode = $app->getConfig('service.response');
+  $encode = $app->getConfig('service.results');
   $context = $app->getConfig('context', []);
 
   if ( $multiplicity == 'one' ) {
