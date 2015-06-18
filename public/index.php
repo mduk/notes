@@ -410,7 +410,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $transcoder = $app->getConfig('response.transcoder');
   $multiplicity = $app->getConfig('active_route.config.multiplicity', 'many' );
   $encode = $app->getConfig('service.response');
-  $context = $app->getConfig('context');
+  $context = $app->getConfig('context', []);
 
   if ( $multiplicity == 'one' ) {
     $encode = $encode->shift();
