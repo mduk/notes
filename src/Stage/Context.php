@@ -2,12 +2,12 @@
 
 namespace Mduk\Stage;
 
-use Mduk\Stage\ServiceRequest as ServiceRequestStage;
+use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class Context extends ServiceRequestStage {
+class Context extends ResolveServiceRequestStage {
   public function execute( Application $app, Request $req, Response $res ) {
     $contextQueries = $app->getConfig( 'active_route.config.context', [] );
     $context = [];

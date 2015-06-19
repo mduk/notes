@@ -7,7 +7,7 @@ use Mduk\Gowi\Application;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class ServiceRequest implements Stage {
+class ResolveServiceRequest implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $service = $app->getConfig( 'active_route.config.service' );
     $call = $app->getConfig( 'active_route.config.call' );

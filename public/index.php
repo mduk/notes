@@ -7,7 +7,7 @@ require_once 'vendor/autoload.php';
 use Mduk\Service\Router as RouterService;
 use Mduk\Service\Router\Exception as RouterServiceException;
 
-use Mduk\Stage\ServiceRequest as ServiceRequestStage;
+use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
@@ -336,7 +336,7 @@ $app->addStage( new DecodeRequestBodyStage );
 // ----------------------------------------------------------------------------------------------------
 // Resolve Service Request
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new ServiceRequestStage );
+$app->addStage( new ResolveServiceRequestStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Execute Service Request
