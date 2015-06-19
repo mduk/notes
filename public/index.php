@@ -5,7 +5,6 @@ namespace Mduk;
 require_once 'vendor/autoload.php';
 
 use Mduk\Service\Router as RouterService;
-use Mduk\Service\Router\Exception as RouterServiceException;
 
 use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
