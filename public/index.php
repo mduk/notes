@@ -14,7 +14,8 @@ use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
-use Mduk\Stage\SelectResponseType as SelectResponsetypeStage;
+use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
+use Mduk\Stage\SelectResponseType as SelectResponseTypeStage;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
@@ -312,22 +313,7 @@ $app->addStage( new SelectResponseTypeStage );
 // ----------------------------------------------------------------------------------------------------
 // Select Request Transcoder
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $log = $app->getService('log');
-  $routeMethod = $app->getConfig( 'active_route' );
-
-  $content = $req->getContent();
-  if ( $content ) {
-    $requestContentType = $req->headers->get( 'Content-Type' );
-    $requestTranscoders = $app->getConfig( 'active_route.config.request.transcoders' );
-    $requestTranscoder = $app->getService( 'transcoder' )
-      ->get( $requestTranscoders[ $requestContentType ] );
-
-    $app->setConfig( 'request.content_type', $requestContentType );
-    $app->setConfig( 'request.transcoder', $requestTranscoder );
-  }
-
-} ) );
+$app->addStage( new SelectRequestTranscoderStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Initialise Response Transcoder
