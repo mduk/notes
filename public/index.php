@@ -347,12 +347,6 @@ $app->addStage( new ExecuteServiceRequestStage );
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new ContextStage );
 
-#$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-#  echo '<pre>';
-#  print_r( $app->getConfigArray() );
-#  exit;
-#} ) );
-
 // ----------------------------------------------------------------------------------------------------
 // Encode Service Response
 // ----------------------------------------------------------------------------------------------------
