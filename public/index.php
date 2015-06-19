@@ -280,54 +280,15 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 //          REQUEST HANDLING
 // ====================================================================================================
 
-// ----------------------------------------------------------------------------------------------------
-// Match a route
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new MatchRouteStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Select Response MIME type
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new SelectResponseTypeStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Select Request Transcoder
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new SelectRequestTranscoderStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Initialise Response Transcoder
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new InitResponseTranscoderStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Decode HTTP Request body
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new DecodeRequestBodyStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Resolve Service Request
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new ResolveServiceRequestStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Execute Service Request
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new ExecuteServiceRequestStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Resolve Context
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new ContextStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Encode Service Response
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new EncodeServiceResponseStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Send HTTP Response
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new RespondStage );
+$app->addStage( new MatchRouteStage ); // Match a route
+$app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
+$app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
+$app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
+$app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
+$app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
+$app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
+$app->addStage( new ContextStage ); // Resolve Context
+$app->addStage( new EncodeServiceResponseStage ); // Encode Service Response
+$app->addStage( new RespondStage ); // Send HTTP Response
 
 $app->run()->send();
