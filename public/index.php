@@ -67,8 +67,8 @@ $app->setConfigArray( [
         'parameters' => [
           'template' => 'index'
         ],
-        'multiplicity' => 'one',
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'text/html' => 'generic/text'
           ]
@@ -83,8 +83,8 @@ $app->setConfigArray( [
         'parameters' => [
           'template' => 'about'
         ],
-        'multiplicity' => 'one',
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'text/html' => 'generic/text'
           ]
@@ -106,13 +106,13 @@ $app->setConfigArray( [
       'POST' => [
         'service' => 'user',
         'call' => 'create',
-        'multiplicity' => 'one',
         'request' => [
           'transcoders' => [
             'application/json' => 'generic/json'
           ]
         ],
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'application/json' => 'generic/json'
           ]
@@ -127,8 +127,8 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'user_id' ]
         ],
-        'multiplicity' => 'one',
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'text/html' => 'html/user_page',
             'application/json' => 'generic/json'
@@ -170,7 +170,6 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'template' ],
         ],
-        'multiplicity' => 'one',
         'request' => [
           'transcoders' => [
             'application/json' => 'generic/json',
@@ -178,6 +177,7 @@ $app->setConfigArray( [
           ]
         ],
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'text/html' => 'generic/text',
             'text/plain' => 'generic/text'
@@ -193,13 +193,13 @@ $app->setConfigArray( [
         'bind' => [
           'query' => [ 'path', 'method' ]
         ],
-        'multiplicity' => 'one',
         'request' => [
           'transcoders' => [
             'application/json' => 'generic/json'
           ],
         ],
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'application/json' => 'generic/json',
           ]
@@ -214,8 +214,8 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'x', 'y' ]
         ],
-        'multiplicity' => 'one',
         'response' => [
+          'multiplicity' => 'one',
           'transcoders' => [
             'text/plain' => 'generic/text'
           ]
@@ -429,7 +429,7 @@ $app->addStage( new ContextStage );
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   $transcoder = $app->getConfig('response.transcoder');
-  $multiplicity = $app->getConfig('active_route.config.multiplicity', 'many' );
+  $multiplicity = $app->getConfig('active_route.config.response.multiplicity', 'many' );
   $encode = $app->getConfig('service.results');
   $context = $app->getConfig('context', []);
 
