@@ -205,6 +205,22 @@ $app->setConfigArray( [
           ]
         ]
       ]
+    ],
+
+    '/calculator/add/{x}/{y}' => [
+      'GET' => [
+        'service' => 'remote_calculator',
+        'call' => 'add',
+        'bind' => [
+          'route' => [ 'x', 'y' ]
+        ],
+        'multiplicity' => 'one',
+        'response' => [
+          'transcoders' => [
+            'text/plain' => 'generic/text'
+          ]
+        ]
+      ]
     ]
 
   ]
@@ -258,6 +274,9 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $shim = new ServiceShim;
   $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
   $app->setService( 'mustache', $shim );
+
+  $app->setService( 'remote_calculator', new RemoteService( 'http://localhost:5556/' ) );
+
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
@@ -392,6 +411,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // Execute Service Request
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new ServiceRequestStage );
+$app->addStage( new ExecuteServiceRequestStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Resolve Context
