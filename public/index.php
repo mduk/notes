@@ -4,6 +4,9 @@ namespace Mduk;
 
 require_once 'vendor/autoload.php';
 
+use Mduk\Transcoder\Mustache as MustacheTranscoder;
+
+use Mduk\Service\Remote as RemoteService;
 use Mduk\Service\Router as RouterService;
 
 use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
@@ -26,38 +29,6 @@ use Mduk\Gowi\Factory;
 use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
-use Mduk\Service\Remote as RemoteService;
-use Mduk\Gowi\Transcoder;
-
-class MustacheTranscoder implements Transcoder {
-  protected $template;
-  protected $masseur;
-
-  public function __construct( $template, \Closure $masseur = null ) {
-    $this->template = $template;
-    $this->masseur = $masseur ?: function( $in ) { return $in; };
-  }
-
-  public function encode( $in, array $context = null ) {
-    $renderer = new \Mustache_Engine( [
-      'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
-    ] );
-
-    if ( $context ) {
-      foreach ( $context as $key => $request ) {
-        $in['context'][ $key ] = $request->execute()->getResults();
-      }
-    }
-
-    $masseur = $this->masseur;
-    $massaged = $masseur( $in );
-    return $renderer->render( $this->template, $massaged );
-  }
-
-  public function decode( $in ) {
-    throw new \Exception( "Can't decode from html" );
-  }
-}
 
 $app = new Application( dirname( __FILE__ ) );
 
@@ -280,6 +251,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
 
+  $templatesDir = dirname( __FILE__ ) . '/../templates';
   $app->setService( 'transcoder', new Factory( [
     'generic/text' => function() {
       return new \Mduk\Gowi\Transcoder\Generic\Text;
@@ -290,14 +262,14 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     'generic/form' => function() {
       return new \Mduk\Gowi\Transcoder\Generic\Form;
     },
-    'html/user_page' => function() {
-      return new MustacheTranscoder( 'user_page' );
+    'html/user_page' => function() use ( $templatesDir ) {
+      return new MustacheTranscoder( "{$templatesDir}/user_page.mustache" );
     },
-    'html/note_list' => function() {
-      return new MustacheTranscoder( 'note_list' );
+    'html/note_list' => function() use ( $templatesDir ) {
+      return new MustacheTranscoder( "{$templatesDir}/note_list.mustache" );
     },
-    'html/user_list' => function() {
-      return new MustacheTranscoder( 'user_list' );
+    'html/user_list' => function() use ( $templatesDir ) {
+      return new MustacheTranscoder( "{$templatesDir}/user_list.mustache" );
     }
   ] ) );
 
