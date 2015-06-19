@@ -5,6 +5,7 @@ namespace Mduk;
 require_once 'vendor/autoload.php';
 
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
+use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
@@ -12,7 +13,7 @@ use Mduk\Gowi\Service\Shim as ServiceShim;
 
 class Calculator {
   public function add( $x, $y ) {
-    return [ 'name' => $x + $y ];
+    return $x + $y;
   }
 
   public function multiply( $x, $y ) {
@@ -39,6 +40,19 @@ $app->addStage( new StubStage( function( $app, $req, $res ) {
   $shim->setCall( 'add', [ $calculator, 'add' ], [ 'x', 'y' ] );
   $shim->setCall( 'multiply', [ $calculator, 'multiply' ], [ 'x', 'y' ] );
   $app->setService( 'calculator', $shim );
+} ) );
+
+// ----------------------------------------------------------------------------------------------------
+// Map the HTTP Request Body to a Service Request
+// ----------------------------------------------------------------------------------------------------
+$app->addStage( new StubStage( function( $app, $req, $res ) {
+  if ( $req->getMethod() != 'POST' ) {
+    return new MethodNotAllowedResponseStage;
+  }
+
+  if ( !$req->getContent() ) {
+    return $res->error()->text( 'Bad Request' );
+  }
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
