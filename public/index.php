@@ -10,6 +10,7 @@ use Mduk\Service\Router\Exception as RouterServiceException;
 use Mduk\Stage\ServiceRequest as ServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
+use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
@@ -229,20 +230,10 @@ $app->setConfigArray( [
 
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   error_reporting( E_ALL );
-/*
-  set_error_handler( function( $errno, $errstr, $errfile, $errline, array $errcontext ) {
-    //
-  } );
-*/
 } ) );
 
 // Initialise DB
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $pdo = new \PDO( 'sqlite:' . dirname( __FILE__ ) . '/../db.sq3' );
-  $pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-  //$pdo->exec( file_get_contents( 'db.sql' ) );
-  $app->setService( 'pdo', $pdo );
-} ) );
+$app->addStage( new InitDbStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Initialise Log
