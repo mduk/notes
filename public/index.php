@@ -13,6 +13,7 @@ use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
+use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
@@ -322,27 +323,7 @@ $app->addStage( new ContextStage );
 // ----------------------------------------------------------------------------------------------------
 // Encode Service Response
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $transcoder = $app->getConfig('response.transcoder');
-  $multiplicity = $app->getConfig('active_route.config.response.multiplicity', 'many' );
-  $encode = $app->getConfig('service.results');
-  $context = $app->getConfig('context', []);
-
-  if ( $multiplicity == 'one' ) {
-    $encode = $encode->shift();
-  }
-  else {
-    $page = (int) $req->query->get( 'page', 1 );
-    $encode = [
-      'total' => $encode->count(),
-      'page' => $page,
-      'pages' => $encode->numPages(),
-      'objects' => $encode->page( $page )->getAll()
-    ];
-  }
-
-  $app->setConfig( 'response.body', $transcoder->encode( $encode, $context ) );
-} ) );
+$app->addStage( new EncodeServiceResponseStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Send HTTP Response
