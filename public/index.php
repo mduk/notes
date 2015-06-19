@@ -12,6 +12,7 @@ use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
+use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
@@ -230,11 +231,16 @@ $app->setConfigArray( [
 ] );
 
 
+// ----------------------------------------------------------------------------------------------------
+// Error Reporting
+// ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
   error_reporting( E_ALL );
 } ) );
 
+// ----------------------------------------------------------------------------------------------------
 // Initialise DB
+// ----------------------------------------------------------------------------------------------------
 $app->addStage( new InitDbStage );
 
 // ----------------------------------------------------------------------------------------------------
@@ -318,15 +324,7 @@ $app->addStage( new SelectRequestTranscoderStage );
 // ----------------------------------------------------------------------------------------------------
 // Initialise Response Transcoder
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $contentType = $app->getConfig( 'response.content_type' );
-  $transcoders = $app->getConfig( 'active_route.config.response.transcoders' );
-
-  $transcoder = $app->getService( 'transcoder' )
-    ->get( $transcoders[ $contentType ] );
-
-  $app->setConfig( 'response.transcoder', $transcoder );
-} ) );
+$app->addStage( new InitResponseTranscoderStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Decode HTTP Request body
@@ -341,9 +339,13 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 } ));
 
 // ----------------------------------------------------------------------------------------------------
-// Execute Service Request
+// Resolve Service Request
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new ServiceRequestStage );
+
+// ----------------------------------------------------------------------------------------------------
+// Execute Service Request
+// ----------------------------------------------------------------------------------------------------
 $app->addStage( new ExecuteServiceRequestStage );
 
 // ----------------------------------------------------------------------------------------------------
