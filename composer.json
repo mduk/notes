@@ -16,7 +16,8 @@
     "psr/log": "~1.0",
 		"symfony/http-foundation": "2.6.1",
 		"symfony/routing": "2.6.1",
-    "mustache/mustache": "~2.8"
+    "mustache/mustache": "~2.8",
+		"guzzle/guzzle": "^3.9"
 	},
 	"require-dev": {
     "monolog/monolog": "~1.13",
@@ -28,4 +29,3 @@
 		}
 	}
 }
-
