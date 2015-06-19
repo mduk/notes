@@ -15,6 +15,7 @@ use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
+use Mduk\Stage\Respond as RespondStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
 use Mduk\Stage\SelectResponseType as SelectResponseTypeStage;
@@ -375,10 +376,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 // Send HTTP Response
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
-  $res->setContent( $app->getConfig( 'response.body' ) );
-  return $res;
-} ));
+$app->addStage( new RespondStage );
 
 $app->run()->send();
