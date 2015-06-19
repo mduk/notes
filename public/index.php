@@ -15,6 +15,7 @@ use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
+use Mduk\Stage\SelectResponseType as SelectResponsetypeStage;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
@@ -326,29 +327,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 // Select Response MIME type
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $supportedTypes = array_keys( $app->getConfig('active_route.config.response.transcoders') );
-  $supportedTypes[] = '*/*';
-  $acceptedTypes = $req->getAcceptableContentTypes();
-  $selectedType = false;
-
-  foreach ( $acceptedTypes as $aType ) {
-    if ( in_array( $aType, $supportedTypes ) ) {
-      $selectedType = $aType;
-      break;
-    }
-  }
-
-  if ( $selectedType == '*/*' ) {
-    $selectedType = array_shift( $supportedTypes );
-  }
-
-  if ( !$selectedType ) {
-    return new NotAcceptableResponseStage;
-  }
-
-  $app->setConfig( 'response.content_type', $selectedType );
-} ) );
+$app->addStage( new SelectResponseTypeStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Select Request Transcoder
