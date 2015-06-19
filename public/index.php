@@ -10,6 +10,7 @@ use Mduk\Service\Router\Exception as RouterServiceException;
 use Mduk\Stage\ServiceRequest as ServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
+use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
@@ -329,14 +330,7 @@ $app->addStage( new InitResponseTranscoderStage );
 // ----------------------------------------------------------------------------------------------------
 // Decode HTTP Request body
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $content = $req->getContent();
-  if ( $content ) {
-    $transcoder = $app->getConfig('request.transcoder');
-    $payload = $transcoder->decode( $content );
-    $app->setConfig( 'request.payload', $payload );
-  }
-} ));
+$app->addStage( new DecodeRequestBodyStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Resolve Service Request
