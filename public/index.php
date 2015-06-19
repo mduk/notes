@@ -12,9 +12,8 @@ use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
-use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
+use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
-use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
 use Mduk\Stage\SelectResponseType as SelectResponsetypeStage;
 
 use Mduk\Gowi\Application;
@@ -303,26 +302,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ----------------------------------------------------------------------------------------------------
 // Match a route
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  try {
-    $app->setConfig(
-      'active_route',
-      $app->getService( 'router' )
-        ->request( 'route' )
-        ->setParameter( 'path', $req->getPathInfo() )
-        ->setParameter( 'method', $req->getMethod() )
-        ->execute()
-        ->getResults()
-        ->shift()
-    );
-  }
-  catch ( RouterServiceException\NotFound $e ) {
-    return new NotFoundResponseStage;
-  }
-  catch ( RouterServiceException\MethodNotAllowed $e ) {
-    return new MethodNotAllowedResponseStage;
-  }
-} ) );
+$app->addStage( new MatchRouteStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Select Response MIME type
