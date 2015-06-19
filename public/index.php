@@ -11,6 +11,7 @@ use Mduk\Stage\ServiceRequest as ServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\InitDb as InitDbStage;
+use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
@@ -238,11 +239,7 @@ $app->addStage( new InitDbStage );
 // ----------------------------------------------------------------------------------------------------
 // Initialise Log
 // ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  $log = new \Monolog\Logger( 'name' );
-  $log->pushHandler( new \Monolog\Handler\StreamHandler( '/tmp/log' ) );
-  $app->setService( 'log', $log );
-} ) );
+$app->addStage( new InitLogStage );
 
 // ----------------------------------------------------------------------------------------------------
 // Initialise Some Services
