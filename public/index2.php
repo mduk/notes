@@ -30,7 +30,7 @@ $app = new Application( dirname( __FILE__ ) );
 // Just telling it what service we want to use and the response type
 // ----------------------------------------------------------------------------------------------------
 $app->setConfig( 'service', 'calculator' );
-$app->setConfig( 'response.content_type', 'applicatiion/gowi.service.response+json' );
+$app->setConfig( 'http.response.content_type', 'applicatiion/gowi.service.response+json' );
 
 // ----------------------------------------------------------------------------------------------------
 // Bootstrap: Set up the service
@@ -122,8 +122,7 @@ $app->addStage( new StubStage( function( $app, $req, $res ) {
   foreach ( $resultsCollection as $result ) {
     $resultsArray[] = $result;
   }
-  $app->setConfig( 'response.body', json_encode( $resultsArray ) );
-  return $res;
+  $app->setConfig( 'http.response.body', json_encode( $resultsArray ) );
 } ));
 
 $app->addStage( new RespondStage ); // Send HTTP Response
