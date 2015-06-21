@@ -6,6 +6,7 @@ require_once 'vendor/autoload.php';
 
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
+use Mduk\Stage\Respond as RespondStage;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
@@ -26,9 +27,10 @@ $app = new Application( dirname( __FILE__ ) );
 // ----------------------------------------------------------------------------------------------------
 // Configure App
 //
-// Just telling it what service we want to use
+// Just telling it what service we want to use and the response type
 // ----------------------------------------------------------------------------------------------------
 $app->setConfig( 'service', 'calculator' );
+$app->setConfig( 'response.content_type', 'applicatiion/gowi.service.response+json' );
 
 // ----------------------------------------------------------------------------------------------------
 // Bootstrap: Set up the service
@@ -120,9 +122,11 @@ $app->addStage( new StubStage( function( $app, $req, $res ) {
   foreach ( $resultsCollection as $result ) {
     $resultsArray[] = $result;
   }
-  $res->setContent( json_encode( $resultsArray ) );
+  $app->setConfig( 'response.body', json_encode( $resultsArray ) );
   return $res;
 } ));
+
+$app->addStage( new RespondStage ); // Send HTTP Response
 
 
 $app->run()->send();
