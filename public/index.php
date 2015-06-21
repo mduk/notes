@@ -2,6 +2,8 @@
 
 namespace Mduk;
 
+error_reporting( E_ALL );
+
 require_once 'vendor/autoload.php';
 
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
@@ -238,23 +240,8 @@ $app->setConfigArray( [
   ]
 ] );
 
-
-// ----------------------------------------------------------------------------------------------------
-// Error Reporting
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-  error_reporting( E_ALL );
-} ) );
-
-// ----------------------------------------------------------------------------------------------------
-// Initialise DB
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new InitDbStage );
-
-// ----------------------------------------------------------------------------------------------------
-// Initialise Log
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new InitLogStage );
+$app->addStage( new InitLogStage ); // Initialise Log
+$app->addStage( new InitDbStage ); // Initialise DB
 
 // ----------------------------------------------------------------------------------------------------
 // Initialise Some Services
