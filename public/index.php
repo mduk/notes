@@ -39,14 +39,16 @@ $app->setConfigArray( [
 
     '/' => [
       'GET' => [
-        'service' => 'mustache',
-        'call' => 'render',
-        'parameters' => [
-          'template' => 'index'
+        'service' => [
+          'name' => 'mustache',
+          'call' => 'render',
+            'multiplicity' => 'one',
+          'parameters' => [
+            'template' => 'index'
+          ],
         ],
         'http' => [
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'text/html' => 'generic/text'
             ]
@@ -57,14 +59,16 @@ $app->setConfigArray( [
 
     '/about' => [
       'GET' => [
-        'service' => 'mustache',
-        'call' => 'render',
-        'parameters' => [
-          'template' => 'about'
+        'service' => [
+          'name' => 'mustache',
+          'call' => 'render',
+            'multiplicity' => 'one',
+          'parameters' => [
+            'template' => 'about'
+          ]
         ],
         'http' => [
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'text/html' => 'generic/text'
             ]
@@ -75,8 +79,10 @@ $app->setConfigArray( [
 
     '/users' => [
       'GET' => [
-        'service' => 'user',
-        'call' => 'getAll',
+        'service' => [
+          'name' => 'user',
+          'call' => 'getAll'
+        ],
         'http' => [
           'response' => [
             'transcoders' => [
@@ -87,8 +93,11 @@ $app->setConfigArray( [
         ]
       ],
       'POST' => [
-        'service' => 'user',
-        'call' => 'create',
+        'service' => [
+          'name' => 'user',
+          'call' => 'create',
+          'multiplicity' => 'one',
+        ],
         'http' => [
           'request' => [
             'transcoders' => [
@@ -96,7 +105,6 @@ $app->setConfigArray( [
             ]
           ],
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'application/json' => 'generic/json'
             ]
@@ -107,14 +115,16 @@ $app->setConfigArray( [
 
     '/users/{user_id}' => [
       'GET' => [
-        'service' => 'user',
-        'call' => 'getById',
+        'service' => [
+          'name' => 'user',
+          'call' => 'getById',
+            'multiplicity' => 'one',
+        ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
         'http' => [
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'text/html' => 'html/user_page',
               'application/json' => 'generic/json'
@@ -126,8 +136,10 @@ $app->setConfigArray( [
 
     '/users/{user_id}/notes' => [
       'GET' => [
-        'service' => 'note',
-        'call' => 'getByUserId',
+        'service' => [
+          'name' => 'note',
+          'call' => 'getByUserId'
+        ],
         'bind' => [
           'route' => [ 'user_id' ]
         ],
@@ -154,8 +166,11 @@ $app->setConfigArray( [
 
     '/srv/mustache/{template}' => [
       'POST' => [
-        'service' => 'mustache',
-        'call' => 'render',
+        'service' => [
+          'name' => 'mustache',
+          'call' => 'render',
+          'multiplicity' => 'one',
+        ],
         'bind' => [
           'route' => [ 'template' ],
         ],
@@ -167,7 +182,6 @@ $app->setConfigArray( [
             ]
           ],
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'text/html' => 'generic/text',
               'text/plain' => 'generic/text'
@@ -179,8 +193,11 @@ $app->setConfigArray( [
 
     '/srv/router' => [
       'GET' => [
-        'service' => 'router',
-        'call' => 'route',
+        'service' => [
+          'name' => 'router',
+          'call' => 'route',
+          'multiplicity' => 'one',
+        ],
         'bind' => [
           'query' => [ 'path', 'method' ]
         ],
@@ -191,7 +208,6 @@ $app->setConfigArray( [
         ],
         'http' => [
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'application/json' => 'generic/json',
             ]
@@ -202,14 +218,16 @@ $app->setConfigArray( [
 
     '/calculator/add/{x}/{y}' => [
       'GET' => [
-        'service' => 'remote_calculator',
-        'call' => 'add',
+        'service' => [
+          'name' => 'remote_calculator',
+          'call' => 'add',
+            'multiplicity' => 'one',
+        ],
         'bind' => [
           'route' => [ 'x', 'y' ]
         ],
         'http' => [
           'response' => [
-            'multiplicity' => 'one',
             'transcoders' => [
               'text/plain' => 'generic/text'
             ]

@@ -9,9 +9,9 @@ use Mduk\Gowi\Http\Response;
 
 class ResolveServiceRequest implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
-    $service = $app->getConfig( 'service' );
-    $call = $app->getConfig( 'call' );
-    $parameters = $app->getConfig( 'parameters', [] );
+    $service = $app->getConfig( 'service.name' );
+    $call = $app->getConfig( 'service.call' );
+    $parameters = $app->getConfig( 'service.parameters', [] );
     $parameterBindings = $app->getConfig( 'bind', [] );
 
     $app->setConfig(

@@ -9,10 +9,16 @@ use Mduk\Gowi\Http\Response;
 
 class ExecuteServiceRequest implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
-    $app->setConfig( 'service.results',
-      $app->getConfig( 'service.request' )
-        ->execute()
-        ->getResults()
-    );
+    $multiplicity = $app->getConfig( 'service.multiplicity', 'many' );
+
+    $result = $app->getConfig( 'service.request' )
+      ->execute()
+      ->getResults();
+
+    if ( $multiplicity == 'one' ) {
+      $result = $result->shift();
+    }
+
+    $app->setConfig( 'service.result', $result );
   }
 }
