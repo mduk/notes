@@ -10,8 +10,8 @@ use Mduk\Gowi\Http\Response;
 class Respond implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    $res->headers->set( 'Content-Type', $app->getConfig( 'response.content_type' ) );
-    $res->setContent( $app->getConfig( 'response.body' ) );
+    $res->headers->set( 'Content-Type', $app->getConfig( 'http.response.content_type' ) );
+    $res->setContent( $app->getConfig( 'http.response.body' ) );
     return $res;
   }
 

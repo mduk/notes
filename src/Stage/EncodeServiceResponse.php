@@ -10,8 +10,8 @@ use Mduk\Gowi\Http\Response;
 class EncodeServiceResponse implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    $transcoder = $app->getConfig('response.transcoder');
-    $multiplicity = $app->getConfig('response.multiplicity', 'many' );
+    $transcoder = $app->getConfig('http.response.transcoder');
+    $multiplicity = $app->getConfig('http.response.multiplicity', 'many' );
     $encode = $app->getConfig('service.results');
     $context = $app->getConfig('context', []);
 
@@ -28,7 +28,7 @@ class EncodeServiceResponse implements Stage {
       ];
     }
 
-    $app->setConfig( 'response.body', $transcoder->encode( $encode, $context ) );
+    $app->setConfig( 'http.response.body', $transcoder->encode( $encode, $context ) );
   }
 
 }

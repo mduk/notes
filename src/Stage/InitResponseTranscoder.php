@@ -10,13 +10,13 @@ use Mduk\Gowi\Http\Response;
 class InitResponseTranscoder implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    $contentType = $app->getConfig( 'response.content_type' );
-    $transcoders = $app->getConfig( 'response.transcoders' );
+    $contentType = $app->getConfig( 'http.response.content_type' );
+    $transcoders = $app->getConfig( 'http.response.transcoders' );
 
     $transcoder = $app->getService( 'transcoder' )
       ->get( $transcoders[ $contentType ] );
 
-    $app->setConfig( 'response.transcoder', $transcoder );
+    $app->setConfig( 'http.response.transcoder', $transcoder );
   }
 
 }

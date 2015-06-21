@@ -44,10 +44,12 @@ $app->setConfigArray( [
         'parameters' => [
           'template' => 'index'
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'text/html' => 'generic/text'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'text/html' => 'generic/text'
+            ]
           ]
         ]
       ]
@@ -60,10 +62,12 @@ $app->setConfigArray( [
         'parameters' => [
           'template' => 'about'
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'text/html' => 'generic/text'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'text/html' => 'generic/text'
+            ]
           ]
         ]
       ]
@@ -73,10 +77,12 @@ $app->setConfigArray( [
       'GET' => [
         'service' => 'user',
         'call' => 'getAll',
-        'response' => [
-          'transcoders' => [
-            'text/html' => 'html/user_list',
-            'application/json' => 'generic/json'
+        'http' => [
+          'response' => [
+            'transcoders' => [
+              'text/html' => 'html/user_list',
+              'application/json' => 'generic/json'
+            ]
           ]
         ]
       ],
@@ -88,10 +94,12 @@ $app->setConfigArray( [
             'application/json' => 'generic/json'
           ]
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'application/json' => 'generic/json'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'application/json' => 'generic/json'
+            ]
           ]
         ]
       ]
@@ -104,11 +112,13 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'user_id' ]
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'text/html' => 'html/user_page',
-            'application/json' => 'generic/json'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'text/html' => 'html/user_page',
+              'application/json' => 'generic/json'
+            ]
           ]
         ]
       ]
@@ -131,10 +141,12 @@ $app->setConfigArray( [
             'multiplicity' => 'one'
           ]
         ],
-        'response' => [
-          'transcoders' => [
-            'text/html' => 'html/note_list',
-            'application/json' => 'generic/json'
+        'http' => [
+          'response' => [
+            'transcoders' => [
+              'text/html' => 'html/note_list',
+              'application/json' => 'generic/json'
+            ]
           ]
         ]
       ]
@@ -153,11 +165,13 @@ $app->setConfigArray( [
             'application/x-www-form-urlencoded' => 'generic/form'
           ]
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'text/html' => 'generic/text',
-            'text/plain' => 'generic/text'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'text/html' => 'generic/text',
+              'text/plain' => 'generic/text'
+            ]
           ]
         ]
       ]
@@ -175,10 +189,12 @@ $app->setConfigArray( [
             'application/json' => 'generic/json'
           ],
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'application/json' => 'generic/json',
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'application/json' => 'generic/json',
+            ]
           ]
         ]
       ]
@@ -191,10 +207,12 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'x', 'y' ]
         ],
-        'response' => [
-          'multiplicity' => 'one',
-          'transcoders' => [
-            'text/plain' => 'generic/text'
+        'http' => [
+          'response' => [
+            'multiplicity' => 'one',
+            'transcoders' => [
+              'text/plain' => 'generic/text'
+            ]
           ]
         ]
       ]
