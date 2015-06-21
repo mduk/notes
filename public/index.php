@@ -146,12 +146,10 @@ $app->setConfigArray( [
         ],
         'context' => [
           'user' => [
-            'service' => 'user',
-            'call' => 'getById',
-            'bind' => [
-              'route' => [ 'user_id' ]
+            'service' => [
+              'name' =>'user',
+              'call' => 'getById',
             ],
-            'multiplicity' => 'one'
           ]
         ],
         'http' => [

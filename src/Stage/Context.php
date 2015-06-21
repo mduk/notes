@@ -2,26 +2,33 @@
 
 namespace Mduk\Stage;
 
-use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
+use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class Context extends ResolveServiceRequestStage {
+class Context implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $contextQueries = $app->getConfig( 'context', [] );
     $context = [];
     
     foreach ( $contextQueries as $contextKey => $querySpec ) {
-      $service = $querySpec['service'];
-      $call = $querySpec['call'];
-      $parameters = ( isset( $querySpec['parameters'] ) ) ? $querySpec['parameters'] : [];
-      $parameterBindings = ( isset( $querySpec['bind'] ) ) ? $querySpec['bind'] : [];
-      $multiplicity = ( isset( $querySpec['multiplicity'] ) ) ? $querySpec['multiplicity'] : 'many';
+      $service = $querySpec['service']['name'];
+      $call = $querySpec['service']['call'];
 
-      $contextValue = $this->buildServiceRequest( $service, $call, $parameters, $parameterBindings, $app, $req );
+      $parentParameters = $app->getConfig( 'service.parameters' );
 
-      $app->setConfig( "context.{$contextKey}", $contextValue );
+      $parameters = ( isset( $querySpec['service']['parameters'] ) )
+        ? $querySpec['service']['parameters']
+        : [];
+
+      $parameters = array_merge( $parentParameters, $parameters );
+
+      $contextRequest = $app->getService( $service )
+        ->request( $call )
+        ->setParameters( $parameters );
+
+      $app->setConfig( "context.{$contextKey}", $contextRequest );
     }
   }
 }
