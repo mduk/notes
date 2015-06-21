@@ -36,10 +36,41 @@ $app->setConfig( 'service', 'calculator' );
 $app->addStage( new StubStage( function( $app, $req, $res ) {
   $calculator = new Calculator;
 
-  $shim = new ServiceShim;
-  $shim->setCall( 'add', [ $calculator, 'add' ], [ 'x', 'y' ] );
-  $shim->setCall( 'multiply', [ $calculator, 'multiply' ], [ 'x', 'y' ] );
+  $shim = new ServiceShim( 'A simple calculator' );
+  $shim->setCall( 'add', [ $calculator, 'add' ], [ 'x', 'y' ],
+    "Add two numbers together." );
+  $shim->setCall( 'multiply', [ $calculator, 'multiply' ], [ 'x', 'y' ],
+    "Multiply two numbers." );
+
   $app->setService( 'calculator', $shim );
+} ) );
+
+// ----------------------------------------------------------------------------------------------------
+// Serve Service Description
+// ----------------------------------------------------------------------------------------------------
+$app->addStage( new StubStage( function( $app, $req, $res ) {
+  if ( $req->getMethod() == 'GET' ) {
+    $serviceName = $app->getConfig( 'service' );
+    $description = $app->getService( $serviceName )
+      ->describe();
+
+    $h1 = '<h1>Service: ' . $serviceName . '</h1>';
+    $callItems = [];
+    foreach ( $description['calls'] as $call => $callSpec ) {
+      $callItems[] = <<<EOF
+<li>
+  <h2>{$call}</h1>
+  <p>{$callSpec['description']}</p>
+</li>
+EOF;
+    }
+    $callList = '<ul>' . implode( '', $callItems ) . '</ul>';
+    $body = '<html><body>' . $h1 . $callList . '</body></html>';
+
+    $res->headers->set( 'Content-Type', 'text/html' );
+    $res->setContent( $body );
+    return $res;
+  }
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
