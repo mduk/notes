@@ -239,8 +239,9 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
   ] );
 
-  $shim = new ServiceShim;
-  $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ] );
+  $shim = new ServiceShim( 'Mustache template renderer' );
+  $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ],
+    "Render a mustache template" );
   $app->setService( 'mustache', $shim );
 
   $app->setService( 'remote_calculator', new RemoteService( 'http://localhost:5556/' ) );
