@@ -43,7 +43,7 @@ $app->addStage( new StubStage( function( $app, $req, $res ) {
 } ) );
 
 // ----------------------------------------------------------------------------------------------------
-// Map the HTTP Request Body to a Service Request
+// Reject invalid requests
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $app, $req, $res ) {
   if ( $req->getMethod() != 'POST' ) {
