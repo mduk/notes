@@ -6,6 +6,7 @@ require_once 'vendor/autoload.php';
 
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
+use Mduk\Stage\Response\BadRequest as BadRequestStage;
 use Mduk\Stage\Respond as RespondStage;
 
 use Mduk\Gowi\Application;
@@ -84,7 +85,7 @@ $app->addStage( new StubStage( function( $app, $req, $res ) {
   }
 
   if ( !$req->getContent() ) {
-    return $res->error()->text( 'Bad Request' );
+    return new BadRequestStage;
   }
 } ) );
 
