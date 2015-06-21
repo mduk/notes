@@ -9,6 +9,7 @@ use Mduk\Transcoder\Mustache as MustacheTranscoder;
 use Mduk\Service\Remote as RemoteService;
 use Mduk\Service\Router as RouterService;
 
+use Mduk\Stage\BindServiceRequestParameters as BindServiceRequestParametersStage;
 use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
@@ -322,6 +323,7 @@ $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
 $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
 $app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
 $app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
+$app->addStage( new BindServiceRequestParametersStage ); // Bind values from the environment to the Service Request
 $app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
 $app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
 $app->addStage( new ContextStage ); // Resolve Context
