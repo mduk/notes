@@ -11,7 +11,7 @@ class EncodeServiceResponse implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
     $transcoder = $app->getConfig('response.transcoder');
-    $multiplicity = $app->getConfig('active_route.config.response.multiplicity', 'many' );
+    $multiplicity = $app->getConfig('response.multiplicity', 'many' );
     $encode = $app->getConfig('service.results');
     $context = $app->getConfig('context', []);
 

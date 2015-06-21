@@ -11,7 +11,7 @@ class InitResponseTranscoder implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
     $contentType = $app->getConfig( 'response.content_type' );
-    $transcoders = $app->getConfig( 'active_route.config.response.transcoders' );
+    $transcoders = $app->getConfig( 'response.transcoders' );
 
     $transcoder = $app->getService( 'transcoder' )
       ->get( $transcoders[ $contentType ] );

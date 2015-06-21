@@ -16,16 +16,25 @@ class MatchRoute implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
     try {
-      $app->setConfig(
-        'active_route',
-        $app->getService( 'router' )
-          ->request( 'route' )
-          ->setParameter( 'path', $req->getPathInfo() )
-          ->setParameter( 'method', $req->getMethod() )
-          ->execute()
-          ->getResults()
-          ->shift()
+      $activeRoute = $app->getService( 'router' )
+        ->request( 'route' )
+        ->setParameter( 'path', $req->getPathInfo() )
+        ->setParameter( 'method', $req->getMethod() )
+        ->execute()
+        ->getResults()
+        ->shift();
+
+      $appConfig = array_merge(
+        $app->getConfigArray(),
+        [
+          'route' => [
+            'pattern' => $activeRoute['route'],
+            'parameters' => $activeRoute['params']
+          ]
+        ],
+        $activeRoute['config']
       );
+      $app->setConfigArray( $appConfig );
     }
     catch ( RouterException\NotFound $e ) {
       return new NotFoundResponseStage;

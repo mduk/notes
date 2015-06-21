@@ -9,10 +9,10 @@ use Mduk\Gowi\Http\Response;
 
 class ResolveServiceRequest implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
-    $service = $app->getConfig( 'active_route.config.service' );
-    $call = $app->getConfig( 'active_route.config.call' );
-    $parameters = $app->getConfig( 'active_route.config.parameters', [] );
-    $parameterBindings = $app->getConfig( 'active_route.config.bind', [] );
+    $service = $app->getConfig( 'service' );
+    $call = $app->getConfig( 'call' );
+    $parameters = $app->getConfig( 'parameters', [] );
+    $parameterBindings = $app->getConfig( 'bind', [] );
 
     $app->setConfig(
       'service.request',
@@ -57,7 +57,7 @@ class ResolveServiceRequest implements Stage {
           break;
 
         case 'route':
-          $this->mapRequestParamsFromArray( $parameters, $bind, $app->getConfig( 'active_route.params' ) );
+          $this->mapRequestParamsFromArray( $parameters, $bind, $app->getConfig( 'route.parameters' ) );
           break;
 
         default:

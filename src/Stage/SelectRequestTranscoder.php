@@ -12,10 +12,9 @@ class SelectRequestTranscoder implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     if ( $req->getContent() ) {
       $log = $app->getService( 'log' );
-      $routeMethod = $app->getConfig( 'active_route' );
 
       $requestContentType = $req->headers->get( 'Content-Type' );
-      $requestTranscoders = $app->getConfig( 'active_route.config.request.transcoders' );
+      $requestTranscoders = $app->getConfig( 'request.transcoders' );
       $requestTranscoder = $app->getService( 'transcoder' )
         ->get( $requestTranscoders[ $requestContentType ] );
 

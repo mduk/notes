@@ -9,7 +9,7 @@ use Mduk\Gowi\Http\Response;
 
 class Context extends ResolveServiceRequestStage {
   public function execute( Application $app, Request $req, Response $res ) {
-    $contextQueries = $app->getConfig( 'active_route.config.context', [] );
+    $contextQueries = $app->getConfig( 'context', [] );
     $context = [];
     
     foreach ( $contextQueries as $contextKey => $querySpec ) {
