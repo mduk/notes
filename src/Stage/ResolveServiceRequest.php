@@ -37,8 +37,8 @@ class ResolveServiceRequest implements Stage {
       $serviceRequest->setParameter( $pk, $pv );
     }
 
-    if ( $app->getConfig( 'request.payload', false ) ) {
-      $payload = $app->getConfig( 'request.payload' );
+    if ( $app->getConfig( 'http.request.payload', false ) ) {
+      $payload = $app->getConfig( 'http.request.payload' );
       $serviceRequest->setPayload( $payload );
     }
 
@@ -49,7 +49,7 @@ class ResolveServiceRequest implements Stage {
     foreach ( $parameterBindings as $source => $bind ) {
       switch ( $source ) {
         case 'payload':
-          $this->mapRequestParamsFromPayload( $parameters, $bind, $app->getConfig( 'request.payload' ) );
+          $this->mapRequestParamsFromPayload( $parameters, $bind, $app->getConfig( 'http.request.payload' ) );
           break;
 
         case 'query':

@@ -14,12 +14,12 @@ class SelectRequestTranscoder implements Stage {
       $log = $app->getService( 'log' );
 
       $requestContentType = $req->headers->get( 'Content-Type' );
-      $requestTranscoders = $app->getConfig( 'request.transcoders' );
+      $requestTranscoders = $app->getConfig( 'http.request.transcoders' );
       $requestTranscoder = $app->getService( 'transcoder' )
         ->get( $requestTranscoders[ $requestContentType ] );
 
-      $app->setConfig( 'request.content_type', $requestContentType );
-      $app->setConfig( 'request.transcoder', $requestTranscoder );
+      $app->setConfig( 'http.request.content_type', $requestContentType );
+      $app->setConfig( 'http.request.transcoder', $requestTranscoder );
     }
   }
 

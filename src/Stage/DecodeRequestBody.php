@@ -12,9 +12,9 @@ class DecodeRequestBody implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $content = $req->getContent();
     if ( $content ) {
-      $transcoder = $app->getConfig('request.transcoder');
+      $transcoder = $app->getConfig('http.request.transcoder');
       $payload = $transcoder->decode( $content );
-      $app->setConfig( 'request.payload', $payload );
+      $app->setConfig( 'http.request.payload', $payload );
     }
   }
 

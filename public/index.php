@@ -89,12 +89,12 @@ $app->setConfigArray( [
       'POST' => [
         'service' => 'user',
         'call' => 'create',
-        'request' => [
-          'transcoders' => [
-            'application/json' => 'generic/json'
-          ]
-        ],
         'http' => [
+          'request' => [
+            'transcoders' => [
+              'application/json' => 'generic/json'
+            ]
+          ],
           'response' => [
             'multiplicity' => 'one',
             'transcoders' => [
@@ -159,13 +159,13 @@ $app->setConfigArray( [
         'bind' => [
           'route' => [ 'template' ],
         ],
-        'request' => [
-          'transcoders' => [
-            'application/json' => 'generic/json',
-            'application/x-www-form-urlencoded' => 'generic/form'
-          ]
-        ],
         'http' => [
+          'request' => [
+            'transcoders' => [
+              'application/json' => 'generic/json',
+              'application/x-www-form-urlencoded' => 'generic/form'
+            ]
+          ],
           'response' => [
             'multiplicity' => 'one',
             'transcoders' => [
