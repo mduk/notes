@@ -34,211 +34,229 @@ use Mduk\Gowi\Http\Request as HttpRequest;
 use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
-$app = new Application( dirname( __FILE__ ) );
+$templatesDir = dirname( __FILE__ ) . '/../templates';
+$transcoderFactory = new Factory( [
+  'generic:text' => function() {
+    return new \Mduk\Gowi\Transcoder\Generic\Text;
+  },
+  'generic:json' => function() {
+    return new \Mduk\Gowi\Transcoder\Generic\Json;
+  },
+  'generic:form' => function() {
+    return new \Mduk\Gowi\Transcoder\Generic\Form;
+  },
+  'html:user_page' => function() use ( $templatesDir ) {
+    return new MustacheTranscoder( "{$templatesDir}/user_page.mustache" );
+  },
+  'html:note_list' => function() use ( $templatesDir ) {
+    return new MustacheTranscoder( "{$templatesDir}/note_list.mustache" );
+  },
+  'html:user_list' => function() use ( $templatesDir ) {
+    return new MustacheTranscoder( "{$templatesDir}/user_list.mustache" );
+  }
+] );
 
-$app->setConfigArray( [
-  'debug' => true,
-  'routes' => [
+class RoutedApplicationConfig {
+  protected $routes = [];
+  protected $transcoderFactory;
 
-    '/' => [
+  public function useTranscoderFactory( $factory ) {
+    $this->transcoderFactory = $factory;
+  }
+
+  public function addStaticPage( $path, $template ) {
+    $this->routes[ $path ] = [
       'GET' => [
         'service' => [
           'name' => 'mustache',
           'call' => 'render',
-            'multiplicity' => 'one',
+          'multiplicity' => 'one',
           'parameters' => [
-            'template' => 'index'
-          ],
+            'template' => $template
+          ]
         ],
         'http' => [
           'response' => [
             'transcoders' => [
-              'text/html' => 'generic/text'
+              'text/html' => 'generic:text'
             ]
           ]
         ]
       ]
-    ],
+    ];
+  }
 
-    '/about' => [
-      'GET' => [
-        'service' => [
-          'name' => 'mustache',
-          'call' => 'render',
-            'multiplicity' => 'one',
-          'parameters' => [
-            'template' => 'about'
-          ]
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'generic/text'
-            ]
-          ]
-        ]
-      ]
-    ],
+  public function addRoute( $path, $routeConfig ) {
+    $this->routes[ $path ] = $routeConfig;
+  }
 
-    '/users' => [
-      'GET' => [
-        'service' => [
-          'name' => 'user',
-          'call' => 'getAll'
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'html/user_list',
-              'application/json' => 'generic/json'
-            ]
-          ]
-        ]
-      ],
-      'POST' => [
-        'service' => [
-          'name' => 'user',
-          'call' => 'create',
-          'multiplicity' => 'one',
-        ],
-        'http' => [
-          'request' => [
-            'transcoders' => [
-              'application/json' => 'generic/json'
-            ]
-          ],
-          'response' => [
-            'transcoders' => [
-              'application/json' => 'generic/json'
-            ]
-          ]
-        ]
-      ]
-    ],
+  public function toArray() {
+    return [
+      'debug' => true,
+      'transcoder' => $this->transcoderFactory,
+      'routes' => $this->routes
+    ];
+  }
+}
 
-    '/users/{user_id}' => [
-      'GET' => [
-        'service' => [
-          'name' => 'user',
-          'call' => 'getById',
-            'multiplicity' => 'one',
-        ],
-        'bind' => [
-          'route' => [ 'user_id' ]
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'html/user_page',
-              'application/json' => 'generic/json'
-            ]
-          ]
-        ]
-      ]
+$config = new RoutedApplicationConfig;
+$config->useTranscoderFactory( $transcoderFactory );
+$config->addStaticPage( '/', 'index' );
+$config->addStaticPage( '/about', 'about' );
+$config->addRoute( '/users', [
+  'GET' => [
+    'service' => [
+      'name' => 'user',
+      'call' => 'getAll'
     ],
-
-    '/users/{user_id}/notes' => [
-      'GET' => [
-        'service' => [
-          'name' => 'note',
-          'call' => 'getByUserId'
-        ],
-        'bind' => [
-          'route' => [ 'user_id' ]
-        ],
-        'context' => [
-          'user' => [
-            'service' => [
-              'name' =>'user',
-              'call' => 'getById',
-            ],
-          ]
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'html/note_list',
-              'application/json' => 'generic/json'
-            ]
-          ]
-        ]
-      ]
-    ],
-
-    '/srv/mustache/{template}' => [
-      'POST' => [
-        'service' => [
-          'name' => 'mustache',
-          'call' => 'render',
-          'multiplicity' => 'one',
-        ],
-        'bind' => [
-          'route' => [ 'template' ],
-        ],
-        'http' => [
-          'request' => [
-            'transcoders' => [
-              'application/json' => 'generic/json',
-              'application/x-www-form-urlencoded' => 'generic/form'
-            ]
-          ],
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'generic/text',
-              'text/plain' => 'generic/text'
-            ]
-          ]
-        ]
-      ]
-    ],
-
-    '/srv/router' => [
-      'GET' => [
-        'service' => [
-          'name' => 'router',
-          'call' => 'route',
-          'multiplicity' => 'one',
-        ],
-        'bind' => [
-          'query' => [ 'path', 'method' ]
-        ],
-        'request' => [
-          'transcoders' => [
-            'application/json' => 'generic/json'
-          ],
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'application/json' => 'generic/json',
-            ]
-          ]
-        ]
-      ]
-    ],
-
-    '/calculator/add/{x}/{y}' => [
-      'GET' => [
-        'service' => [
-          'name' => 'remote_calculator',
-          'call' => 'add',
-            'multiplicity' => 'one',
-        ],
-        'bind' => [
-          'route' => [ 'x', 'y' ]
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/plain' => 'generic/text'
-            ]
-          ]
+    'http' => [
+      'response' => [
+        'transcoders' => [
+          'text/html' => 'html:user_list',
+          'application/json' => 'generic:json'
         ]
       ]
     ]
-
+  ],
+  'POST' => [
+    'service' => [
+      'name' => 'user',
+      'call' => 'create',
+      'multiplicity' => 'one',
+    ],
+    'http' => [
+      'request' => [
+        'transcoders' => [
+          'application/json' => 'generic:json'
+        ]
+      ],
+      'response' => [
+        'transcoders' => [
+          'application/json' => 'generic:json'
+        ]
+      ]
+    ]
   ]
 ] );
+$config->addRoute( '/users/{user_id}', [
+  'GET' => [
+    'service' => [
+      'name' => 'user',
+      'call' => 'getById',
+      'multiplicity' => 'one',
+    ],
+    'bind' => [
+      'route' => [ 'user_id' ]
+    ],
+    'http' => [
+      'response' => [
+        'transcoders' => [
+          'text/html' => 'html:user_page',
+          'application/json' => 'generic:json'
+        ]
+      ]
+    ]
+  ]
+] );
+$config->addRoute( '/users/{user_id}/notes', [
+  'GET' => [
+    'service' => [
+      'name' => 'note',
+      'call' => 'getByUserId'
+    ],
+    'bind' => [
+      'route' => [ 'user_id' ]
+    ],
+    'context' => [
+      'user' => [
+        'service' => [
+          'name' =>'user',
+          'call' => 'getById',
+        ],
+      ]
+    ],
+    'http' => [
+      'response' => [
+        'transcoders' => [
+          'text/html' => 'html:note_list',
+          'application/json' => 'generic:json'
+        ]
+      ]
+    ]
+  ]
+] );
+$config->addRoute( '/srv/mustache/{template}', [
+  'POST' => [
+    'service' => [
+      'name' => 'mustache',
+      'call' => 'render',
+      'multiplicity' => 'one',
+    ],
+    'bind' => [
+      'route' => [ 'template' ],
+    ],
+    'http' => [
+      'request' => [
+        'transcoders' => [
+          'application/json' => 'generic:json',
+          'application/x-www-form-urlencoded' => 'generic:form'
+        ]
+      ],
+      'response' => [
+        'transcoders' => [
+          'text/html' => 'generic:text',
+          'text/plain' => 'generic:text'
+        ]
+      ]
+    ]
+  ]
+] );
+$config->addRoute( '/srv/router', [
+  'GET' => [
+    'service' => [
+      'name' => 'router',
+      'call' => 'route',
+      'multiplicity' => 'one',
+    ],
+    'bind' => [
+      'query' => [ 'path', 'method' ]
+    ],
+    'request' => [
+      'transcoders' => [
+        'application/json' => 'generic:json'
+      ],
+    ],
+    'http' => [
+      'response' => [
+        'transcoders' => [
+          'application/json' => 'generic:json',
+        ]
+      ]
+    ]
+  ]
+] );
+$config->addRoute( '/srv/router', [
+  'GET' => [
+    'service' => [
+      'name' => 'remote_calculator',
+      'call' => 'add',
+      'multiplicity' => 'one',
+    ],
+    'bind' => [
+      'route' => [ 'x', 'y' ]
+    ],
+    'http' => [
+      'response' => [
+        'transcoders' => [
+          'text/plain' => 'generic:text'
+        ]
+      ]
+    ]
+  ]
+] );
+
+$app = new Application( dirname( __FILE__ ) );
+$app->setConfigArray( $config->toArray() );
 
 $app->addStage( new InitLogStage ); // Initialise Log
 $app->addStage( new InitDbStage ); // Initialise DB
@@ -251,9 +269,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
 
   $pdo = $app->getService( 'pdo' );
-
   $mapperFactory = new Mapper\Factory( $pdo );
-
   $app->setService( 'user', new User\Service( $mapperFactory->get( '\\Mduk\\User\\Mapper' ), $pdo ) );
   $app->setService( 'note', new Note\Service( $mapperFactory->get( '\\Mduk\\Note\\Mapper' ) ) );
 
@@ -267,35 +283,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $app->setService( 'mustache', $shim );
 
   $app->setService( 'remote_calculator', new RemoteService( 'http://localhost:5556/' ) );
-
-} ) );
-
-// ----------------------------------------------------------------------------------------------------
-// Initialise some Transcoder Factories
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-
-  $templatesDir = dirname( __FILE__ ) . '/../templates';
-  $app->setService( 'transcoder', new Factory( [
-    'generic/text' => function() {
-      return new \Mduk\Gowi\Transcoder\Generic\Text;
-    },
-    'generic/json' => function() {
-      return new \Mduk\Gowi\Transcoder\Generic\Json;
-    },
-    'generic/form' => function() {
-      return new \Mduk\Gowi\Transcoder\Generic\Form;
-    },
-    'html/user_page' => function() use ( $templatesDir ) {
-      return new MustacheTranscoder( "{$templatesDir}/user_page.mustache" );
-    },
-    'html/note_list' => function() use ( $templatesDir ) {
-      return new MustacheTranscoder( "{$templatesDir}/note_list.mustache" );
-    },
-    'html/user_list' => function() use ( $templatesDir ) {
-      return new MustacheTranscoder( "{$templatesDir}/user_list.mustache" );
-    }
-  ] ) );
 
 } ) );
 

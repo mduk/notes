@@ -12,10 +12,7 @@ class InitResponseTranscoder implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
     $contentType = $app->getConfig( 'http.response.content_type' );
     $transcoders = $app->getConfig( 'http.response.transcoders' );
-
-    $transcoder = $app->getService( 'transcoder' )
-      ->get( $transcoders[ $contentType ] );
-
+    $transcoder = $app->getConfig( "transcoder.{$transcoders[ $contentType ]}" );
     $app->setConfig( 'http.response.transcoder', $transcoder );
   }
 
