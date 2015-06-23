@@ -222,11 +222,6 @@ $config->addRoute( '/srv/router', [
       'query' => [ 'path', 'method' ]
     ],
     'http' => [
-      'request' => [
-        'transcoders' => [
-          'application/json' => 'generic:json'
-        ],
-      ],
       'response' => [
         'transcoders' => [
           'application/json' => 'generic:json',
