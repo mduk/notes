@@ -235,7 +235,7 @@ $config->addRoute( '/srv/router', [
     ]
   ]
 ] );
-$config->addRoute( '/srv/router', [
+$config->addRoute( '/srv/calculator', [
   'GET' => [
     'service' => [
       'name' => 'remote_calculator',
