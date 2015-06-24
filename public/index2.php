@@ -118,7 +118,7 @@ if ( false ) {
 // Encode and return Service Response Results
 // ----------------------------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $app, $req, $res ) {
-  $resultsCollection = $app->getConfig( 'service.results' );
+  $resultsCollection = $app->getConfig( 'service.result' );
   $resultsArray = [];
   foreach ( $resultsCollection as $result ) {
     $resultsArray[] = $result;

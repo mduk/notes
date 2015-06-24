@@ -9,7 +9,6 @@ require_once 'vendor/autoload.php';
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
 
 use Mduk\Service\Pdo as PdoService;
-use Mduk\Service\Remote as RemoteService;
 use Mduk\Service\Router as RouterService;
 
 use Mduk\Stage\BindServiceRequestParameters as BindServiceRequestParametersStage;
@@ -20,6 +19,7 @@ use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
+use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\Respond as RespondStage;
@@ -60,9 +60,14 @@ $transcoderFactory = new Factory( [
 class RoutedApplicationConfig {
   protected $routes = [];
   protected $transcoderFactory;
+  protected $remoteServices = [];
 
   public function useTranscoderFactory( $factory ) {
     $this->transcoderFactory = $factory;
+  }
+
+  public function addRemoteService( $service, $url ) {
+    $this->remoteServices[ $service ] = $url;
   }
 
   public function addStaticPage( $path, $template ) {
@@ -95,6 +100,9 @@ class RoutedApplicationConfig {
     return [
       'debug' => true,
       'transcoder' => $this->transcoderFactory,
+      'remote' => [
+        'services' => $this->remoteServices
+      ],
       'routes' => $this->routes
     ];
   }
@@ -102,6 +110,7 @@ class RoutedApplicationConfig {
 
 $config = new RoutedApplicationConfig;
 $config->useTranscoderFactory( $transcoderFactory );
+$config->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
 $config->addStaticPage( '/', 'index' );
 $config->addStaticPage( '/about', 'about' );
 $config->addRoute( '/users', [
@@ -231,7 +240,7 @@ $config->addRoute( '/srv/router', [
     ]
   ]
 ] );
-$config->addRoute( '/srv/calculator', [
+$config->addRoute( '/srv/calculator/add/{x}/{y}', [
   'GET' => [
     'service' => [
       'name' => 'remote_calculator',
@@ -292,14 +301,13 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
     "Render a mustache template" );
   $app->setService( 'mustache', $shim );
 
-  $app->setService( 'remote_calculator', new RemoteService( 'http://localhost:5556/' ) );
-
 } ) );
 
 // ====================================================================================================
 //          REQUEST HANDLING
 // ====================================================================================================
 
+$app->addStage( new InitRemoteServicesStage );
 $app->addStage( new MatchRouteStage ); // Match a route
 $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
 $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
