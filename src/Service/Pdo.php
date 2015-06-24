@@ -20,7 +20,7 @@ class Pdo implements Service {
 
   public function request( $call ) {
     if ( !isset( $this->queries[ $call ] ) ) {
-      throw new \Exception( "Nope" );
+      throw new \Exception( "Unknown Service Request call: {$call}" );
     }
 
     $query = $this->queries[ $call ];
