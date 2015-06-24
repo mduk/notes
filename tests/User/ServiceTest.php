@@ -11,7 +11,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase {
     global $pdo;
 
     $mapper = new Mapper( new MapperFactory( $pdo ), $pdo );
-    $service = new Service( $mapper );
+    $service = new Service( $mapper, $pdo );
 
     $query = $service->request( 'getById' );
     $query->setParameter( 'user_id', 1 );
@@ -28,7 +28,7 @@ class ServiceTest extends \PHPUnit_Framework_TestCase {
     global $pdo;
 
     $mapper = new Mapper( new MapperFactory( $pdo ), $pdo );
-    $service = new Service( $mapper );
+    $service = new Service( $mapper, $pdo );
 
     $query = $service->request( 'getById' );
     $query->setParameter( 'user_id', 99999 );
