@@ -4,6 +4,7 @@ namespace Mduk\Stage;
 
 use Mduk\Gowi\Application;
 use Mduk\Gowi\Application\Stage;
+use Mduk\Gowi\Collection;
 use Mduk\Gowi\Collection\Paged as PagedCollection;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
@@ -14,6 +15,14 @@ class EncodeServiceResponse implements Stage {
     $transcoder = $app->getConfig('http.response.transcoder');
     $encode = $app->getConfig('service.result');
     $context = $app->getConfig('context', []);
+
+    if ( $encode instanceof Collection ) {
+      $array = [];
+      foreach ( $encode as $obj ) {
+        $array[] = $obj;
+      }
+      $encode = [ 'objects' => $array ];
+    }
 
     if ( $encode instanceof PagedCollection ) {
       $page = (int) $req->query->get( 'page', 1 );

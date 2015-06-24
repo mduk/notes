@@ -8,6 +8,7 @@ require_once 'vendor/autoload.php';
 
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
 
+use Mduk\Service\Pdo as PdoService;
 use Mduk\Service\Remote as RemoteService;
 use Mduk\Service\Router as RouterService;
 
@@ -264,9 +265,23 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
   $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
 
   $pdo = $app->getService( 'pdo' );
-  $mapperFactory = new Mapper\Factory( $pdo );
-  $app->setService( 'user', new User\Service( $mapperFactory->get( '\\Mduk\\User\\Mapper' ), $pdo ) );
-  $app->setService( 'note', new Note\Service( $mapperFactory->get( '\\Mduk\\Note\\Mapper' ) ) );
+
+  $app->setService( 'user', new PdoService( $pdo, [
+    'getAll' => [
+      'sql' => 'SELECT * FROM user'
+    ],
+    'getById' => [
+      'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+      'required' => [ 'user_id' ]
+    ]
+  ] ) );
+
+  $app->setService( 'note', new PdoService( $pdo, [
+    'getByUserId' => [
+      'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
+      'required' => [ 'user_id' ]
+    ]
+  ] ) );
 
   $renderer = new \Mustache_Engine( [
     'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
