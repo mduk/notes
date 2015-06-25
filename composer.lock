@@ -107,12 +107,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mduk/dot.git",
-                "reference": "977f0a80f5d4e43133b646967ddc8d5ac615c838"
+                "reference": "b43025447ea5d609ea7247481f2c4a68c40272f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mduk/dot/zipball/977f0a80f5d4e43133b646967ddc8d5ac615c838",
-                "reference": "977f0a80f5d4e43133b646967ddc8d5ac615c838",
+                "url": "https://api.github.com/repos/mduk/dot/zipball/b43025447ea5d609ea7247481f2c4a68c40272f5",
+                "reference": "b43025447ea5d609ea7247481f2c4a68c40272f5",
                 "shasum": ""
             },
             "require-dev": {
@@ -134,7 +134,7 @@
                 "source": "https://github.com/mduk/dot/tree/master",
                 "issues": "https://github.com/mduk/dot/issues"
             },
-            "time": "2015-06-09 18:16:52"
+            "time": "2015-06-25 23:21:00"
         },
         {
             "name": "mduk/gowi",
