@@ -109,6 +109,12 @@
                 "url": "https://github.com/mduk/dot.git",
                 "reference": "977f0a80f5d4e43133b646967ddc8d5ac615c838"
             },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mduk/dot/zipball/977f0a80f5d4e43133b646967ddc8d5ac615c838",
+                "reference": "977f0a80f5d4e43133b646967ddc8d5ac615c838",
+                "shasum": ""
+            },
             "require-dev": {
                 "phpunit/phpunit": "~4.7"
             },
@@ -124,6 +130,10 @@
                     "email": "daniel@kendell.org"
                 }
             ],
+            "support": {
+                "source": "https://github.com/mduk/dot/tree/master",
+                "issues": "https://github.com/mduk/dot/issues"
+            },
             "time": "2015-06-09 18:16:52"
         },
         {
