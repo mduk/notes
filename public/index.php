@@ -19,6 +19,7 @@ use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
 use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
+use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
 use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
@@ -61,6 +62,8 @@ class RoutedApplicationConfig {
   protected $routes = [];
   protected $transcoderFactory;
   protected $remoteServices = [];
+  protected $pdoConnections = [];
+  protected $pdoServices = [];
 
   public function useTranscoderFactory( $factory ) {
     $this->transcoderFactory = $factory;
@@ -68,6 +71,22 @@ class RoutedApplicationConfig {
 
   public function addRemoteService( $service, $url ) {
     $this->remoteServices[ $service ] = $url;
+  }
+
+  public function addPdoConnection( $name, $dsn, $username = null, $password = null, $options = [] ) {
+    $this->pdoConnections[ $name ] = [
+      'dsn' => $dsn,
+      'username' => $username,
+      'password' => $password,
+      'options' => $options
+    ];
+  }
+
+  public function addPdoService( $name, $connectionName, $queries ) {
+    $this->pdoServices[ $name ] = [
+      'connection' => $connectionName,
+      'queries' => $queries
+    ];
   }
 
   public function addStaticPage( $path, $template ) {
@@ -103,6 +122,10 @@ class RoutedApplicationConfig {
       'remote' => [
         'services' => $this->remoteServices
       ],
+      'pdo' => [
+        'connections' => $this->pdoConnections,
+        'services' => $this->pdoServices
+      ],
       'routes' => $this->routes
     ];
   }
@@ -111,6 +134,22 @@ class RoutedApplicationConfig {
 $config = new RoutedApplicationConfig;
 $config->useTranscoderFactory( $transcoderFactory );
 $config->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
+$config->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
+$config->addPdoService( 'user', 'main', [
+  'getAll' => [
+    'sql' => 'SELECT * FROM user'
+  ],
+  'getById' => [
+    'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+    'required' => [ 'user_id' ]
+  ]
+] );
+$config->addPdoService( 'note', 'main', [
+  'getByUserId' => [
+    'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
+    'required' => [ 'user_id' ]
+  ]
+] );
 $config->addStaticPage( '/', 'index' );
 $config->addStaticPage( '/about', 'about' );
 $config->addRoute( '/users', [
@@ -273,25 +312,6 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 
   $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
 
-  $pdo = $app->getService( 'pdo' );
-
-  $app->setService( 'user', new PdoService( $pdo, [
-    'getAll' => [
-      'sql' => 'SELECT * FROM user'
-    ],
-    'getById' => [
-      'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
-      'required' => [ 'user_id' ]
-    ]
-  ] ) );
-
-  $app->setService( 'note', new PdoService( $pdo, [
-    'getByUserId' => [
-      'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
-      'required' => [ 'user_id' ]
-    ]
-  ] ) );
-
   $renderer = new \Mustache_Engine( [
     'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
   ] );
@@ -308,6 +328,7 @@ $app->addStage( new StubStage( function( Application $app, HttpRequest $req, Htt
 // ====================================================================================================
 
 $app->addStage( new InitRemoteServicesStage );
+$app->addStage( new InitPdoServicesStage );
 $app->addStage( new MatchRouteStage ); // Match a route
 $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
 $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
