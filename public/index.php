@@ -57,9 +57,10 @@ $transcoderFactory = new Factory( [
   }
 ] );
 
-class RoutedApplicationConfig {
+class RoutedServiceApplicationBuilder {
   protected $routes = [];
   protected $transcoderFactory;
+  protected $bootstrapStages = [];
   protected $remoteServices = [];
   protected $pdoConnections = [];
   protected $pdoServices = [];
@@ -88,6 +89,10 @@ class RoutedApplicationConfig {
     ];
   }
 
+  public function addBootstrapStage( $stage ) {
+    $this->bootstrapStages[] = $stage;
+  }
+
   public function addStaticPage( $path, $template ) {
     $this->routes[ $path ] = [
       'GET' => [
@@ -114,7 +119,7 @@ class RoutedApplicationConfig {
     $this->routes[ $path ] = $routeConfig;
   }
 
-  public function toArray() {
+  public function configArray() {
     return [
       'debug' => true,
       'transcoder' => $this->transcoderFactory,
@@ -128,13 +133,43 @@ class RoutedApplicationConfig {
       'routes' => $this->routes
     ];
   }
+
+  public function build() {
+    $app = new Application( dirname( __FILE__ ) );
+
+    $app->setConfigArray( $this->configArray() );
+
+    $app->addStage( new InitLogStage ); // Initialise Log
+    $app->addStage( new InitRemoteServicesStage );
+    $app->addStage( new InitPdoServicesStage );
+
+    foreach ( $this->bootstrapStages as $stage ) {
+      $app->addStage( $stage );
+    }
+
+    $app->addStage( new MatchRouteStage ); // Match a route
+    $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
+    $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
+    $app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
+    $app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
+    $app->addStage( new BindServiceRequestParametersStage ); // Bind values from the environment to the Service Request
+    $app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
+    $app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
+    $app->addStage( new ContextStage ); // Resolve Context
+    $app->addStage( new EncodeServiceResponseStage ); // Encode Service Response
+    $app->addStage( new RespondStage ); // Send HTTP Response
+
+    return $app;
+  }
 }
 
-$config = new RoutedApplicationConfig;
-$config->useTranscoderFactory( $transcoderFactory );
-$config->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
-$config->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
-$config->addPdoService( 'user', 'main', [
+$builder = new RoutedServiceApplicationBuilder;
+$builder->useTranscoderFactory( $transcoderFactory );
+$builder->addStaticPage( '/', 'index' );
+$builder->addStaticPage( '/about', 'about' );
+$builder->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
+$builder->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
+$builder->addPdoService( 'user', 'main', [
   'getAll' => [
     'sql' => 'SELECT * FROM user'
   ],
@@ -143,15 +178,27 @@ $config->addPdoService( 'user', 'main', [
     'required' => [ 'user_id' ]
   ]
 ] );
-$config->addPdoService( 'note', 'main', [
+$builder->addPdoService( 'note', 'main', [
   'getByUserId' => [
     'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
     'required' => [ 'user_id' ]
   ]
 ] );
-$config->addStaticPage( '/', 'index' );
-$config->addStaticPage( '/about', 'about' );
-$config->addRoute( '/users', [
+$builder->addBootstrapStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
+
+  $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
+
+  $renderer = new \Mustache_Engine( [
+    'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
+  ] );
+
+  $shim = new ServiceShim( 'Mustache template renderer' );
+  $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ],
+    "Render a mustache template" );
+  $app->setService( 'mustache', $shim );
+
+} ) );
+$builder->addRoute( '/users', [
   'GET' => [
     'service' => [
       'name' => 'user',
@@ -186,7 +233,7 @@ $config->addRoute( '/users', [
     ]
   ]
 ] );
-$config->addRoute( '/users/{user_id}', [
+$builder->addRoute( '/users/{user_id}', [
   'GET' => [
     'service' => [
       'name' => 'user',
@@ -206,7 +253,7 @@ $config->addRoute( '/users/{user_id}', [
     ]
   ]
 ] );
-$config->addRoute( '/users/{user_id}/notes', [
+$builder->addRoute( '/users/{user_id}/notes', [
   'GET' => [
     'service' => [
       'name' => 'note',
@@ -233,7 +280,7 @@ $config->addRoute( '/users/{user_id}/notes', [
     ]
   ]
 ] );
-$config->addRoute( '/srv/mustache/{template}', [
+$builder->addRoute( '/srv/mustache/{template}', [
   'POST' => [
     'service' => [
       'name' => 'mustache',
@@ -259,7 +306,7 @@ $config->addRoute( '/srv/mustache/{template}', [
     ]
   ]
 ] );
-$config->addRoute( '/srv/router', [
+$builder->addRoute( '/srv/router', [
   'GET' => [
     'service' => [
       'name' => 'router',
@@ -278,7 +325,7 @@ $config->addRoute( '/srv/router', [
     ]
   ]
 ] );
-$config->addRoute( '/srv/calculator/add/{x}/{y}', [
+$builder->addRoute( '/srv/calculator/add/{x}/{y}', [
   'GET' => [
     'service' => [
       'name' => 'remote_calculator',
@@ -298,45 +345,7 @@ $config->addRoute( '/srv/calculator/add/{x}/{y}', [
   ]
 ] );
 
-$app = new Application( dirname( __FILE__ ) );
-$app->setConfigArray( $config->toArray() );
 
-$app->addStage( new InitLogStage ); // Initialise Log
-
-// ----------------------------------------------------------------------------------------------------
-// Initialise Some Services
-// ----------------------------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
-
-  $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
-
-  $renderer = new \Mustache_Engine( [
-    'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
-  ] );
-
-  $shim = new ServiceShim( 'Mustache template renderer' );
-  $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ],
-    "Render a mustache template" );
-  $app->setService( 'mustache', $shim );
-
-} ) );
-
-// ====================================================================================================
-//          REQUEST HANDLING
-// ====================================================================================================
-
-$app->addStage( new InitRemoteServicesStage );
-$app->addStage( new InitPdoServicesStage );
-$app->addStage( new MatchRouteStage ); // Match a route
-$app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
-$app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
-$app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
-$app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
-$app->addStage( new BindServiceRequestParametersStage ); // Bind values from the environment to the Service Request
-$app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
-$app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
-$app->addStage( new ContextStage ); // Resolve Context
-$app->addStage( new EncodeServiceResponseStage ); // Encode Service Response
-$app->addStage( new RespondStage ); // Send HTTP Response
-
-$app->run()->send();
+$builder->build()
+  ->run()
+  ->send();
