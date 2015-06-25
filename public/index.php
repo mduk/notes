@@ -6,33 +6,11 @@ error_reporting( E_ALL );
 
 require_once 'vendor/autoload.php';
 
+use Mduk\Service\Router as RouterService;
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
 
-use Mduk\Service\Pdo as PdoService;
-use Mduk\Service\Router as RouterService;
-
-use Mduk\Stage\BindServiceRequestParameters as BindServiceRequestParametersStage;
-use Mduk\Stage\ResolveServiceRequest as ResolveServiceRequestStage;
-use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
-use Mduk\Stage\Context as ContextStage;
-use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
-use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
-use Mduk\Stage\InitLog as InitLogStage;
-use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
-use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
-use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
-use Mduk\Stage\MatchRoute as MatchRouteStage;
-use Mduk\Stage\Respond as RespondStage;
-use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
-use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
-use Mduk\Stage\SelectResponseType as SelectResponseTypeStage;
-
-use Mduk\Gowi\Application;
-use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
-use Mduk\Gowi\Http\Request as HttpRequest;
-use Mduk\Gowi\Http\Response as HttpResponse;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
 $templatesDir = dirname( __FILE__ ) . '/../templates';
@@ -57,118 +35,17 @@ $transcoderFactory = new Factory( [
   }
 ] );
 
-class RoutedServiceApplicationBuilder {
-  protected $routes = [];
-  protected $transcoderFactory;
-  protected $bootstrapStages = [];
-  protected $remoteServices = [];
-  protected $pdoConnections = [];
-  protected $pdoServices = [];
-
-  public function useTranscoderFactory( $factory ) {
-    $this->transcoderFactory = $factory;
-  }
-
-  public function addRemoteService( $service, $url ) {
-    $this->remoteServices[ $service ] = $url;
-  }
-
-  public function addPdoConnection( $name, $dsn, $username = null, $password = null, $options = [] ) {
-    $this->pdoConnections[ $name ] = [
-      'dsn' => $dsn,
-      'username' => $username,
-      'password' => $password,
-      'options' => $options
-    ];
-  }
-
-  public function addPdoService( $name, $connectionName, $queries ) {
-    $this->pdoServices[ $name ] = [
-      'connection' => $connectionName,
-      'queries' => $queries
-    ];
-  }
-
-  public function addBootstrapStage( $stage ) {
-    $this->bootstrapStages[] = $stage;
-  }
-
-  public function addStaticPage( $path, $template ) {
-    $this->routes[ $path ] = [
-      'GET' => [
-        'service' => [
-          'name' => 'mustache',
-          'call' => 'render',
-          'multiplicity' => 'one',
-          'parameters' => [
-            'template' => $template
-          ]
-        ],
-        'http' => [
-          'response' => [
-            'transcoders' => [
-              'text/html' => 'generic:text'
-            ]
-          ]
-        ]
-      ]
-    ];
-  }
-
-  public function addRoute( $path, $routeConfig ) {
-    $this->routes[ $path ] = $routeConfig;
-  }
-
-  public function configArray() {
-    return [
-      'debug' => true,
-      'transcoder' => $this->transcoderFactory,
-      'remote' => [
-        'services' => $this->remoteServices
-      ],
-      'pdo' => [
-        'connections' => $this->pdoConnections,
-        'services' => $this->pdoServices
-      ],
-      'routes' => $this->routes
-    ];
-  }
-
-  public function build() {
-    $app = new Application( dirname( __FILE__ ) );
-
-    $app->setConfigArray( $this->configArray() );
-
-    $app->addStage( new InitLogStage ); // Initialise Log
-    $app->addStage( new InitRemoteServicesStage );
-    $app->addStage( new InitPdoServicesStage );
-
-    foreach ( $this->bootstrapStages as $stage ) {
-      $app->addStage( $stage );
-    }
-
-    $app->addStage( new MatchRouteStage ); // Match a route
-    $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
-    $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
-    $app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
-    $app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
-    $app->addStage( new BindServiceRequestParametersStage ); // Bind values from the environment to the Service Request
-    $app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
-    $app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
-    $app->addStage( new ContextStage ); // Resolve Context
-    $app->addStage( new EncodeServiceResponseStage ); // Encode Service Response
-    $app->addStage( new RespondStage ); // Send HTTP Response
-
-    return $app;
-  }
-}
-
 $builder = new RoutedServiceApplicationBuilder;
+
 $builder->useTranscoderFactory( $transcoderFactory );
+
 $builder->addStaticPage( '/', 'index' );
 $builder->addStaticPage( '/about', 'about' );
+
 $builder->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
+
 $builder->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
+
 $builder->addPdoService( 'user', 'main', [
   'getAll' => [
     'sql' => 'SELECT * FROM user'
@@ -178,13 +55,15 @@ $builder->addPdoService( 'user', 'main', [
     'required' => [ 'user_id' ]
   ]
 ] );
+
 $builder->addPdoService( 'note', 'main', [
   'getByUserId' => [
     'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
     'required' => [ 'user_id' ]
   ]
 ] );
-$builder->addBootstrapStage( new StubStage( function( Application $app, HttpRequest $req, HttpResponse $res ) {
+
+$builder->addBootstrapStage( new StubStage( function( $app, $req, $res ) {
 
   $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
 
@@ -198,6 +77,7 @@ $builder->addBootstrapStage( new StubStage( function( Application $app, HttpRequ
   $app->setService( 'mustache', $shim );
 
 } ) );
+
 $builder->addRoute( '/users', [
   'GET' => [
     'service' => [
@@ -233,6 +113,7 @@ $builder->addRoute( '/users', [
     ]
   ]
 ] );
+
 $builder->addRoute( '/users/{user_id}', [
   'GET' => [
     'service' => [
@@ -253,6 +134,7 @@ $builder->addRoute( '/users/{user_id}', [
     ]
   ]
 ] );
+
 $builder->addRoute( '/users/{user_id}/notes', [
   'GET' => [
     'service' => [
@@ -280,6 +162,7 @@ $builder->addRoute( '/users/{user_id}/notes', [
     ]
   ]
 ] );
+
 $builder->addRoute( '/srv/mustache/{template}', [
   'POST' => [
     'service' => [
@@ -306,6 +189,7 @@ $builder->addRoute( '/srv/mustache/{template}', [
     ]
   ]
 ] );
+
 $builder->addRoute( '/srv/router', [
   'GET' => [
     'service' => [
@@ -325,6 +209,7 @@ $builder->addRoute( '/srv/router', [
     ]
   ]
 ] );
+
 $builder->addRoute( '/srv/calculator/add/{x}/{y}', [
   'GET' => [
     'service' => [
@@ -344,7 +229,6 @@ $builder->addRoute( '/srv/calculator/add/{x}/{y}', [
     ]
   ]
 ] );
-
 
 $builder->build()
   ->run()
