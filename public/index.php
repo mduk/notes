@@ -17,7 +17,6 @@ use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
-use Mduk\Stage\InitDb as InitDbStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
 use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
@@ -303,7 +302,6 @@ $app = new Application( dirname( __FILE__ ) );
 $app->setConfigArray( $config->toArray() );
 
 $app->addStage( new InitLogStage ); // Initialise Log
-$app->addStage( new InitDbStage ); // Initialise DB
 
 // ----------------------------------------------------------------------------------------------------
 // Initialise Some Services
