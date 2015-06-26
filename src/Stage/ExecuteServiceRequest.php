@@ -3,6 +3,7 @@
 namespace Mduk\Stage;
 
 use Mduk\Stage\Response\NotFound as NotFoundResponseStage;
+use Mduk\Stage\Response\InternalServerError as InternalServerErrorResponseStage;
 
 use Mduk\Gowi\Application\Stage;
 use Mduk\Gowi\Application;
@@ -17,14 +18,33 @@ class ExecuteServiceRequest implements Stage {
       ->execute()
       ->getResults();
 
-    if ( $multiplicity == 'one' ) {
-      $result = $result->shift();
+    switch ( $multiplicity ) {
+      case 'none':
+        if ( $result->shift() !== null ) {
+          return new InternalServerErrorResponseStage( 'Multiplicity mismatch.' );
+        }
+        break;
 
-      if ( $result === null ) {
-        return new NotFoundResponseStage;
-      }
+      case 'one':
+        $result = $result->shift();
+
+        if ( $result === null ) {
+          return new NotFoundResponseStage;
+        }
+
+        $app->setConfig( 'service.result', $result );
+        break;
+
+      case 'many':
+        $app->setConfig( 'service.result', $result );
+        break;
+
+      case 'none':
+        break;
+
+      default:
+          return new InternalServerErrorResponseStage( "Unknown multiplicity: {$multiplicity}" );
     }
 
-    $app->setConfig( 'service.result', $result );
   }
 }
