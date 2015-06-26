@@ -4,7 +4,7 @@ namespace Mduk;
 
 error_reporting( E_ALL );
 
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
 $builder = new WebTableApplicationBuilder;
 $builder->setPdoConnection( 'sqlite:/Users/daniel/dev/notes/db.sq3' );

@@ -2,7 +2,7 @@
 
 namespace Mduk;
 
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
 use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;

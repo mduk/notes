@@ -4,7 +4,7 @@ namespace Mduk;
 
 error_reporting( E_ALL );
 
-require_once 'vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
 use Mduk\Service\Router as RouterService;
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
