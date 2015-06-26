@@ -20,6 +20,7 @@
 		"guzzle/guzzle": "^3.9"
 	},
 	"require-dev": {
+    "heroku/heroku-buildpack-php": "*",
     "monolog/monolog": "~1.13",
 		"phpunit/phpunit": "4.2.*"
 	},
