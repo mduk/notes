@@ -12,7 +12,13 @@ use Mduk\Gowi\Http\Response;
 class SelectResponseType implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    $supportedTypes = array_keys( $app->getConfig( 'http.response.transcoders' ) );
+    try {
+      $supportedTypes = array_keys( $app->getConfig( 'http.response.transcoders' ) );
+    }
+    catch ( Application\Exception $e ) {
+      return null;
+    }
+
     $supportedTypes[] = '*/*';
     $acceptedTypes = $req->getAcceptableContentTypes();
     $selectedType = false;

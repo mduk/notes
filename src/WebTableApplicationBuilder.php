@@ -34,35 +34,22 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
     $this->fields = $fields;
   }
 
-  public function routeServiceCallWithRequestBodyConfig( $call, $multiplicity = 'many', $bind = [] ) {
-    $config = $this->routeServiceCallConfig( $call, $multiplicity, $bind );
-    $config['bind']['payload'] = $this->fields;
-    $config['http']['request']['transcoders']['application/json'] = 'generic:json';
-    return $config;
-  }
-
-  public function routeServiceCallConfig( $call, $multiplicity = 'many', $bind = [] ) {
-    $bind = [ 'route' => $bind ];
-
+  protected function service( $call, $multiplicity ) {
     return [
-      'service' => [
-        'name' => 'table',
-        'call' => $call,
-        'multiplicity' => $multiplicity
-      ],
-      'bind' => $bind,
-      'http' => [
-        'response' => [
-          'transcoders' => [
-            'application/json' => 'generic:json'
-          ]
-        ]
-      ]
+      'name' => 'table',
+      'call' => $call,
+      'multiplicity' => $multiplicity
     ];
   }
 
   public function configArray() {
-    $c = [
+    $transcoderConfig = [
+      'transcoders' => [
+        'application/json' => 'generic:json'
+      ]
+    ];
+
+    return [
       'debug' => true,
       'transcoder' => $this->transcoderFactory,
       'pdo' => [
@@ -70,22 +57,95 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
         'services' => $this->pdoServices
       ],
       'routes' => [
+
         "/{$this->table}" => [
-          'GET' => $this->routeServiceCallConfig( 'retrieveAll' ),
-          'POST' => $this->routeServiceCallWithRequestBodyConfig( 'create', 'none' )
+
+          // Retrieve whole collection
+          'GET' => [
+            'service' => $this->service( 'retrieveAll', 'many' ),
+            'http' => [
+              'response' => $transcoderConfig
+            ]
+          ],
+
+          // Create new object
+          'POST' => [
+            'service' => $this->service( 'create', 'none' ),
+            'bind' => [
+              'required' => [
+                'payload' => $this->fields
+              ]
+            ],
+            'http' => [
+              'request' => $transcoderConfig
+            ]
+          ]
+
         ],
+
         "/{$this->table}/{{$this->pk}}" => [
-          'GET' => $this->routeServiceCallConfig( 'retrieve', 'one', [ $this->pk ] ),
-          'PUT' => $this->routeServiceCallWithRequestBodyConfig( 'update', 'none', [ $this->pk ] ),
-          'PATCH' => $this->routeServiceCallWithRequestBodyConfig( 'update', 'none', [ $this->pk ] ),
-          'DELETE' => $this->routeServiceCallConfig( 'delete', 'none', [ $this->pk ] )
+
+          // Retrieve object
+          'GET' => [
+            'service' => $this->service( 'retrieve', 'one' ),
+            'bind' => [
+              'required' => [
+                'route' => [ $this->pk ]
+              ]
+            ],
+            'http' => [
+              'response' => $transcoderConfig
+            ]
+          ],
+
+          // Update whole object
+          'PUT' => [
+            'service' => $this->service( 'update', 'none' ),
+            'bind' => [
+              'required' => [
+                'route' => [ $this->pk ],
+                'payload' => $this->fields
+              ]
+            ],
+            'http' => [
+              'request' => $transcoderConfig
+            ]
+          ],
+
+          // Update partial object
+          'PATCH' => [
+            'service' => $this->service( 'updatePartial', 'none' ),
+            'bind' => [
+              'required' => [
+                'route' => [ $this->pk ]
+              ],
+              'optional' => [
+                'payload' => $this->fields
+              ]
+            ],
+            'http' => [
+              'request' => $transcoderConfig
+            ]
+          ],
+
+          // Delete object
+          'DELETE' => [
+            'service' => $this->service( 'delete', 'none' ),
+            'bind' => [
+              'required' => [
+                'route' => [ $this->pk ]
+              ]
+            ],
+          ]
+
         ]
       ]
     ];
-    return $c;
   }
 
   public function build() {
+    $table = $this->table;
+    $pk = $this->pk;
     $fieldArray = $this->fields;
     $fieldArray[] = $this->pk;
     $fields = implode( ', ', $fieldArray );
@@ -97,27 +157,41 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
       return "{$e} = :{$e}";
     }, $this->fields ) );
 
-    $wherePk = "WHERE {$this->pk} = :{$this->pk}";
+    $wherePk = "WHERE {$pk} = :{$pk}";
 
     $this->addPdoService( 'table', 'main', [
       'create' => [
-        'sql' => "INSERT INTO {$this->table} ( {$fields} ) VALUES ( {$placeholders} )",
+        'sql' => "INSERT INTO {$table} ( {$fields} ) VALUES ( {$placeholders} )",
         'parameters' => $fields
       ],
       'retrieveAll' => [
-        'sql' => "SELECT {$fields} FROM {$this->table}"
+        'sql' => "SELECT {$fields} FROM {$table}"
       ],
       'retrieve' => [
-        'sql' => "SELECT {$fields} FROM {$this->table} {$wherePk}",
-        'parameters' => [ $this->pk ]
+        'sql' => "SELECT {$fields} FROM {$table} {$wherePk}",
+        'parameters' => [ $pk ]
       ],
       'update' => [
-        'sql' => "UPDATE {$this->table} SET {$updatePlaceholders} {$wherePk}",
+        'sql' => "UPDATE {$table} SET {$updatePlaceholders} {$wherePk}",
         'parameters' => $fields
+      ],
+      'updatePartial' => [
+        'sql' => function( $parameters ) use ( $table, $pk, $wherePk ) {
+          $fields = [];
+          foreach ( $parameters as $parameter ) {
+            if ( $parameter == $pk ) { // Mustn't change the primary key
+              continue;
+            }
+            $fields[] = "{$parameter} = :{$parameter}";
+          }
+          $updateFields = implode( ', ', $fields );
+          $sql = "UPDATE {$table} SET {$updateFields} {$wherePk}";
+          return $sql;
+        }
       ],
       'delete' => [
         'sql' => "DELETE FROM {$this->table} {$wherePk}",
-        'parameters' => [ $this->pk ]
+        'parameters' => [ $pk ]
       ]
     ] );
 

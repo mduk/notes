@@ -30,11 +30,16 @@ class Pdo implements Service {
 
   public function execute( Request $req, Response $res ) {
     $sql = $this->queries[ $req->getCall() ]['sql'];
+    if ( $sql instanceof \Closure ) {
+      $sql = $sql( array_keys( $req->getParameters() ) );
+    }
+
     $stmt = $this->pdo->prepare( $sql );
+    if (!$stmt ) { throw new \Exception( "Bad SQL?: {$sql}" ); }
     foreach ( $req->getParameters() as $k => $v ) {
       $stmt->bindValue( ":{$k}", $v );
     }
-    $results = $stmt->execute();
+    $stmt->execute();
 
     while ( $obj = $stmt->fetchObject() ) {
       $res->addResult( $obj );
