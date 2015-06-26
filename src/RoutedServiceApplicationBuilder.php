@@ -12,6 +12,7 @@ use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
 use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
+use Mduk\Stage\InitRouter as InitRouterStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\Respond as RespondStage;
 use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
