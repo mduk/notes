@@ -15,8 +15,8 @@ class SelectRequestTranscoder implements Stage {
 
       $requestContentType = $req->headers->get( 'Content-Type' );
       $requestTranscoders = $app->getConfig( 'http.request.transcoders' );
-      $requestTranscoder = $app->getService( 'transcoder' )
-        ->get( $requestTranscoders[ $requestContentType ] );
+      $requestTranscoderName = $requestTranscoders[ $requestContentType ];
+      $requestTranscoder = $app->getConfig( "transcoder.{$requestTranscoderName}" );
 
       $app->setConfig( 'http.request.content_type', $requestContentType );
       $app->setConfig( 'http.request.transcoder', $requestTranscoder );
