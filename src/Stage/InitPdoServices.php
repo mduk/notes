@@ -2,6 +2,8 @@
 
 namespace Mduk\Stage;
 
+use PDO;
+
 use Mduk\Service\Pdo as PdoService;
 
 use Mduk\Gowi\Application;
@@ -36,7 +38,7 @@ class InitPdoServices implements Stage {
       $options = isset( $spec['options'] ) ? $spec['options'] : [];
 
       $this->factories[ $name ] = function() use ( $dsn, $username, $password, $options ) {
-        return new \PDO( $dsn, $username, $password, $options );
+        return new PDO( $dsn, $username, $password, $options );
       };
     }
   }
