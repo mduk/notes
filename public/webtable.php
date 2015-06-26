@@ -2,10 +2,6 @@
 
 namespace Mduk;
 
-use Mduk\Service\Router as RouterService;
-
-use Mduk\Gowi\Application\Stage\Stub as StubStage;
-
 error_reporting( E_ALL );
 
 require_once 'vendor/autoload.php';
