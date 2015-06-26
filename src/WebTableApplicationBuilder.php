@@ -76,8 +76,8 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
         ],
         "/{$this->table}/{{$this->pk}}" => [
           'GET' => $this->routeServiceCallConfig( 'retrieve', 'one', [ $this->pk ] ),
-          'PUT' => $this->routeServiceCallConfig( 'update', 'one', [ $this->pk ] ),
-          'PATCH' => $this->routeServiceCallConfig( 'update', 'one', [ $this->pk ] ),
+          'PUT' => $this->routeServiceCallWithRequestBodyConfig( 'update', 'none', [ $this->pk ] ),
+          'PATCH' => $this->routeServiceCallWithRequestBodyConfig( 'update', 'none', [ $this->pk ] ),
           'DELETE' => $this->routeServiceCallConfig( 'delete', 'none', [ $this->pk ] )
         ]
       ]
@@ -92,6 +92,13 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
     $placeholders = implode( ', ', array_map( function( $e ) {
       return ":{$e}";
     }, $fieldArray ) );
+
+    $updatePlaceholders = implode( ', ', array_map( function( $e ) {
+      return "{$e} = :{$e}";
+    }, $this->fields ) );
+
+    $wherePk = "WHERE {$this->pk} = :{$this->pk}";
+
     $this->addPdoService( 'table', 'main', [
       'create' => [
         'sql' => "INSERT INTO {$this->table} ( {$fields} ) VALUES ( {$placeholders} )",
@@ -101,11 +108,15 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
         'sql' => "SELECT {$fields} FROM {$this->table}"
       ],
       'retrieve' => [
-        'sql' => "SELECT {$fields} FROM {$this->table} WHERE {$this->pk} = :{$this->pk}",
+        'sql' => "SELECT {$fields} FROM {$this->table} {$wherePk}",
         'parameters' => [ $this->pk ]
       ],
+      'update' => [
+        'sql' => "UPDATE {$this->table} SET {$updatePlaceholders} {$wherePk}",
+        'parameters' => $fields
+      ],
       'delete' => [
-        'sql' => "DELETE FROM {$this->table} WHERE {$this->pk} = :{$this->pk}",
+        'sql' => "DELETE FROM {$this->table} {$wherePk}",
         'parameters' => [ $this->pk ]
       ]
     ] );
