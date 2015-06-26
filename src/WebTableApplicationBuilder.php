@@ -34,14 +34,6 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
     $this->fields = $fields;
   }
 
-  protected function service( $call, $multiplicity ) {
-    return [
-      'name' => 'table',
-      'call' => $call,
-      'multiplicity' => $multiplicity
-    ];
-  }
-
   public function configArray() {
     $transcoderConfig = [
       'transcoders' => [
@@ -196,6 +188,14 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
     ] );
 
     return parent::build();
+  }
+
+  protected function service( $call, $multiplicity ) {
+    return [
+      'name' => 'table',
+      'call' => $call,
+      'multiplicity' => $multiplicity
+    ];
   }
 
 }
