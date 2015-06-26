@@ -106,6 +106,7 @@ class RoutedServiceApplicationBuilder {
     $app->addStage( new InitLogStage ); // Initialise Log
     $app->addStage( new InitRemoteServicesStage );
     $app->addStage( new InitPdoServicesStage );
+    $app->addStage( new InitRouterStage );
 
     foreach ( $this->bootstrapStages as $stage ) {
       $app->addStage( $stage );

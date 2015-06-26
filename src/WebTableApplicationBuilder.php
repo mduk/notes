@@ -137,7 +137,7 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
 
       $updatePlaceholders = implode( ', ', array_map( function( $e ) {
         return "{$e} = :{$e}";
-      }, $this->fields ) );
+      }, $spec['fields'] ) );
 
       $wherePk = "WHERE {$pk} = :{$pk}";
 
@@ -172,7 +172,7 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
           }
         ],
         'delete' => [
-          'sql' => "DELETE FROM {$this->table} {$wherePk}",
+          'sql' => "DELETE FROM {$table} {$wherePk}",
           'parameters' => [ $pk ]
         ]
       ] );

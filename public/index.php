@@ -65,8 +65,6 @@ $builder->addPdoService( 'note', 'main', [
 
 $builder->addBootstrapStage( new StubStage( function( $app, $req, $res ) {
 
-  $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
-
   $renderer = new \Mustache_Engine( [
     'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
   ] );
