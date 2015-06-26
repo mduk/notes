@@ -74,11 +74,11 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
           'GET' => $this->routeServiceCallConfig( 'retrieveAll' ),
           'POST' => $this->routeServiceCallWithRequestBodyConfig( 'create', 'none' )
         ],
-        "/{$this->table}/{{$this->table}_id}" => [
-          'GET' => $this->routeServiceCallConfig( 'retrieve', 'one', [ "{$this->table}_id" ] ),
-          'PUT' => $this->routeServiceCallConfig( 'update', 'one', [ "{$this->table}_id" ] ),
-          'PATCH' => $this->routeServiceCallConfig( 'update', 'one', [ "{$this->table}_id" ] ),
-          'DELETE' => $this->routeServiceCallConfig( 'delete', 'none', [ "{$this->table}_id" ] )
+        "/{$this->table}/{$this->pk}" => [
+          'GET' => $this->routeServiceCallConfig( 'retrieve', 'one', [ $this->pk ] ),
+          'PUT' => $this->routeServiceCallConfig( 'update', 'one', [ $this->pk ] ),
+          'PATCH' => $this->routeServiceCallConfig( 'update', 'one', [ $this->pk ] ),
+          'DELETE' => $this->routeServiceCallConfig( 'delete', 'none', [ $this->pk ] )
         ]
       ]
     ];
