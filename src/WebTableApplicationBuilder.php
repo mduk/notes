@@ -7,6 +7,7 @@ use Mduk\Gowi\Factory;
 class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
 
   protected $table = '';
+  protected $pk = '';
   protected $fields = [];
 
   public function __construct() {
@@ -23,6 +24,10 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
 
   public function setTable( $table ) {
     $this->table = $table;
+  }
+
+  public function setPrimaryKey( $pk ) {
+    $this->pk = $pk;
   }
 
   public function setFields( array $fields = [] ) {
@@ -77,16 +82,16 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
         ]
       ]
     ];
-//print_r( $c );
     return $c;
   }
 
   public function build() {
-    $pk = "{$this->table}_id";
-    $fields = implode( ', ', $this->fields );
+    $fieldArray = $this->fields;
+    $fieldArray[] = $this->pk;
+    $fields = implode( ', ', $fieldArray );
     $placeholders = implode( ', ', array_map( function( $e ) {
       return ":{$e}";
-    }, $this->fields ) );
+    }, $fieldArray ) );
     $this->addPdoService( 'table', 'main', [
       'create' => [
         'sql' => "INSERT INTO {$this->table} ( {$fields} ) VALUES ( {$placeholders} )",
@@ -96,12 +101,12 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
         'sql' => "SELECT {$fields} FROM {$this->table}"
       ],
       'retrieve' => [
-        'sql' => "SELECT {$fields} FROM {$this->table} WHERE {$pk} = :{$pk}",
-        'parameters' => [ $pk ]
+        'sql' => "SELECT {$fields} FROM {$this->table} WHERE {$this->pk} = :{$this->pk}",
+        'parameters' => [ $this->pk ]
       ],
       'delete' => [
-        'sql' => "DELETE FROM {$this->table} WHERE {$pk} = :{$pk}",
-        'parameters' => [ $pk ]
+        'sql' => "DELETE FROM {$this->table} WHERE {$this->pk} = :{$this->pk}",
+        'parameters' => [ $this->pk ]
       ]
     ] );
 

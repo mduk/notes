@@ -13,7 +13,8 @@ require_once 'vendor/autoload.php';
 $builder = new WebTableApplicationBuilder;
 $builder->setPdoConnection( 'sqlite:/Users/daniel/dev/notes/db.sq3' );
 $builder->setTable( 'user' );
-$builder->setFields( [ 'user_id', 'name', 'email', 'role' ] );
+$builder->setPrimaryKey( 'user_id' );
+$builder->setFields( [ 'name', 'email', 'role' ] );
 $builder->addBootstrapStage( new StubStage( function( $app, $req, $res ) {
   $app->setService( 'router', new RouterService( $app->getConfig( 'routes' ) ) );
 } ) );
