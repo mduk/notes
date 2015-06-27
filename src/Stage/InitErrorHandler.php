@@ -12,6 +12,9 @@ class InitErrorHandler implements Stage {
   public function execute( Application $app, Request $req, Response $res ) {
 
     set_exception_handler( function( $e ) {
+      $eClass = get_class( $e );
+      error_log( "{$eClass}: {$e->getMessage()} in {$e->getFile()} line {$e->getLine()}" );
+
       http_response_code( 500 );
       header( 'Content-Type: application/api-problem+json' );
       echo json_encode( [
@@ -27,6 +30,11 @@ class InitErrorHandler implements Stage {
         2 => 'E_WARNING',
         8 => 'E_NOTICE'
       ];
+      $errorLabel = isset( $errorLevels[ $errno ] )
+        ? $errorLabels[ $errno ]
+        : $errno;
+
+      error_log( "{$errorLabel}: {$errstr} in {$errfile} line {$errline}" );
 
       http_response_code( 500 );
       header( 'Content-Type: application/api-problem+json' );
