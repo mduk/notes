@@ -8,6 +8,7 @@ use Mduk\Stage\ExecuteServiceRequest as ExecuteServiceRequestStage;
 use Mduk\Stage\Context as ContextStage;
 use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\EncodeServiceResponse as EncodeServiceResponseStage;
+use Mduk\Stage\InitErrorHandler as InitErrorHandlerStage;
 use Mduk\Stage\InitLog as InitLogStage;
 use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
 use Mduk\Stage\InitRemoteServices as InitRemoteServicesStage;
@@ -104,10 +105,11 @@ class RoutedServiceApplicationBuilder {
 
     $app->setConfigArray( $this->configArray() );
 
+    $app->addStage( new InitErrorHandlerStage ); // Initialise Error Handler
     $app->addStage( new InitLogStage ); // Initialise Log
-    $app->addStage( new InitRemoteServicesStage );
-    $app->addStage( new InitPdoServicesStage );
-    $app->addStage( new InitRouterStage );
+    $app->addStage( new InitRemoteServicesStage ); // Initialise Remote Services
+    $app->addStage( new InitPdoServicesStage ); // Initialise PDO Services
+    $app->addStage( new InitRouterStage ); // Initialise Router Service
 
     foreach ( $this->bootstrapStages as $stage ) {
       $app->addStage( $stage );
