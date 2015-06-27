@@ -9,8 +9,8 @@ use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
 use Mduk\Stage\Response\BadRequest as BadRequestStage;
 use Mduk\Stage\Respond as RespondStage;
 
-use Mduk\Gowi\Application;
-use Mduk\Gowi\Application\Stage\Stub as StubStage;
+use Mduk\Gowi\Http\Application;
+use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
 class Calculator {

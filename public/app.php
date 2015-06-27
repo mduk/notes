@@ -9,7 +9,7 @@ require_once '../vendor/autoload.php';
 use Mduk\Service\Router as RouterService;
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
 
-use Mduk\Gowi\Application\Stage\Stub as StubStage;
+use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
