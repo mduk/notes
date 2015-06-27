@@ -13,7 +13,7 @@ class InitErrorHandler implements Stage {
 
     set_exception_handler( function( $e ) {
       $eClass = get_class( $e );
-      error_log( "{$eClass}: {$e->getMessage()} in {$e->getFile()} line {$e->getLine()}" );
+      error_log( "{$eClass}: {$e->getMessage()} in {$e->getFile()} line {$e->getLine()}\nStacktrace: {$e->getTraceAsString()}" );
 
       http_response_code( 500 );
       header( 'Content-Type: application/api-problem+json' );
