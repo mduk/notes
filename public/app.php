@@ -80,7 +80,8 @@ $builder->addRoute( '/users', [
   'GET' => [
     'service' => [
       'name' => 'user',
-      'call' => 'getAll'
+      'call' => 'getAll',
+      'multiplicity' => 'many',
     ],
     'http' => [
       'response' => [
@@ -120,7 +121,9 @@ $builder->addRoute( '/users/{user_id}', [
       'multiplicity' => 'one',
     ],
     'bind' => [
-      'route' => [ 'user_id' ]
+      'required' => [
+        'route' => [ 'user_id' ]
+      ]
     ],
     'http' => [
       'response' => [
@@ -137,10 +140,13 @@ $builder->addRoute( '/users/{user_id}/notes', [
   'GET' => [
     'service' => [
       'name' => 'note',
-      'call' => 'getByUserId'
+      'call' => 'getByUserId',
+      'multiplicity' => 'many',
     ],
     'bind' => [
-      'route' => [ 'user_id' ]
+      'required' => [
+        'route' => [ 'user_id' ]
+      ]
     ],
     'context' => [
       'user' => [
@@ -169,7 +175,9 @@ $builder->addRoute( '/srv/mustache/{template}', [
       'multiplicity' => 'one',
     ],
     'bind' => [
-      'route' => [ 'template' ],
+      'required' => [
+        'route' => [ 'template' ],
+      ]
     ],
     'http' => [
       'request' => [
@@ -196,7 +204,9 @@ $builder->addRoute( '/srv/router', [
       'multiplicity' => 'one',
     ],
     'bind' => [
-      'query' => [ 'path', 'method' ]
+      'required' => [
+        'query' => [ 'path', 'method' ]
+      ]
     ],
     'http' => [
       'response' => [
@@ -216,7 +226,9 @@ $builder->addRoute( '/srv/calculator/add/{x}/{y}', [
       'multiplicity' => 'one',
     ],
     'bind' => [
-      'route' => [ 'x', 'y' ]
+      'required' => [
+        'route' => [ 'x', 'y' ]
+      ]
     ],
     'http' => [
       'response' => [
