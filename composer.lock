@@ -142,12 +142,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/mduk/gowi.git",
-                "reference": "1ad126648e7e688bfc499dec9d5d4622139f406e"
+                "reference": "d14040c44956b8f5ce809724bcb3bb910298becd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mduk/gowi/zipball/1ad126648e7e688bfc499dec9d5d4622139f406e",
-                "reference": "1ad126648e7e688bfc499dec9d5d4622139f406e",
+                "url": "https://api.github.com/repos/mduk/gowi/zipball/d14040c44956b8f5ce809724bcb3bb910298becd",
+                "reference": "d14040c44956b8f5ce809724bcb3bb910298becd",
                 "shasum": ""
             },
             "require": {
@@ -181,7 +181,7 @@
                 "source": "https://github.com/mduk/gowi/tree/master",
                 "issues": "https://github.com/mduk/gowi/issues"
             },
-            "time": "2015-06-21 22:04:53"
+            "time": "2015-06-27 18:51:37"
         },
         {
             "name": "monolog/monolog",

@@ -7,8 +7,8 @@ use Mduk\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
 
 use Mduk\Service\Router\Exception as RouterException;
 
-use Mduk\Gowi\Application;
-use Mduk\Gowi\Application\Stage;
+use Mduk\Gowi\Http\Application;
+use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 

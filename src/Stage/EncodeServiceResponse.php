@@ -2,8 +2,8 @@
 
 namespace Mduk\Stage;
 
-use Mduk\Gowi\Application;
-use Mduk\Gowi\Application\Stage;
+use Mduk\Gowi\Http\Application;
+use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Collection;
 use Mduk\Gowi\Collection\Paged as PagedCollection;
 use Mduk\Gowi\Http\Request;
