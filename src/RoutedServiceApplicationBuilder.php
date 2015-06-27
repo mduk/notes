@@ -20,6 +20,8 @@ use Mduk\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
 use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
 use Mduk\Stage\SelectResponseType as SelectResponseTypeStage;
 
+use Mduk\Gowi\Http\Application\Stage\Stub;
+
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Factory;
 
