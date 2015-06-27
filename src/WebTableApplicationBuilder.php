@@ -103,7 +103,7 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
       ];
 
       // Delete object
-      $routes[ "/{$table}/{{$spec['pk']}}" ]['PATCH'] = [
+      $routes[ "/{$table}/{{$spec['pk']}}" ]['DELETE'] = [
         'service' => $this->service( $table, 'delete', 'none' ),
         'bind' => [
           'required' => [
