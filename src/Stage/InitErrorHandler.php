@@ -31,7 +31,7 @@ class InitErrorHandler implements Stage {
         8 => 'E_NOTICE'
       ];
       $errorLabel = isset( $errorLevels[ $errno ] )
-        ? $errorLabels[ $errno ]
+        ? $errorLevels[ $errno ]
         : $errno;
 
       error_log( "{$errorLabel}: {$errstr} in {$errfile} line {$errline}" );
