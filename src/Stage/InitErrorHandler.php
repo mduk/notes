@@ -39,7 +39,7 @@ class InitErrorHandler implements Stage {
       http_response_code( 500 );
       header( 'Content-Type: application/api-problem+json' );
       echo json_encode( [
-        'problemType' => $errorLevels[ $errno ],
+        'problemType' => $errorLabel,
         'title' => $errstr,
         'file' => $errfile,
         'line' => $errline
