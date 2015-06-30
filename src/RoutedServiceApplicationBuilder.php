@@ -107,8 +107,6 @@ class RoutedServiceApplicationBuilder {
     $app->setConfigArray( $this->configArray() );
 
     $app->addStage( new InitErrorHandlerStage ); // Initialise Error Handler
-    $app->addStage( new InitRemoteServicesStage ); // Initialise Remote Services
-    $app->addStage( new InitPdoServicesStage ); // Initialise PDO Services
     $app->addStage( new InitRouterStage ); // Initialise Router Service
 
     foreach ( $this->bootstrapStages as $stage ) {
@@ -120,6 +118,8 @@ class RoutedServiceApplicationBuilder {
     $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
     $app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
     $app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
+    $app->addStage( new InitRemoteServicesStage ); // Initialise Remote Services
+    $app->addStage( new InitPdoServicesStage ); // Initialise PDO Services
     $app->addStage( new BindServiceRequestParametersStage ); // Bind values from the environment to the Service Request
     $app->addStage( new ResolveServiceRequestStage ); // Resolve Service Request
     $app->addStage( new ExecuteServiceRequestStage ); // Execute Service Request
