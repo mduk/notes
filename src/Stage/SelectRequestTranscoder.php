@@ -10,15 +10,17 @@ use Mduk\Gowi\Http\Response;
 class SelectRequestTranscoder implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    if ( $req->getContent() ) {
-      $requestContentType = $req->headers->get( 'Content-Type' );
-      $requestTranscoders = $app->getConfig( 'http.request.transcoders' );
-      $requestTranscoderName = $requestTranscoders[ $requestContentType ];
-      $requestTranscoder = $app->getConfig( "transcoder.{$requestTranscoderName}" );
-
-      $app->setConfig( 'http.request.content_type', $requestContentType );
-      $app->setConfig( 'http.request.transcoder', $requestTranscoder );
+    if ( !$req->getContent() ) {
+      return;
     }
+
+    $requestContentType = $req->headers->get( 'Content-Type' );
+    $requestTranscoders = $app->getConfig( 'http.request.transcoders' );
+    $requestTranscoderName = $requestTranscoders[ $requestContentType ];
+    $requestTranscoder = $app->getConfig( "transcoder.{$requestTranscoderName}" );
+
+    $app->setConfig( 'http.request.content_type', $requestContentType );
+    $app->setConfig( 'http.request.transcoder', $requestTranscoder );
   }
 
 }
