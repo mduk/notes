@@ -35,10 +35,10 @@ class Pdo implements Service {
     }
 
     $stmt = $this->pdo->prepare( $sql );
-    if (!$stmt ) { throw new \Exception( "Bad SQL?: {$sql}" ); }
     foreach ( $req->getParameters() as $k => $v ) {
       $stmt->bindValue( ":{$k}", $v );
     }
+
     $stmt->execute();
 
     while ( $obj = $stmt->fetchObject() ) {
