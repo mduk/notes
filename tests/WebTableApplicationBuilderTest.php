@@ -8,9 +8,22 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   protected $builder;
 
   public function setUp() {
+    $this->dbFile = '/tmp/webtabletest.db';
+    if ( file_exists( $this->dbFile ) ) {
+      unlink( $this->dbFile );
+    }
+
+    $dsn = 'sqlite:' . $this->dbFile;
+    $pdo = new \PDO( $dsn );
+    $pdo->exec( file_get_contents( dirname( __FILE__ ) . '/../db.sql' ) );
+
     $this->builder = new WebTableApplicationBuilder;
-    $this->builder->setPdoConnection( 'sqlite:/Users/daniel/dev/notes/db.sq3' );
+    $this->builder->setPdoConnection( $dsn );
     $this->builder->addTable( 'user', 'user_id', [ 'name', 'email', 'role' ] );
+  }
+
+  public function tearDown() {
+    unlink( $this->dbFile );
   }
   
   public function testGetMany() {
