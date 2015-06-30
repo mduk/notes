@@ -2,6 +2,8 @@
 
 namespace Mduk\Service;
 
+use Mduk\Gowi\Service\Request\Exception\RequiredParameterMissing as RequiredParameterMissingException;
+
 class PdoTest extends \PHPUnit_Framework_TestCase {
   public function testConstruct() {
     global $pdo;
@@ -28,7 +30,7 @@ class PdoTest extends \PHPUnit_Framework_TestCase {
       "Service request required parameters should equal those specified in the query config" );
   }
 
-  public function testTheWholeThingIGuess() {
+  public function testSelectHappyPath() {
     global $pdo;
 
     $service = new Pdo( $pdo, [
@@ -49,6 +51,26 @@ class PdoTest extends \PHPUnit_Framework_TestCase {
 
     $this->assertEquals( 'Daniel', $result->name,
       "Should have been daniel's record" );
+  }
+
+  public function testSelect_RequiredParameterMissing() {
+    global $pdo;
+
+    $service = new Pdo( $pdo, [
+      'findByUserId' => [
+        'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+        'required' => [ 'user_id' ]
+      ]
+    ] );
+
+    try {
+      $result = $service->request( 'findByUserId' )
+        ->execute();
+      $this->fail();
+    }
+    catch ( RequiredParameterMissingException $e ) {
+
+    }
   }
 }
 

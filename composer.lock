@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c0538ea47788888092fc46c57dbe413a",
+    "hash": "46f86af36904913789da4d442633ef18",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -106,7 +106,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mduk/dot.git",
+                "url": "/Users/daniel/dev/dot/",
                 "reference": "b43025447ea5d609ea7247481f2c4a68c40272f5"
             },
             "dist": {
@@ -141,14 +141,8 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mduk/gowi.git",
-                "reference": "d14040c44956b8f5ce809724bcb3bb910298becd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mduk/gowi/zipball/d14040c44956b8f5ce809724bcb3bb910298becd",
-                "reference": "d14040c44956b8f5ce809724bcb3bb910298becd",
-                "shasum": ""
+                "url": "/Users/daniel/dev/gowi/",
+                "reference": "15508bf18cc2fb1c9fc6125c404ab35e5bd30533"
             },
             "require": {
                 "monolog/monolog": "~1.10",
@@ -177,11 +171,7 @@
                 }
             ],
             "description": "A PHP starting point for those who just want to Get On With It.",
-            "support": {
-                "source": "https://github.com/mduk/gowi/tree/master",
-                "issues": "https://github.com/mduk/gowi/issues"
-            },
-            "time": "2015-06-27 18:51:37"
+            "time": "2015-06-30 23:19:11"
         },
         {
             "name": "monolog/monolog",
@@ -790,16 +780,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.1.6",
+            "version": "2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "631e365cf26bb2c078683e8d9bcf8bc631ac4d44"
+                "reference": "07e27765596d72c378a6103e80da5d84e802f1e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/631e365cf26bb2c078683e8d9bcf8bc631ac4d44",
-                "reference": "631e365cf26bb2c078683e8d9bcf8bc631ac4d44",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/07e27765596d72c378a6103e80da5d84e802f1e4",
+                "reference": "07e27765596d72c378a6103e80da5d84e802f1e4",
                 "shasum": ""
             },
             "require": {
@@ -848,7 +838,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-06-19 07:11:55"
+            "time": "2015-06-30 06:52:35"
         },
         {
             "name": "phpunit/php-file-iterator",
