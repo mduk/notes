@@ -123,4 +123,36 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
       "The name field didn't get updated" );
 
   }
+
+  public function testUpdatePatch() {
+    $originalUser = json_decode(
+      $this->builder->build()
+        ->run( HttpRequest::create( 'http://whatever/user/2' ) )
+        ->getContent()
+    );
+
+    $request = HttpRequest::create( 'http://whatever/user/2', 'PATCH', [], [], [], [], json_encode( (object) [
+      'name' => 'changed',
+    ] ) );
+    $request->headers->set( 'Content-Type', 'application/json' );
+
+    $response = $this->builder->build()
+      ->run( $request );
+
+    $this->assertEquals( 200, $response->getStatusCode(),
+      "Response code should have been 200" );
+
+    $updatedUser = json_decode(
+      $this->builder->build()
+        ->run( HttpRequest::create( 'http://whatever/user/2' ) )
+        ->getContent()
+    );
+
+    $this->assertNotEquals( $originalUser, $updatedUser,
+      "User record is unchanged" );
+
+    $this->assertEquals( 'changed', $updatedUser->name,
+      "The name field didn't get updated" );
+
+  }
 }
