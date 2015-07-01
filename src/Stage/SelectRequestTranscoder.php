@@ -2,6 +2,8 @@
 
 namespace Mduk\Stage;
 
+use Mduk\Stage\Response\UnsupportedMediaType as UnsupportedMediaTypeStage;
+
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Http\Request;
@@ -15,7 +17,14 @@ class SelectRequestTranscoder implements Stage {
     }
 
     $requestContentType = $req->headers->get( 'Content-Type' );
-    $requestTranscoderName = $app->getConfig( "http.request.transcoders.{$requestContentType}" );
+
+    try {
+      $requestTranscoderName = $app->getConfig( "http.request.transcoders.{$requestContentType}" );
+    }
+    catch ( Application\Exception $e ) {
+      return new UnsupportedMediaTypeStage;
+    }
+
     $requestTranscoder = $app->getConfig( "transcoder.{$requestTranscoderName}" );
 
     $app->setConfig( 'http.request.content_type', $requestContentType );
