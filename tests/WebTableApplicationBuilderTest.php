@@ -66,4 +66,19 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     $this->assertObjectHasAttribute( 'role', $json,
       "Json should have contained an role key" );
   }
+
+  public function testCreate() {
+    $request = HttpRequest::create( 'http://whatever/user', 'POST', [], [], [], [], json_encode( (object) [
+      'name' => 'zaphod beeblebrox',
+      'email' => 'zaphod.beeblebrox@president.hg',
+      'role' => 'president'
+    ] ) );
+    $request->headers->set( 'Content-Type', 'application/json' );
+
+    $response = $this->builder->build()
+      ->run( $request );
+
+    $this->assertEquals( 200, $response->getStatusCode(),
+      "Response code should have been 200" );
+  }
 }
