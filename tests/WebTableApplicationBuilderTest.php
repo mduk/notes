@@ -81,4 +81,12 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals( 200, $response->getStatusCode(),
       "Response code should have been 200" );
   }
+
+  public function testDelete() {
+    $response = $this->builder->build()
+      ->run( HttpRequest::create( 'http://whatever/user/1', 'DELETE' ) );
+
+    $this->assertEquals( 200, $response->getStatusCode(),
+      "Response code should have been 200" );
+  }
 }
