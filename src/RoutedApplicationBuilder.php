@@ -5,6 +5,7 @@ namespace Mduk;
 use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 use Mduk\Stage\InitErrorHandler as InitErrorHandlerStage;
 use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
+use Mduk\Stage\InitPdoServices as InitPdoServicesStage;
 use Mduk\Stage\InitRouter as InitRouterStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
 use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
@@ -19,6 +20,8 @@ class RoutedApplicationBuilder {
   protected $routes = [];
   protected $transcoderFactory;
   protected $bootstrapStages = [];
+  protected $pdoConnections = [];
+  protected $pdoServices = [];
 
   public function useTranscoderFactory( Factory $factory ) {
     $this->transcoderFactory = $factory;
@@ -26,6 +29,22 @@ class RoutedApplicationBuilder {
 
   public function addBootstrapStage( $stage ) {
     $this->bootstrapStages[] = $stage;
+  }
+
+  public function addPdoConnection( $name, $dsn, $username = null, $password = null, $options = [] ) {
+    $this->pdoConnections[ $name ] = [
+      'dsn' => $dsn,
+      'username' => $username,
+      'password' => $password,
+      'options' => $options
+    ];
+  }
+
+  public function addPdoService( $name, $connectionName, $queries ) {
+    $this->pdoServices[ $name ] = [
+      'connection' => $connectionName,
+      'queries' => $queries
+    ];
   }
 
   public function addStaticPage( $path, $template ) {
@@ -58,6 +77,10 @@ class RoutedApplicationBuilder {
     return [
       'debug' => true,
       'transcoder' => $this->transcoderFactory,
+      'pdo' => [
+        'connections' => $this->pdoConnections,
+        'services' => $this->pdoServices
+      ],
       'routes' => $this->routes
     ];
   }
@@ -67,6 +90,7 @@ class RoutedApplicationBuilder {
 
     $app->setConfigArray( $this->configArray() );
 
+    // Level 1: Basic setup
     $app->addStage( new InitErrorHandlerStage ); // Initialise Error Handler
     $app->addStage( new InitRouterStage ); // Initialise Router Service
 
@@ -74,11 +98,15 @@ class RoutedApplicationBuilder {
       $app->addStage( $stage );
     }
 
+    // Level 2: Request Validation
     $app->addStage( new MatchRouteStage ); // Match a route
     $app->addStage( new SelectResponseTypeStage ); // Select Response MIME type
     $app->addStage( new SelectRequestTranscoderStage ); // Select Request Transcoder
     $app->addStage( new InitResponseTranscoderStage ); // Initialise Response Transcoder
     $app->addStage( new DecodeRequestBodyStage ); // Decode HTTP Request body
+
+    // Level 3: Domain Initialisation
+    $app->addStage( new InitPdoServicesStage ); // Initialise PDO Services
 
     return $app;
   }
