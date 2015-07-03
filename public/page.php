@@ -71,7 +71,7 @@ $builder = new RoutedApplicationBuilder;
 $templatesDir = dirname( __FILE__ ) . '/../templates';
 $builder->useTranscoderFactory( new Factory( [
   'html:profile_card' => function() use ( $templatesDir ) {
-    return new MustacheTranscoder( "{$templatesDir}/profile_card.mustache" );
+    return new MustacheTranscoder( "{$templatesDir}/cards/profile.mustache" );
   }
 ] ) );
 
@@ -103,6 +103,9 @@ $app->setConfig( 'routes./user/{user_id}.GET', [
   ]
 ] );
 
+// --------------------------------------------------------------------------------
+// Set up some Card Factories
+// --------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $app, $rq, $rs ) {
   $app->setConfig( 'card', new Factory( [
     'profile' => function() use ( $app ) {
@@ -130,6 +133,12 @@ $app->addStage( new StubStage( function( $app, $rq, $rs ) {
   ] ) );
 } ) );
 
+// --------------------------------------------------------------------------------
+// Find Page template
+// Render cards for Page Regions
+// Render Page
+// Return HTTP Response
+// --------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $a, $rq, $rs ) {
   $layoutTemplatePath = dirname( __FILE__ ) .
     '/../templates/layouts/' .
