@@ -70,8 +70,8 @@ $builder = new RoutedApplicationBuilder;
 
 $templatesDir = dirname( __FILE__ ) . '/../templates';
 $builder->useTranscoderFactory( new Factory( [
-  'html:profile_card' => function() use ( $templatesDir ) {
-    return new MustacheTranscoder( "{$templatesDir}/cards/profile.mustache" );
+  'html:user_card' => function() use ( $templatesDir ) {
+    return new MustacheTranscoder( "{$templatesDir}/cards/user.mustache" );
   }
 ] ) );
 
@@ -93,7 +93,7 @@ $app->setConfig( 'routes./user/{user_id}.GET', [
     'regions' => [
       'content' => [
         'cards' => [
-          'profile', 'profile-about', 'profile-publications'
+          'user', 'user-about', 'user-publications'
         ]
       ],
       'sidebar' => [
@@ -108,9 +108,9 @@ $app->setConfig( 'routes./user/{user_id}.GET', [
 // --------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $app, $rq, $rs ) {
   $app->setConfig( 'card', new Factory( [
-    'profile' => function() use ( $app ) {
+    'user' => function() use ( $app ) {
       $card = new Page\Card\ServiceRequest;
-      $card->setTranscoder( $app->getConfig( 'transcoder.html:profile_card' ) );
+      $card->setTranscoder( $app->getConfig( 'transcoder.html:user_card' ) );
       $card->setServiceRequest( 
         $app->getService( 'user' )
           ->request( 'getByUserId' )
@@ -118,10 +118,10 @@ $app->addStage( new StubStage( function( $app, $rq, $rs ) {
       );
       return $card;
     },
-    'profile-about' => function() {
+    'user-about' => function() {
       return new Page\Card\Shim( 'All about me!' );
     },
-    'profile-publications' => function() {
+    'user-publications' => function() {
       return new Page\Card\Ssi( '/documents/-/cards/profile-publications' );
     },
     'stats' => function() {
