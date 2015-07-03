@@ -18,11 +18,15 @@ use Mduk\Gowi\Factory;
 class RoutedApplicationBuilder {
 
   protected $routes = [];
+  protected $useApiProblemErrorHandler = false;
   protected $transcoderFactory;
   protected $bootstrapStages = [];
   protected $pdoConnections = [];
   protected $pdoServices = [];
 
+  public function useApiProblemErrorHandler( $u = true) {
+    $this->useApiProblemErrorHandler = $u;
+  }
   public function useTranscoderFactory( Factory $factory ) {
     $this->transcoderFactory = $factory;
   }
@@ -91,7 +95,9 @@ class RoutedApplicationBuilder {
     $app->setConfigArray( $this->configArray() );
 
     // Level 1: Basic setup
-    $app->addStage( new InitErrorHandlerStage ); // Initialise Error Handler
+    if ( $this->useApiProblemErrorHandler ) {
+      $app->addStage( new InitErrorHandlerStage ); // Initialise Error Handler
+    }
     $app->addStage( new InitRouterStage ); // Initialise Router Service
 
     foreach ( $this->bootstrapStages as $stage ) {
