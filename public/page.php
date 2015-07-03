@@ -86,6 +86,35 @@ $builder->addPdoService( 'user', 'main', [
 
 $app = $builder->build();
 
+$app->setConfig( 'cards', [
+  'user' => [
+    'type' => 'service',
+    'service' => [
+      'name' => 'user',
+      'call' => 'getByUserId',
+      'multiplicity' => 'one'
+    ],
+    'transcoder' => 'html:user_card'
+  ],
+  'user-about' => [
+    'type' => 'shim',
+    'shim' => 'ALL ABOUT ME!'
+  ],
+  'user-publications' => [
+    'type' => 'ssi',
+    'ssi' => '/documents/-/cards/profile-publications'
+  ],
+  'stats' => [
+    'type' => 'shim',
+    'shim' => 'SPAM! STATS! SPAM!'
+  ],
+  'follow' => [
+    'type' => 'shim',
+    'shim' => 'Follow you follow me.'
+  ]
+
+] );
+
 $app->setConfig( 'routes./user/{user_id}.GET', [
   'page' => [
     'layout' => 'right-sidebar',
@@ -104,34 +133,59 @@ $app->setConfig( 'routes./user/{user_id}.GET', [
 ] );
 
 // --------------------------------------------------------------------------------
-// Set up some Card Factories
+// Initialise Card factory from card config
 // --------------------------------------------------------------------------------
 $app->addStage( new StubStage( function( $app, $rq, $rs ) {
-  $app->setConfig( 'card', new Factory( [
-    'user' => function() use ( $app ) {
-      $card = new Page\Card\ServiceRequest;
-      $card->setTranscoder( $app->getConfig( 'transcoder.html:user_card' ) );
-      $card->setServiceRequest( 
-        $app->getService( 'user' )
-          ->request( 'getByUserId' )
-          ->setParameter( 'user_id', $app->getConfig( 'route.parameters.user_id' ) )
-      );
-      return $card;
-    },
-    'user-about' => function() {
-      return new Page\Card\Shim( 'All about me!' );
-    },
-    'user-publications' => function() {
-      return new Page\Card\Ssi( '/documents/-/cards/profile-publications' );
-    },
-    'stats' => function() {
-      return new Page\Card\Shim( 'SPAM! STATS! SPAM!' );
-    },
-    'follow' => function() {
-      return new Page\Card\Shim( 'Follow me follow you' );
-    },
-  ] ) );
+  $factories = [];
+  foreach ( $app->getConfig( 'cards' ) as $card => $spec ) {
+    switch ( $spec['type'] ) {
+
+      case 'service':
+        $factory = function() use ( $spec, $app ) {
+          $transcoder = $app->getConfig( "transcoder.{$spec['transcoder']}" );
+          $serviceRequest = $app->getService( $spec['service']['name'] )
+            ->request( $spec['service']['call'] );
+
+          foreach ( $app->getConfig( 'route.parameters' ) as $k => $v ) {
+            $serviceRequest->setParameter( $k, $v );
+          }
+
+          $card = new Page\Card\ServiceRequest;
+          $card->setTranscoder( $transcoder );
+          $card->setServiceRequest( $serviceRequest );
+          
+          return $card;
+        };
+        break;
+
+      case 'ssi':
+        $factory = function() use ( $spec ) {
+          return new Page\Card\Ssi( $spec['ssi'] );
+        };
+        break;
+
+      case 'shim':
+        $factory = function() use ( $spec ) {
+          return new Page\Card\Shim( $spec['shim'] );
+        };
+        break;
+
+      default:
+        throw new \Exception( "Unknown card type: {$spec['type']}" );
+
+    }
+
+    $factories[ $card ] = $factory;
+  }
+
+  $app->setConfig( 'card', new Factory( $factories ) );
 } ) );
+
+/*
+$app->addStage( new StubStage( function( $a, $rq, $rs ) {
+  return $rs->ok()->text( print_r( $a->getConfigArray(), true ) );
+} ) );
+*/
 
 // --------------------------------------------------------------------------------
 // Find Page template
@@ -160,9 +214,6 @@ $app->addStage( new StubStage( function( $a, $rq, $rs ) {
   ) );
 } ) );
 
-$app->addStage( new StubStage( function( $a, $rq, $rs ) {
-  return $rs->ok()->text( print_r( $a->getConfigArray(), true ) );
-} ) );
 
 $response = $app->run();
 if ( $response->getStatusCode() == 404 ) {
