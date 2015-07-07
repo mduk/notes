@@ -10,7 +10,6 @@ use Mduk\Gowi\Http\Response;
 class BindServiceRequestParameters implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
-    $service = $app->getConfig( 'service.name' );
     $call = $app->getConfig( 'service.call' );
     $parameters = $app->getConfig( 'service.parameters', [] );
 
