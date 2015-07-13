@@ -19,7 +19,7 @@ class InitPdoServices implements Stage {
 
   public function execute( Application $app, Request $req, Response $res ) {
     $this->application = $app;
-    $this->prepareConnections( $app->getConfig( 'pdo.connections' ) );
+    $this->prepareConnections( $app->getConfig( 'pdo.connections', [] ) );
 
     foreach ( $app->getConfig( 'pdo.services', [] ) as $service => $spec ) {
       $app->debugLog( function() use ( $service, $spec ) {
