@@ -62,31 +62,16 @@ use Mduk\Service\Router as RouterService;
 use Mduk\Transcoder\Mustache as MustacheTranscoder;
 
 use Mduk\Gowi\Http\Application;
-use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
-$builder = new RoutedApplicationBuilder;
-
 $templatesDir = dirname( __FILE__ ) . '/../templates';
-$builder->useTranscoderFactory( new Factory( [
+$transcoderFactory = new Factory( [
   'html:user_card' => function() use ( $templatesDir ) {
     return new MustacheTranscoder( "{$templatesDir}/cards/user.mustache" );
   }
-] ) );
-
-$builder->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
-
-$builder->addPdoService( 'user', 'main', [
-  'getByUserId' => [
-    'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
-    'required' => [ 'user_id' ]
-  ]
 ] );
-
-$app = $builder->build();
-
-$app->setConfig( 'cards', [
+$cards = [
   'user' => [
     'type' => 'service',
     'service' => [
@@ -112,110 +97,50 @@ $app->setConfig( 'cards', [
     'type' => 'shim',
     'shim' => 'Follow you follow me.'
   ]
+];
 
-] );
+$app = new Application( '.' );
+$app->setConfig( 'debug', true );
+$builder = new ApplicationBuilder( $app );
 
-$app->setConfig( 'routes./user/{user_id}.GET', [
-  'page' => [
-    'layout' => rand( 0, 1 ) == 0 ? 'right-sidebar' : 'left-sidebar',
-    'title' => 'My page title!',
-    'regions' => [
-      'content' => [
-        'cards' => [
-          'user', 'user-about', 'user-publications'
-        ]
+$builder->setBuilder( 'page', new PageApplicationBuilder );
+
+$builder->buildRoute( 'page', '/user/{user_id}', [
+  'transcoder' => $transcoderFactory,
+  'pdo' => [
+    'connections' => [
+      'maindb' => [
+        'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
       ],
-      'sidebar' => [
-        'cards' => [ 'stats', 'follow' ]
+    ],
+    'services' => [
+      'user' => [
+        'connection' => 'maindb',
+        'queries' => [
+          'getByUserId' => [
+            'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+            'required' => [ 'user_id' ]
+          ]
+        ]
       ]
+    ]
+  ],
+  'layout' => rand( 0, 1 ) == 0 ? 'right-sidebar' : 'left-sidebar',
+  'title' => 'My page title!',
+  'cards' => $cards,
+  'regions' => [
+    'content' => [
+      'cards' => [
+        'user', 'user-about', 'user-publications'
+      ]
+    ],
+    'sidebar' => [
+      'cards' => [ 'stats', 'follow' ]
     ]
   ]
 ] );
 
-// --------------------------------------------------------------------------------
-// Initialise Card factory from card config
-// --------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( $app, $rq, $rs ) {
-  $factories = [];
-  foreach ( $app->getConfig( 'cards' ) as $card => $spec ) {
-    switch ( $spec['type'] ) {
-
-      case 'service':
-        $factory = function() use ( $spec, $app ) {
-          $transcoder = $app->getConfig( "transcoder.{$spec['transcoder']}" );
-          $serviceRequest = $app->getService( $spec['service']['name'] )
-            ->request( $spec['service']['call'] );
-
-          foreach ( $app->getConfig( 'route.parameters' ) as $k => $v ) {
-            $serviceRequest->setParameter( $k, $v );
-          }
-
-          $card = new Page\Card\ServiceRequest;
-          $card->setTranscoder( $transcoder );
-          $card->setServiceRequest( $serviceRequest );
-          
-          return $card;
-        };
-        break;
-
-      case 'ssi':
-        $factory = function() use ( $spec ) {
-          return new Page\Card\Ssi( $spec['ssi'] );
-        };
-        break;
-
-      case 'shim':
-        $factory = function() use ( $spec ) {
-          return new Page\Card\Shim( $spec['shim'] );
-        };
-        break;
-
-      default:
-        throw new \Exception( "Unknown card type: {$spec['type']}" );
-
-    }
-
-    $factories[ $card ] = $factory;
-  }
-
-  $app->setConfig( 'card', new Factory( $factories ) );
-} ) );
-
-/*
-$app->addStage( new StubStage( function( $a, $rq, $rs ) {
-  return $rs->ok()->text( print_r( $a->getConfigArray(), true ) );
-} ) );
-*/
-
-// --------------------------------------------------------------------------------
-// Find Page template
-// Render cards for Page Regions
-// Render Page
-// Return HTTP Response
-// --------------------------------------------------------------------------------
-$app->addStage( new StubStage( function( $a, $rq, $rs ) {
-  $layoutTemplatePath = dirname( __FILE__ ) .
-    '/../templates/layouts/' .
-    $a->getConfig( 'page.layout' ) .
-    '.mustache';
-
-  $transcoder = new Transcoder\Mustache( $layoutTemplatePath );
-  $regions = [];
-  foreach ( $a->getConfig( 'page.regions' ) as $region => $regionSpec ) {
-    $cards = [];
-    foreach ( $regionSpec['cards'] as $card ) {
-      $cards[] = $a->getConfig( "card.{$card}" )->render();
-    }
-    $regions[ $region ] = implode( '', $cards );
-  }
-
-  return $rs->ok()->html( $transcoder->encode(
-    array_replace_recursive( $a->getConfig( 'page' ), $regions )
-  ) );
-} ) );
-
-
-$response = $app->run();
+$response = $builder->build()->run();
 if ( $response->getStatusCode() == 404 ) {
   return false;
 }
