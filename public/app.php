@@ -48,6 +48,16 @@ $builder->setBuilder( 'static-page', new StaticPageApplicationBuilder );
 $builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
 $builder->buildRoute( 'static-page', '/about', [ 'template' => 'about' ] );
 
+$builder->buildRoute( 'webtable', '/api/tables/user', [
+  'connection' => [
+    'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
+  ],
+  'table' => 'user',
+  'pk' => 'user_id',
+  'fields' => [ 'name', 'email', 'role' ]
+] );
+
+
 $builder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
   'transcoder' => $transcoderFactory,
   'pdo' => [
