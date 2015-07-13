@@ -35,206 +35,145 @@ $transcoderFactory = new Factory( [
   }
 ] );
 
-$builder = new RoutedServiceApplicationBuilder;
+$app = new Gowi\Http\Application( __DIR__ );
+$app->setConfig( 'debug', true );
 
-$builder->useTranscoderFactory( $transcoderFactory );
+$builder = new ApplicationBuilder( $app );
 
-$builder->addStaticPage( '/', 'index' );
-$builder->addStaticPage( '/about', 'about' );
+$builder->setBuilder( 'service-invocation', new ServiceInvocationApplicationBuilder );
+$builder->setBuilder( 'webtable', new WebTableApplicationBuilder );
+$builder->setBuilder( 'page', new PageApplicationBuilder );
+$builder->setBuilder( 'static-page', new StaticPageApplicationBuilder );
 
-$builder->addRemoteService( 'remote_calculator', 'http://localhost:5556/' );
+$builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
+$builder->buildRoute( 'static-page', '/about', [ 'template' => 'about' ] );
 
-$builder->addPdoConnection( 'main', 'sqlite:/Users/daniel/dev/notes/db.sq3' );
-
-$builder->addPdoService( 'user', 'main', [
-  'getAll' => [
-    'sql' => 'SELECT * FROM user'
-  ],
-  'getById' => [
-    'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
-    'required' => [ 'user_id' ]
-  ]
-] );
-
-$builder->addPdoService( 'note', 'main', [
-  'getByUserId' => [
-    'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
-    'required' => [ 'user_id' ]
-  ]
-] );
-
-$builder->addBootstrapStage( new StubStage( function( $app, $req, $res ) {
-
-  $renderer = new \Mustache_Engine( [
-    'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
-  ] );
-
-  $shim = new ServiceShim( 'Mustache template renderer' );
-  $shim->setCall( 'render', [ $renderer, 'render' ], [ 'template', '__payload' ],
-    "Render a mustache template" );
-  $app->setService( 'mustache', $shim );
-
-} ) );
-
-$builder->addRoute( '/users', [
-  'GET' => [
-    'service' => [
-      'name' => 'user',
-      'call' => 'getAll',
-      'multiplicity' => 'many',
-    ],
-    'http' => [
-      'response' => [
-        'transcoders' => [
-          'text/html' => 'html:user_list',
-          'application/json' => 'generic:json'
-        ]
-      ]
-    ]
-  ],
-  'POST' => [
-    'service' => [
-      'name' => 'user',
-      'call' => 'create',
-      'multiplicity' => 'one',
-    ],
-    'http' => [
-      'request' => [
-        'transcoders' => [
-          'application/json' => 'generic:json'
-        ]
+$builder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
+  'transcoder' => $transcoderFactory,
+  'pdo' => [
+    'connections' => [
+      'maindb' => [
+        'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
       ],
-      'response' => [
-        'transcoders' => [
-          'application/json' => 'generic:json'
-        ]
-      ]
-    ]
-  ]
-] );
-
-$builder->addRoute( '/users/{user_id}', [
-  'GET' => [
-    'service' => [
-      'name' => 'user',
-      'call' => 'getById',
-      'multiplicity' => 'one',
     ],
-    'bind' => [
-      'required' => [
-        'route' => [ 'user_id' ]
-      ]
-    ],
-    'http' => [
-      'response' => [
-        'transcoders' => [
-          'text/html' => 'html:user_page',
-          'application/json' => 'generic:json'
-        ]
-      ]
-    ]
-  ]
-] );
-
-$builder->addRoute( '/users/{user_id}/notes', [
-  'GET' => [
-    'service' => [
-      'name' => 'note',
-      'call' => 'getByUserId',
-      'multiplicity' => 'many',
-    ],
-    'bind' => [
-      'required' => [
-        'route' => [ 'user_id' ]
-      ]
-    ],
-    'context' => [
+    'services' => [
       'user' => [
-        'service' => [
-          'name' =>'user',
-          'call' => 'getById',
-        ],
-      ]
-    ],
-    'http' => [
-      'response' => [
-        'transcoders' => [
-          'text/html' => 'html:note_list',
-          'application/json' => 'generic:json'
+        'connection' => 'maindb',
+        'queries' => [
+          'getAll' => [
+            'sql' => 'SELECT * FROM user'
+          ]
         ]
+      ]
+    ]
+  ],
+  'service' => [
+    'name' => 'user',
+    'call' => 'getAll',
+    'multiplicity' => 'many',
+  ],
+  'http' => [
+    'response' => [
+      'transcoders' => [
+        'text/html' => 'html:user_list',
+        'application/json' => 'generic:json'
       ]
     ]
   ]
 ] );
 
-$builder->addRoute( '/srv/mustache/{template}', [
-  'POST' => [
-    'service' => [
-      'name' => 'mustache',
-      'call' => 'render',
-      'multiplicity' => 'one',
+$builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}' ], [
+  'transcoder' => $transcoderFactory,
+  'pdo' => [
+    'connections' => [
+      'maindb' => [
+        'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
+      ],
     ],
-    'bind' => [
-      'required' => [
-        'route' => [ 'template' ],
+    'services' => [
+      'user' => [
+        'connection' => 'maindb',
+        'queries' => [
+          'getById' => [
+            'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+            'required' => [ 'user_id' ]
+          ]
+        ]
       ]
+    ]
+  ],
+  'service' => [
+    'name' => 'user',
+    'call' => 'getById',
+    'multiplicity' => 'one',
+  ],
+  'bind' => [
+    'required' => [
+      'route' => [ 'user_id' ]
+    ]
+  ],
+  'http' => [
+    'response' => [
+      'transcoders' => [
+        'text/html' => 'html:user_page',
+        'application/json' => 'generic:json'
+      ]
+    ]
+  ]
+] );
+
+$builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ], [
+  'transcoder' => $transcoderFactory,
+  'pdo' => [
+    'connections' => [
+      'maindb' => [
+        'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
+      ],
     ],
-    'http' => [
-      'request' => [
-        'transcoders' => [
-          'application/json' => 'generic:json',
-          'application/x-www-form-urlencoded' => 'generic:form'
+    'services' => [
+      'user' => [
+        'connection' => 'maindb',
+        'queries' => [
+          'getById' => [
+            'sql' => 'SELECT * FROM user WHERE user_id = :user_id',
+            'required' => [ 'user_id' ]
+          ]
         ]
       ],
-      'response' => [
-        'transcoders' => [
-          'text/html' => 'generic:text',
-          'text/plain' => 'generic:text'
+      'note' => [
+        'connection' => 'maindb',
+        'queries' => [
+          'getByUserId' => [
+            'sql' => 'SELECT * FROM note WHERE user_id = :user_id',
+            'required' => [ 'user_id' ]
+          ]
         ]
       ]
     ]
-  ]
-] );
-
-$builder->addRoute( '/srv/router', [
-  'GET' => [
-    'service' => [
-      'name' => 'router',
-      'call' => 'route',
-      'multiplicity' => 'one',
-    ],
-    'bind' => [
-      'required' => [
-        'query' => [ 'path', 'method' ]
-      ]
-    ],
-    'http' => [
-      'response' => [
-        'transcoders' => [
-          'application/json' => 'generic:json',
-        ]
-      ]
+  ],
+  'service' => [
+    'name' => 'note',
+    'call' => 'getByUserId',
+    'multiplicity' => 'many',
+  ],
+  'bind' => [
+    'required' => [
+      'route' => [ 'user_id' ]
     ]
-  ]
-] );
-
-$builder->addRoute( '/srv/calculator/add/{x}/{y}', [
-  'GET' => [
-    'service' => [
-      'name' => 'remote_calculator',
-      'call' => 'add',
-      'multiplicity' => 'one',
-    ],
-    'bind' => [
-      'required' => [
-        'route' => [ 'x', 'y' ]
-      ]
-    ],
-    'http' => [
-      'response' => [
-        'transcoders' => [
-          'text/plain' => 'generic:text'
-        ]
+  ],
+  'context' => [
+    'user' => [
+      'service' => [
+        'name' =>'user',
+        'call' => 'getById',
+      ],
+    ]
+  ],
+  'http' => [
+    'response' => [
+      'transcoders' => [
+        'text/html' => 'html:note_list',
+        'application/json' => 'generic:json'
       ]
     ]
   ]

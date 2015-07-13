@@ -4,11 +4,15 @@ namespace Mduk;
 
 use Mduk\Gowi\Factory;
 
-class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
+class WebTableApplicationBuilder {
 
-  protected $tables = [];
+  protected $table;
+  protected $pk;
+  protected $fields;
+  protected $connectionConfig;
+  protected $transcoderFactory;
 
-  public function __construct() {
+  public function __construct( array $config = [] ) {
     $this->transcoderFactory = new Factory( [
       'generic:json' => function() {
         return new \Mduk\Gowi\Transcoder\Generic\Json;
@@ -16,174 +20,197 @@ class WebTableApplicationBuilder extends RoutedServiceApplicationBuilder {
     ] );
   }
 
-  public function setPdoConnection( $dsn, $username = null, $password = null, $options = [] ) {
-    parent::addPdoConnection( 'main', $dsn, $username, $password, $options );
+  protected function routeConfig( $http, $config ) {
+    $route = [
+      'builder' => 'webtable',
+      'config' => array_replace_recursive( [
+        'transcoder' => $this->transcoderFactory,
+        'connection' => $this->connectionConfig,
+        'pdo' => [
+          'connections' => [
+            'main' => $this->connectionConfig
+          ],
+          'services' => [
+            $this->table => [
+              'connection' => 'main',
+              'queries' => $this->queryConfig()
+            ]
+          ]
+        ]
+      ], $config )
+    ];
+
+    if ( $http ) {
+      $route['config']['http'][ $http ] = [
+        'transcoders' => [
+          'application/json' => 'generic:json'
+        ]
+      ];
+    }
+    
+    return $route;
   }
 
-  public function addTable( $table, $pk, $fields ) {
-    $this->tables[ $table ] = [
-      'table' => $table,
-      'pk' => $pk,
-      'fields' => $fields
+  protected function queryConfig() {
+    $allFields = $this->fields;
+    $allFields[] = $this->pk;
+
+    $allFieldsStr = implode( ', ', $allFields );
+
+    $allPlaceholdersStr = implode( ', ', array_map( function( $e ) {
+      return ":{$e}";
+    }, $allFields ) );
+
+    $updatePlaceholders = implode( ', ', array_map( function( $e ) {
+      return "{$e} = :{$e}";
+    }, $this->fields ) );
+
+    $wherePk = "WHERE {$this->pk} = :{$this->pk}";
+
+    return [
+      'create' => [
+        'sql' => "INSERT INTO {$this->table} ( {$allFieldsStr} ) VALUES ( {$allPlaceholdersStr} )",
+        'parameters' => $this->fields
+      ],
+      'retrieveAll' => [
+        'sql' => "SELECT {$allFieldsStr} FROM {$this->table}"
+      ],
+      'retrieve' => [
+        'sql' => "SELECT {$allFieldsStr} FROM {$this->table} {$wherePk}",
+        'parameters' => [ $this->pk ]
+      ],
+      'update' => [
+        'sql' => "UPDATE {$this->table} SET {$updatePlaceholders} {$wherePk}",
+        'parameters' => $this->fields
+      ],
+      'updatePartial' => [
+        'sql' => function( $parameters ) use ( $wherePk ) {
+          $this->fields = [];
+          foreach ( $parameters as $parameter ) {
+            if ( $parameter == $this->pk ) { // Mustn't change the primary key
+              continue;
+            }
+            $this->fields[] = "{$parameter} = :{$parameter}";
+          }
+          $updateFields = implode( ', ', $this->fields );
+          $sql = "UPDATE {$this->table} SET {$updateFields} {$wherePk}";
+          return $sql;
+        }
+      ],
+      'delete' => [
+        'sql' => "DELETE FROM {$this->table} {$wherePk}",
+        'parameters' => [ $this->pk ]
+      ]
     ];
   }
 
-  public function configArray() {
-    $transcoderConfig = [
-      'transcoders' => [
-        'application/json' => 'generic:json'
-      ]
+  public function buildRoutes( $path, $config ) {
+    $this->connectionConfig = $config['connection'];
+    $this->table = $config['table'];
+    $this->pk = $config['pk'];
+    $this->fields = $config['fields'];
+
+    $this->pk = $config['pk'];
+    $this->fields = $config['fields'];
+
+    $appConfig = [
+      'builders' => [ 'webtable' ]
     ];
 
     $routes = [];
-    foreach ( $this->tables as $table => $spec ) {
 
-      // Retrieve whole collection
-      $routes[ "/{$table}" ]['GET'] = [
-        'service' => $this->service( $table, 'retrieveAll', 'many' ),
-        'http' => [
-          'response' => $transcoderConfig
+    // Retrieve whole collection
+    $routes[ $path ]['GET'] = $this->routeConfig( 'response', [
+      'service' => $this->service( $this->table, 'retrieveAll', 'many' ),
+    ] );
+
+    // Create new object
+    $routes[ $path ]['POST'] = $this->routeConfig( 'request', [
+      'service' => $this->service( $this->table, 'create', 'none' ),
+      'bind' => [
+        'required' => [
+          'payload' => $this->fields
         ]
-      ];
-
-      // Create new object
-      $routes[ "/{$table}" ]['POST'] = [
-        'service' => $this->service( $table, 'create', 'none' ),
-        'bind' => [
-          'required' => [
-            'payload' => $spec['fields']
-          ]
-        ],
-        'http' => [
-          'request' => $transcoderConfig
-        ]
-      ];
-
-      // Retrieve object
-      $routes[ "/{$table}/{{$spec['pk']}}" ]['GET'] = [
-        'service' => $this->service( $table, 'retrieve', 'one' ),
-        'bind' => [
-          'required' => [
-            'route' => [ $spec['pk'] ]
-          ]
-        ],
-        'http' => [
-          'response' => $transcoderConfig
-        ]
-      ];
-
-      // Update whole object
-      $routes[ "/{$table}/{{$spec['pk']}}" ]['PUT'] = [
-        'service' => $this->service( $table, 'update', 'none' ),
-        'bind' => [
-          'required' => [
-            'route' => [ $spec['pk'] ],
-            'payload' => $spec['fields']
-          ]
-        ],
-        'http' => [
-          'request' => $transcoderConfig
-        ]
-      ];
-
-      // Update partial object
-      $routes[ "/{$table}/{{$spec['pk']}}" ]['PATCH'] = [
-        'service' => $this->service( $table, 'updatePartial', 'none' ),
-        'bind' => [
-          'required' => [
-            'route' => [ $spec['pk'] ]
-          ],
-          'optional' => [
-            'payload' => $spec['fields']
-          ]
-        ],
-        'http' => [
-          'request' => $transcoderConfig
-        ]
-      ];
-
-      // Delete object
-      $routes[ "/{$table}/{{$spec['pk']}}" ]['DELETE'] = [
-        'service' => $this->service( $table, 'delete', 'none' ),
-        'bind' => [
-          'required' => [
-            'route' => [ $spec['pk'] ]
-          ]
-        ],
-      ];
-    }
-
-    return [
-      'debug' => true,
-      'transcoder' => $this->transcoderFactory,
-      'pdo' => [
-        'connections' => $this->pdoConnections,
-        'services' => $this->pdoServices
       ],
-      'routes' => $routes
-    ];
+    ] );
+
+    // Retrieve object
+    $routes[ "{$path}/{{$this->pk}}" ]['GET'] = $this->routeConfig( 'response', [
+      'service' => $this->service( $this->table, 'retrieve', 'one' ),
+      'bind' => [
+        'required' => [
+          'route' => [ $this->pk ]
+        ]
+      ],
+    ] );
+
+    // Update whole object
+    $routes[ "{$path}/{{$this->pk}}" ]['PUT'] = $this->routeConfig( 'request', [
+      'service' => $this->service( $this->table, 'update', 'none' ),
+      'bind' => [
+        'required' => [
+          'route' => [ $this->pk ],
+          'payload' => $this->fields
+        ]
+      ],
+    ] );
+
+    // Update partial object
+    $routes[ "{$path}/{{$this->pk}}" ]['PATCH'] = $this->routeConfig( 'request', [
+      'service' => $this->service( $this->table, 'updatePartial', 'none' ),
+      'bind' => [
+        'required' => [
+          'route' => [ $this->pk ]
+        ],
+        'optional' => [
+          'payload' => $this->fields
+        ]
+      ],
+    ] );
+
+    // Delete object
+    $routes[ "{$path}/{{$this->pk}}" ]['DELETE'] = $this->routeConfig( null, [
+      'service' => $this->service( $this->table, 'delete', 'none' ),
+      'bind' => [
+        'required' => [
+          'route' => [ $this->pk ]
+        ]
+      ],
+    ] );
+
+    return $routes;
   }
 
-  public function build() {
+  public function build( $config, $app = null ) {
+    $pdo = new \PDO(
+      $config['connection']['dsn'],
+      isset( $config['connection']['username'] ) ? $config['connection']['username'] : '',
+      isset( $config['connection']['password'] ) ? $config['connection']['password'] : '',
+      isset( $config['connection']['options'] ) ? $config['connection']['options'] : []
+    );
+    $pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 
-    foreach ( $this->tables as $table => $spec ) {
-      $pk = $spec['pk'];
-      $fieldArray = $spec['fields'];
-      $fieldArray[] = $spec['pk'];
-      $fields = implode( ', ', $fieldArray );
-      $placeholders = implode( ', ', array_map( function( $e ) {
-        return ":{$e}";
-      }, $fieldArray ) );
+    $app = new Gowi\Http\Application( '.' );
+    $app->setConfig( 'debug', true );
+    $app->addStage( new Stage\SelectResponseType );
+    $app->addStage( new Stage\SelectRequestTranscoder);
+    $app->addStage( new Stage\InitResponseTranscoder);
+    $app->addStage( new Stage\DecodeRequestBody);
 
-      $updatePlaceholders = implode( ', ', array_map( function( $e ) {
-        return "{$e} = :{$e}";
-      }, $spec['fields'] ) );
+    $app->addStage( new Stage\InitPdoServices );
+    $app->addStage( new Stage\BindServiceRequestParameters );
+    $app->addStage( new Stage\ResolveServiceRequest );
+    $app->addStage( new Stage\ExecuteServiceRequest );
+    $app->addStage( new Stage\EncodeServiceResponse );
+    $app->addStage( new Stage\Respond );
 
-      $wherePk = "WHERE {$pk} = :{$pk}";
-
-      $this->addPdoService( $table, 'main', [
-        'create' => [
-          'sql' => "INSERT INTO {$table} ( {$fields} ) VALUES ( {$placeholders} )",
-          'parameters' => $fields
-        ],
-        'retrieveAll' => [
-          'sql' => "SELECT {$fields} FROM {$table}"
-        ],
-        'retrieve' => [
-          'sql' => "SELECT {$fields} FROM {$table} {$wherePk}",
-          'parameters' => [ $pk ]
-        ],
-        'update' => [
-          'sql' => "UPDATE {$table} SET {$updatePlaceholders} {$wherePk}",
-          'parameters' => $fields
-        ],
-        'updatePartial' => [
-          'sql' => function( $parameters ) use ( $table, $pk, $wherePk ) {
-            $fields = [];
-            foreach ( $parameters as $parameter ) {
-              if ( $parameter == $pk ) { // Mustn't change the primary key
-                continue;
-              }
-              $fields[] = "{$parameter} = :{$parameter}";
-            }
-            $updateFields = implode( ', ', $fields );
-            $sql = "UPDATE {$table} SET {$updateFields} {$wherePk}";
-            return $sql;
-          }
-        ],
-        'delete' => [
-          'sql' => "DELETE FROM {$table} {$wherePk}",
-          'parameters' => [ $pk ]
-        ]
-      ] );
-    }
-
-    return parent::build();
+    $app->setConfigArray( $config );
+    return $app;
   }
 
   protected function service( $table, $call, $multiplicity ) {
     return [
-      'name' => $table,
+      'name' => $this->table,
       'call' => $call,
       'multiplicity' => $multiplicity
     ];

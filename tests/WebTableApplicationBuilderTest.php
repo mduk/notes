@@ -6,6 +6,20 @@ use Mduk\Gowi\Http\Request as HttpRequest;
 
 class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   protected $builder;
+  protected $dsn;
+  protected $buildConfig = [
+    'table' => 'user',
+    'pk' => 'user_id',
+    'fields' => [ 'name', 'email', 'role' ]
+  ];
+
+  protected function buildConfig() {
+    return array_replace_recursive( $this->buildConfig, [
+      'connection' => [
+        'dsn' => $this->dsn
+      ]
+    ] );
+  }
 
   public function setUp() {
     $this->dbFile = '/tmp/webtabletest.db';
@@ -13,13 +27,11 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
       unlink( $this->dbFile );
     }
 
-    $dsn = 'sqlite:' . $this->dbFile;
-    $pdo = new \PDO( $dsn );
+    $this->dsn = 'sqlite:' . $this->dbFile;
+    $pdo = new \PDO( $this->dsn );
     $pdo->exec( file_get_contents( dirname( __FILE__ ) . '/../db.sql' ) );
 
     $this->builder = new WebTableApplicationBuilder;
-    $this->builder->setPdoConnection( $dsn );
-    $this->builder->addTable( 'user', 'user_id', [ 'name', 'email', 'role' ] );
   }
 
   public function tearDown() {
@@ -27,7 +39,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   }
   
   public function testGetMany() {
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( HttpRequest::create( 'http://whatever/user' ) );
 
     $this->assertEquals( 200, $response->getStatusCode(),
@@ -46,7 +58,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testGetOne() {
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( HttpRequest::create( 'http://whatever/user/1' ) );
 
     $this->assertEquals( 200, $response->getStatusCode(),
@@ -75,7 +87,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     ] ) );
     $request->headers->set( 'Content-Type', 'application/json' );
 
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( $request );
 
     $this->assertEquals( 200, $response->getStatusCode(),
@@ -83,7 +95,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testDelete() {
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( HttpRequest::create( 'http://whatever/user/1', 'DELETE' ) );
 
     $this->assertEquals( 200, $response->getStatusCode(),
@@ -92,7 +104,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
 
   public function testUpdate() {
     $originalUser = json_decode(
-      $this->builder->build()
+      $this->builder->build( $this->buildConfig() )
         ->run( HttpRequest::create( 'http://whatever/user/1' ) )
         ->getContent()
     );
@@ -104,14 +116,14 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     ] ) );
     $request->headers->set( 'Content-Type', 'application/json' );
 
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( $request );
 
     $this->assertEquals( 200, $response->getStatusCode(),
       "Response code should have been 200" );
 
     $updatedUser = json_decode(
-      $this->builder->build()
+      $this->builder->build( $this->buildConfig() )
         ->run( HttpRequest::create( 'http://whatever/user/1' ) )
         ->getContent()
     );
@@ -126,7 +138,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
 
   public function testUpdatePatch() {
     $originalUser = json_decode(
-      $this->builder->build()
+      $this->builder->build( $this->buildConfig() )
         ->run( HttpRequest::create( 'http://whatever/user/2' ) )
         ->getContent()
     );
@@ -136,14 +148,14 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     ] ) );
     $request->headers->set( 'Content-Type', 'application/json' );
 
-    $response = $this->builder->build()
+    $response = $this->builder->build( $this->buildConfig() )
       ->run( $request );
 
     $this->assertEquals( 200, $response->getStatusCode(),
       "Response code should have been 200" );
 
     $updatedUser = json_decode(
-      $this->builder->build()
+      $this->builder->build( $this->buildConfig() )
         ->run( HttpRequest::create( 'http://whatever/user/2' ) )
         ->getContent()
     );

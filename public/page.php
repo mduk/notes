@@ -117,7 +117,7 @@ $app->setConfig( 'cards', [
 
 $app->setConfig( 'routes./user/{user_id}.GET', [
   'page' => [
-    'layout' => 'right-sidebar',
+    'layout' => rand( 0, 1 ) == 0 ? 'right-sidebar' : 'left-sidebar',
     'title' => 'My page title!',
     'regions' => [
       'content' => [
