@@ -13,13 +13,18 @@ use Mduk\Gowi\Http\Response;
 
 class InitPdoServices implements Stage {
 
+  protected $application;
   protected $factories = [];
   protected $connections = [];
 
   public function execute( Application $app, Request $req, Response $res ) {
+    $this->application = $app;
     $this->prepareConnections( $app->getConfig( 'pdo.connections' ) );
 
     foreach ( $app->getConfig( 'pdo.services', [] ) as $service => $spec ) {
+      $app->debugLog( function() use ( $service, $spec ) {
+        return __CLASS__ . ": Building Pdo Service: {$service} " . print_r( $spec, true );
+      } );
       $app->setService(
         $service,
         new PdoService(
@@ -32,6 +37,9 @@ class InitPdoServices implements Stage {
 
   protected function prepareConnections( $connections ) {
     foreach ( $connections as $name => $spec ) {
+      $this->application->debugLog( function() use ( $name, $spec ) {
+        return __CLASS__ . ": Preparing connection factory for: {$name}. " . print_r( $spec, true );
+      } );
       $dsn = $spec['dsn'];
       $username = isset( $spec['username'] ) ? $spec['username'] : null;
       $password = isset( $spec['password'] ) ? $spec['password'] : null;

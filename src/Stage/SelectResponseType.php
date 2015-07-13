@@ -16,6 +16,10 @@ class SelectResponseType implements Stage {
       $supportedTypes = array_keys( $app->getConfig( 'http.response.transcoders' ) );
     }
     catch ( Application\Exception $e ) {
+      $app->debugLog( function() {
+        return __CLASS__ . ': No http.response.transcoders config key. Assuming there will be no response.';
+      } );
+
       return null;
     }
 
@@ -33,6 +37,10 @@ class SelectResponseType implements Stage {
     if ( $selectedType == '*/*' ) {
       $selectedType = array_shift( $supportedTypes );
     }
+
+    $app->debugLog( function() use ( $selectedType ) {
+      return __CLASS__ . ': Selected response type: ' . $selectedType;
+    } );
 
     if ( !$selectedType ) {
       return new NotAcceptableResponseStage;
