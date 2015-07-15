@@ -42,7 +42,6 @@ $builder = new ApplicationBuilder( $app );
 
 $builder->setBuilder( 'service-invocation', new ServiceInvocationApplicationBuilder );
 $builder->setBuilder( 'webtable', new WebTableApplicationBuilder );
-$builder->setBuilder( 'page', new PageApplicationBuilder );
 $builder->setBuilder( 'static-page', new StaticPageApplicationBuilder );
 
 $builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
