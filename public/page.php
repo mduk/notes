@@ -67,8 +67,14 @@ use Mduk\Gowi\Service\Shim as ServiceShim;
 
 $templatesDir = dirname( __FILE__ ) . '/../templates';
 $transcoderFactory = new Factory( [
+  'generic:text' => function() {
+    return new Gowi\Transcoder\Generic\Text;
+  },
   'html:user_card' => function() use ( $templatesDir ) {
     return new MustacheTranscoder( "{$templatesDir}/cards/user.mustache" );
+  },
+  'html:user_notes_card' => function() use ( $templatesDir ) {
+    return new MustacheTranscoder( "{$templatesDir}/cards/user-notes.mustache" );
   }
 ] );
 $cards = [
@@ -80,6 +86,15 @@ $cards = [
       'multiplicity' => 'one'
     ],
     'transcoder' => 'html:user_card'
+  ],
+  'user-notes' => [
+    'type' => 'service',
+    'service' => [
+      'name' => 'note',
+      'call' => 'getLatestFiveByUserId',
+      'multiplicity' => 'many'
+    ],
+    'transcoder' => 'html:user_notes_card'
   ],
   'user-about' => [
     'type' => 'shim',
@@ -106,7 +121,6 @@ $builder = new ApplicationBuilder( $app );
 $builder->setBuilder( 'page', new PageApplicationBuilder );
 
 $builder->buildRoute( 'page', '/user/{user_id}', [
-  'transcoder' => $transcoderFactory,
   'pdo' => [
     'connections' => [
       'maindb' => [
@@ -122,12 +136,22 @@ $builder->buildRoute( 'page', '/user/{user_id}', [
             'required' => [ 'user_id' ]
           ]
         ]
+      ],
+      'note' => [
+        'connection' => 'maindb',
+        'queries' => [
+          'getLatestFiveByUserId' => [
+            'sql' => 'SELECT * FROM note WHERE user_id = :user_id LIMIT 5',
+            'required' => [ 'user_id' ]
+          ]
+        ]
       ]
     ]
   ],
+  'transcoder' => $transcoderFactory,
+  'cards' => $cards,
   'layout' => rand( 0, 1 ) == 0 ? 'right-sidebar' : 'left-sidebar',
   'title' => 'My page title!',
-  'cards' => $cards,
   'regions' => [
     'content' => [
       'cards' => [
@@ -135,7 +159,7 @@ $builder->buildRoute( 'page', '/user/{user_id}', [
       ]
     ],
     'sidebar' => [
-      'cards' => [ 'stats', 'follow' ]
+      'cards' => [ 'stats', 'user-notes', 'follow' ]
     ]
   ]
 ] );
