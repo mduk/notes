@@ -116,7 +116,7 @@ $cards = [
 
 $app = new Application( '.' );
 $app->setConfig( 'debug', true );
-$builder = new ApplicationBuilder( $app );
+$builder = new Application\Builder( $app );
 
 $builder->setBuilder( 'page', new PageApplicationBuilder );
 

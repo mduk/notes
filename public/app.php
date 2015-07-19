@@ -38,7 +38,7 @@ $transcoderFactory = new Factory( [
 $app = new Gowi\Http\Application( __DIR__ );
 $app->setConfig( 'debug', true );
 
-$builder = new ApplicationBuilder( $app );
+$builder = new Application\Builder( $app );
 
 $builder->setBuilder( 'service-invocation', new ServiceInvocationApplicationBuilder );
 $builder->setBuilder( 'webtable', new WebTableApplicationBuilder );

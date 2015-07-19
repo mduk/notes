@@ -1,6 +1,6 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application;
 
 use Mduk\Stage\InitRouter as InitRouterStage;
 use Mduk\Stage\MatchRoute as MatchRouteStage;
@@ -11,7 +11,7 @@ use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 
 use Mduk\Gowi\Factory;
 
-class ApplicationBuilder {
+class Builder {
 
   protected $application;
   protected $builders = [];
