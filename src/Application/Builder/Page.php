@@ -1,11 +1,11 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application\Builder;
 
 use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
 
-class PageApplicationBuilder {
+class Page {
   public function buildRoutes( $path, $config ) {
     return [
       $path => [
@@ -18,10 +18,10 @@ class PageApplicationBuilder {
   }
 
   public function build( $config ) {
-    $app = new Gowi\Http\Application( '.' );
+    $app = new \Mduk\Gowi\Http\Application( '.' );
     $app->applyConfigArray( $config );
 
-    $app->addStage( new Stage\InitPdoServices );
+    $app->addStage( new \Mduk\Stage\InitPdoServices );
 
     // --------------------------------------------------------------------------------
     // Initialise Card factory from card config

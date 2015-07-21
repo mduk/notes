@@ -40,9 +40,9 @@ $app->setConfig( 'debug', true );
 
 $builder = new Application\Builder( $app );
 
-$builder->setBuilder( 'service-invocation', new ServiceInvocationApplicationBuilder );
+$builder->setBuilder( 'service-invocation', new Application\Builder\ServiceInvocation );
 $builder->setBuilder( 'webtable', new Application\Builder\WebTable );
-$builder->setBuilder( 'static-page', new StaticPageApplicationBuilder );
+$builder->setBuilder( 'static-page', new Application\Builder\StaticPage );
 
 $builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
 $builder->buildRoute( 'static-page', '/about', [ 'template' => 'about' ] );

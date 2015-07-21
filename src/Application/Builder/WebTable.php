@@ -190,19 +190,19 @@ class WebTable {
     );
     $pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 
-    $app = new Gowi\Http\Application( '.' );
+    $app = new \Mduk\Gowi\Http\Application( '.' );
     $app->setConfig( 'debug', true );
-    $app->addStage( new Stage\SelectResponseType );
-    $app->addStage( new Stage\SelectRequestTranscoder);
-    $app->addStage( new Stage\InitResponseTranscoder);
-    $app->addStage( new Stage\DecodeRequestBody);
+    $app->addStage( new \Mduk\Stage\SelectResponseType );
+    $app->addStage( new \Mduk\Stage\SelectRequestTranscoder);
+    $app->addStage( new \Mduk\Stage\InitResponseTranscoder);
+    $app->addStage( new \Mduk\Stage\DecodeRequestBody);
 
-    $app->addStage( new Stage\InitPdoServices );
-    $app->addStage( new Stage\BindServiceRequestParameters );
-    $app->addStage( new Stage\ResolveServiceRequest );
-    $app->addStage( new Stage\ExecuteServiceRequest );
-    $app->addStage( new Stage\EncodeServiceResponse );
-    $app->addStage( new Stage\Respond );
+    $app->addStage( new \Mduk\Stage\InitPdoServices );
+    $app->addStage( new \Mduk\Stage\BindServiceRequestParameters );
+    $app->addStage( new \Mduk\Stage\ResolveServiceRequest );
+    $app->addStage( new \Mduk\Stage\ExecuteServiceRequest );
+    $app->addStage( new \Mduk\Stage\EncodeServiceResponse );
+    $app->addStage( new \Mduk\Stage\Respond );
 
     $app->setConfigArray( $config );
     return $app;

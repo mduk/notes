@@ -1,11 +1,11 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application\Builder;
 
 use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 
-class StaticPageApplicationBuilder extends ServiceInvocationApplicationBuilder {
+class StaticPage extends ServiceInvocation {
   public function buildRoutes( $route, $config ) {
     return [
       $route => [
@@ -19,7 +19,7 @@ class StaticPageApplicationBuilder extends ServiceInvocationApplicationBuilder {
 
   public function build( $config, $app = null ) {
 
-    $app = new Gowi\Http\Application( '.' );
+    $app = new \Mduk\Gowi\Http\Application( '.' );
 
     $app->addStage( new StubStage( function( $app, $req, $res ) {
 
@@ -38,7 +38,7 @@ class StaticPageApplicationBuilder extends ServiceInvocationApplicationBuilder {
     $app = parent::build( $config, $app );
     $app->applyConfigArray( [
       'transcoder' => [
-        'generic:text' => new Gowi\Transcoder\Generic\Text
+        'generic:text' => new \Mduk\Gowi\Transcoder\Generic\Text
       ],
       'service' => [
         'name' => 'mustache',

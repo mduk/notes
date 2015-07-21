@@ -48,16 +48,16 @@ class MatchRoute implements Stage {
 
       $builderFactory = new Factory( [
         'service-invocation' => function() {
-          return new \Mduk\ServiceInvocationApplicationBuilder;
+          return new \Mduk\Application\Builder\ServiceInvocation;
         },
         'webtable' => function() {
           return new \Mduk\Application\Builder\WebTable;
         },
         'page' => function() {
-          return new \Mduk\PageApplicationBuilder;
+          return new \Mduk\Application\Builder\Page;
         },
         'static-page' => function() {
-          return new \Mduk\StaticPageApplicationBuilder;
+          return new \Mduk\Application\Builder\StaticPage;
         }
       ] );
 

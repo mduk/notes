@@ -118,7 +118,7 @@ $app = new Application( '.' );
 $app->setConfig( 'debug', true );
 $builder = new Application\Builder( $app );
 
-$builder->setBuilder( 'page', new PageApplicationBuilder );
+$builder->setBuilder( 'page', new Application\Builder\Page );
 
 $builder->buildRoute( 'page', '/user/{user_id}', [
   'pdo' => [
