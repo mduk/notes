@@ -51,7 +51,7 @@ class MatchRoute implements Stage {
           return new \Mduk\ServiceInvocationApplicationBuilder;
         },
         'webtable' => function() {
-          return new \Mduk\WebTableApplicationBuilder;
+          return new \Mduk\Application\Builder\WebTable;
         },
         'page' => function() {
           return new \Mduk\PageApplicationBuilder;

@@ -41,7 +41,7 @@ $app->setConfig( 'debug', true );
 $builder = new Application\Builder( $app );
 
 $builder->setBuilder( 'service-invocation', new ServiceInvocationApplicationBuilder );
-$builder->setBuilder( 'webtable', new WebTableApplicationBuilder );
+$builder->setBuilder( 'webtable', new Application\Builder\WebTable );
 $builder->setBuilder( 'static-page', new StaticPageApplicationBuilder );
 
 $builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
@@ -188,6 +188,11 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ],
   ]
 ] );
 
-$builder->build()
-  ->run()
-  ->send();
+$response = $builder->build()
+  ->run();
+
+if ( $response->getStatusCode() == 404 ) {
+  return false;
+}
+
+$response->send();

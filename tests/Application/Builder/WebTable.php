@@ -1,10 +1,10 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application\Builder;
 
 use Mduk\Gowi\Http\Request as HttpRequest;
 
-class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
+class WebTableTest extends \PHPUnit_Framework_TestCase {
   protected $builder;
   protected $dsn;
   protected $buildConfig = [
@@ -31,7 +31,7 @@ class WebTableApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
     $pdo = new \PDO( $this->dsn );
     $pdo->exec( file_get_contents( dirname( __FILE__ ) . '/../db.sql' ) );
 
-    $this->builder = new WebTableApplicationBuilder;
+    $this->builder = new WebTable;
   }
 
   public function tearDown() {

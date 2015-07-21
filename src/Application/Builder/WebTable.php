@@ -1,10 +1,10 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application\Builder;
 
 use Mduk\Gowi\Factory;
 
-class WebTableApplicationBuilder {
+class WebTable {
 
   protected $table;
   protected $pk;

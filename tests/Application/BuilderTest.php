@@ -1,13 +1,13 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application;
 
 use Mduk\Gowi\Http\Application as App;
 
-class ApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
+class BuilderTest extends \PHPUnit_Framework_TestCase {
   public function testBuildInvalid() {
     try {
-      $builder = new ApplicationBuilder( new App( '.' ) );
+      $builder = new Builder( new App( '.' ) );
       $app = $builder->build( 'nonsense', [] );
       $this->fail( "Should have thrown an exception" );
     }
@@ -16,8 +16,8 @@ class ApplicationBuilderTest extends \PHPUnit_Framework_TestCase {
   }
 
   public function testBuildWebtable() {
-    $builder = new ApplicationBuilder( new App( '.' ) );
-    $builder->setBuilder( 'webtable', new WebtableApplicationBuilder );
+    $builder = new Builder( new App( '.' ) );
+    $builder->setBuilder( 'webtable', new Builder\WebTable );
     $app = $builder->build( 'webtable', [
       'connection' => [
         'dsn' => ''
