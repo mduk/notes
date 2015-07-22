@@ -1,8 +1,8 @@
 <?php
 
-namespace Mduk\Stage;
+namespace Mduk\Application\Stage;
 
-use Mduk\Stage\Response\UnsupportedMediaType as UnsupportedMediaTypeStage;
+use Mduk\Application\Stage\Response\UnsupportedMediaType as UnsupportedMediaTypeStage;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;

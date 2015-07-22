@@ -1,19 +1,23 @@
 <?php
 
-namespace Mduk\Stage\Response;
+namespace Mduk\Application\Stage\Response;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class UnsupportedMediaType implements Stage {
+class InternalServerError implements Stage {
+  public function __construct( $message ) {
+    $this->message = $message;
+  }
+
   public function execute( Application $app, Request $req, Response $res ) {
-    $res->setStatusCode( 415 );
+    $res->setStatusCode( 500 );
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
-      "415 Unsupported Media Type\n" .
-      $req->headers->get( 'Content-Type' )
+      "500 Internal Server Error\n" .
+      $this->message
     );
     return $res;
   }

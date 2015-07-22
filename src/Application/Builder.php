@@ -2,12 +2,12 @@
 
 namespace Mduk\Application;
 
-use Mduk\Stage\InitRouter as InitRouterStage;
-use Mduk\Stage\MatchRoute as MatchRouteStage;
-use Mduk\Stage\SelectResponseType as SelectResponseTypeStage;
-use Mduk\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
-use Mduk\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
-use Mduk\Stage\DecodeRequestBody as DecodeRequestBodyStage;
+use Mduk\Application\Stage\InitRouter as InitRouterStage;
+use Mduk\Application\Stage\MatchRoute as MatchRouteStage;
+use Mduk\Application\Stage\SelectResponseType as SelectResponseTypeStage;
+use Mduk\Application\Stage\SelectRequestTranscoder as SelectRequestTranscoderStage;
+use Mduk\Application\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
+use Mduk\Application\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 
 use Mduk\Gowi\Factory;
 

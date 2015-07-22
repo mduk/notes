@@ -21,7 +21,7 @@ class Page {
     $app = new \Mduk\Gowi\Http\Application( '.' );
     $app->applyConfigArray( $config );
 
-    $app->addStage( new \Mduk\Stage\InitPdoServices );
+    $app->addStage( new \Mduk\Application\Stage\InitPdoServices );
 
     // --------------------------------------------------------------------------------
     // Initialise Card factory from card config

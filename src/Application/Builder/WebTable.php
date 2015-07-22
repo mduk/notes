@@ -192,17 +192,17 @@ class WebTable {
 
     $app = new \Mduk\Gowi\Http\Application( '.' );
     $app->setConfig( 'debug', true );
-    $app->addStage( new \Mduk\Stage\SelectResponseType );
-    $app->addStage( new \Mduk\Stage\SelectRequestTranscoder);
-    $app->addStage( new \Mduk\Stage\InitResponseTranscoder);
-    $app->addStage( new \Mduk\Stage\DecodeRequestBody);
+    $app->addStage( new \Mduk\Application\Stage\SelectResponseType );
+    $app->addStage( new \Mduk\Application\Stage\SelectRequestTranscoder);
+    $app->addStage( new \Mduk\Application\Stage\InitResponseTranscoder);
+    $app->addStage( new \Mduk\Application\Stage\DecodeRequestBody);
 
-    $app->addStage( new \Mduk\Stage\InitPdoServices );
-    $app->addStage( new \Mduk\Stage\BindServiceRequestParameters );
-    $app->addStage( new \Mduk\Stage\ResolveServiceRequest );
-    $app->addStage( new \Mduk\Stage\ExecuteServiceRequest );
-    $app->addStage( new \Mduk\Stage\EncodeServiceResponse );
-    $app->addStage( new \Mduk\Stage\Respond );
+    $app->addStage( new \Mduk\Application\Stage\InitPdoServices );
+    $app->addStage( new \Mduk\Application\Stage\BindServiceRequestParameters );
+    $app->addStage( new \Mduk\Application\Stage\ResolveServiceRequest );
+    $app->addStage( new \Mduk\Application\Stage\ExecuteServiceRequest );
+    $app->addStage( new \Mduk\Application\Stage\EncodeServiceResponse );
+    $app->addStage( new \Mduk\Application\Stage\Respond );
 
     $app->setConfigArray( $config );
     return $app;
