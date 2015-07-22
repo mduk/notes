@@ -1,19 +1,23 @@
 <?php
 
-namespace Mduk\Application\Stage\Response;
+namespace Mduk\Application\Stage\Respond;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Http\Request;
 use Mduk\Gowi\Http\Response;
 
-class NotFound implements Stage {
+class InternalServerError implements Stage {
+  public function __construct( $message ) {
+    $this->message = $message;
+  }
+
   public function execute( Application $app, Request $req, Response $res ) {
-    $res->setStatusCode( 404 );
+    $res->setStatusCode( 500 );
     $res->headers->set( 'Content-Type', 'text/plain' );
     $res->setContent(
-      "404 Not Found\n" .
-      $req->getUri()
+      "500 Internal Server Error\n" .
+      $this->message
     );
     return $res;
   }

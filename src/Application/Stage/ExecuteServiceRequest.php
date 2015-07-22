@@ -2,8 +2,8 @@
 
 namespace Mduk\Application\Stage;
 
-use Mduk\Application\Stage\Response\NotFound as NotFoundResponseStage;
-use Mduk\Application\Stage\Response\InternalServerError as InternalServerErrorResponseStage;
+use Mduk\Application\Stage\Respond\NotFound as NotFoundResponseStage;
+use Mduk\Application\Stage\Respond\InternalServerError as InternalServerErrorResponseStage;
 
 use Mduk\Gowi\Http\Application\Stage;
 use Mduk\Gowi\Http\Application;

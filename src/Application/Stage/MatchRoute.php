@@ -2,8 +2,8 @@
 
 namespace Mduk\Application\Stage;
 
-use Mduk\Application\Stage\Response\NotFound as NotFoundResponseStage;
-use Mduk\Application\Stage\Response\MethodNotAllowed as MethodNotAllowedResponseStage;
+use Mduk\Application\Stage\Respond\NotFound as NotFoundResponseStage;
+use Mduk\Application\Stage\Respond\MethodNotAllowed as MethodNotAllowedResponseStage;
 use Mduk\Application\Stage\Builder as BuilderStage;
 
 use Mduk\Service\Router\Exception as RouterException;

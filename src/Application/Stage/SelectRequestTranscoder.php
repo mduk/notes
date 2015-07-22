@@ -2,7 +2,7 @@
 
 namespace Mduk\Application\Stage;
 
-use Mduk\Application\Stage\Response\UnsupportedMediaType as UnsupportedMediaTypeStage;
+use Mduk\Application\Stage\Respond\UnsupportedMediaType as UnsupportedMediaTypeStage;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;

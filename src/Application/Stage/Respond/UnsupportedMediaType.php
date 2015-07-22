@@ -1,6 +1,6 @@
 <?php
 
-namespace Mduk\Application\Stage\Response;
+namespace Mduk\Application\Stage\Respond;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;

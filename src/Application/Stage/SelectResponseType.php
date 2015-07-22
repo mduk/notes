@@ -2,7 +2,7 @@
 
 namespace Mduk\Application\Stage;
 
-use Mduk\Application\Stage\Response\NotAcceptable as NotAcceptableResponseStage;
+use Mduk\Application\Stage\Respond\NotAcceptable as NotAcceptableResponseStage;
 
 use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Http\Application\Stage;
