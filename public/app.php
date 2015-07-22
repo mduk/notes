@@ -12,28 +12,10 @@ use Mduk\Transcoder\Mustache as MustacheTranscoder;
 use Mduk\Gowi\Http\Application\Stage\Stub as StubStage;
 use Mduk\Gowi\Factory;
 use Mduk\Gowi\Service\Shim as ServiceShim;
+use Mduk\Transcoder\Factory as TranscoderFactory;
 
 $templatesDir = dirname( __FILE__ ) . '/../templates';
-$transcoderFactory = new Factory( [
-  'generic:text' => function() {
-    return new \Mduk\Gowi\Transcoder\Generic\Text;
-  },
-  'generic:json' => function() {
-    return new \Mduk\Gowi\Transcoder\Generic\Json;
-  },
-  'generic:form' => function() {
-    return new \Mduk\Gowi\Transcoder\Generic\Form;
-  },
-  'html:user_page' => function() use ( $templatesDir ) {
-    return new MustacheTranscoder( "{$templatesDir}/user_page.mustache" );
-  },
-  'html:note_list' => function() use ( $templatesDir ) {
-    return new MustacheTranscoder( "{$templatesDir}/note_list.mustache" );
-  },
-  'html:user_list' => function() use ( $templatesDir ) {
-    return new MustacheTranscoder( "{$templatesDir}/user_list.mustache" );
-  }
-] );
+$transcoderFactory = new TranscoderFactory( $templatesDir );
 
 $app = new Gowi\Http\Application( __DIR__ );
 $app->setConfig( 'debug', true );
@@ -84,7 +66,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
   'http' => [
     'response' => [
       'transcoders' => [
-        'text/html' => 'html:user_list',
+        'text/html' => 'template:user_list',
         'application/json' => 'generic:json'
       ]
     ]
@@ -124,7 +106,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}' ], [
   'http' => [
     'response' => [
       'transcoders' => [
-        'text/html' => 'html:user_page',
+        'text/html' => 'template:user_page',
         'application/json' => 'generic:json'
       ]
     ]
@@ -181,7 +163,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ],
   'http' => [
     'response' => [
       'transcoders' => [
-        'text/html' => 'html:note_list',
+        'text/html' => 'template:note_list',
         'application/json' => 'generic:json'
       ]
     ]
