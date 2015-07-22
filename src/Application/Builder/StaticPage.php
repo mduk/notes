@@ -24,7 +24,7 @@ class StaticPage extends ServiceInvocation {
     $app->addStage( new StubStage( function( $app, $req, $res ) {
 
       $renderer = new \Mustache_Engine( [
-        'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../templates' )
+        'loader' => new \Mustache_Loader_FilesystemLoader( dirname( __FILE__ ) . '/../../../templates' )
       ] );
 
       $shim = new ServiceShim( 'Mustache template renderer' );
