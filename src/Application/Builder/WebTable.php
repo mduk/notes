@@ -27,9 +27,6 @@ class WebTable extends AppBuilder {
     $this->pk = $config['pk'];
     $this->fields = $config['fields'];
 
-    $this->pk = $config['pk'];
-    $this->fields = $config['fields'];
-
     $appConfig = [
       'builders' => [ 'webtable' ]
     ];
