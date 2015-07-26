@@ -21,90 +21,6 @@ class WebTable extends AppBuilder {
     ] );
   }
 
-  protected function routeConfig( $http, $config ) {
-    $route = [
-      'builder' => 'webtable',
-      'config' => array_replace_recursive( [
-        'transcoder' => $this->transcoderFactory,
-        'connection' => $this->connectionConfig,
-        'pdo' => [
-          'connections' => [
-            'main' => $this->connectionConfig
-          ],
-          'services' => [
-            $this->table => [
-              'connection' => 'main',
-              'queries' => $this->queryConfig()
-            ]
-          ]
-        ]
-      ], $config )
-    ];
-
-    if ( $http ) {
-      $route['config']['http'][ $http ] = [
-        'transcoders' => [
-          'application/json' => 'generic:json'
-        ]
-      ];
-    }
-    
-    return $route;
-  }
-
-  protected function queryConfig() {
-    $allFields = $this->fields;
-    $allFields[] = $this->pk;
-
-    $allFieldsStr = implode( ', ', $allFields );
-
-    $allPlaceholdersStr = implode( ', ', array_map( function( $e ) {
-      return ":{$e}";
-    }, $allFields ) );
-
-    $updatePlaceholders = implode( ', ', array_map( function( $e ) {
-      return "{$e} = :{$e}";
-    }, $this->fields ) );
-
-    $wherePk = "WHERE {$this->pk} = :{$this->pk}";
-
-    return [
-      'create' => [
-        'sql' => "INSERT INTO {$this->table} ( {$allFieldsStr} ) VALUES ( {$allPlaceholdersStr} )",
-        'parameters' => $this->fields
-      ],
-      'retrieveAll' => [
-        'sql' => "SELECT {$allFieldsStr} FROM {$this->table}"
-      ],
-      'retrieve' => [
-        'sql' => "SELECT {$allFieldsStr} FROM {$this->table} {$wherePk}",
-        'parameters' => [ $this->pk ]
-      ],
-      'update' => [
-        'sql' => "UPDATE {$this->table} SET {$updatePlaceholders} {$wherePk}",
-        'parameters' => $this->fields
-      ],
-      'updatePartial' => [
-        'sql' => function( $parameters ) use ( $wherePk ) {
-          $this->fields = [];
-          foreach ( $parameters as $parameter ) {
-            if ( $parameter == $this->pk ) { // Mustn't change the primary key
-              continue;
-            }
-            $this->fields[] = "{$parameter} = :{$parameter}";
-          }
-          $updateFields = implode( ', ', $this->fields );
-          $sql = "UPDATE {$this->table} SET {$updateFields} {$wherePk}";
-          return $sql;
-        }
-      ],
-      'delete' => [
-        'sql' => "DELETE FROM {$this->table} {$wherePk}",
-        'parameters' => [ $this->pk ]
-      ]
-    ];
-  }
-
   public function buildRoutes( $path, $config ) {
     $this->connectionConfig = $config['connection'];
     $this->table = $config['table'];
@@ -207,6 +123,90 @@ class WebTable extends AppBuilder {
 
     $app->setConfigArray( $config );
     return $app;
+  }
+
+  protected function routeConfig( $http, $config ) {
+    $route = [
+      'builder' => 'webtable',
+      'config' => array_replace_recursive( [
+        'transcoder' => $this->transcoderFactory,
+        'connection' => $this->connectionConfig,
+        'pdo' => [
+          'connections' => [
+            'main' => $this->connectionConfig
+          ],
+          'services' => [
+            $this->table => [
+              'connection' => 'main',
+              'queries' => $this->queryConfig()
+            ]
+          ]
+        ]
+      ], $config )
+    ];
+
+    if ( $http ) {
+      $route['config']['http'][ $http ] = [
+        'transcoders' => [
+          'application/json' => 'generic:json'
+        ]
+      ];
+    }
+    
+    return $route;
+  }
+
+  protected function queryConfig() {
+    $allFields = $this->fields;
+    $allFields[] = $this->pk;
+
+    $allFieldsStr = implode( ', ', $allFields );
+
+    $allPlaceholdersStr = implode( ', ', array_map( function( $e ) {
+      return ":{$e}";
+    }, $allFields ) );
+
+    $updatePlaceholders = implode( ', ', array_map( function( $e ) {
+      return "{$e} = :{$e}";
+    }, $this->fields ) );
+
+    $wherePk = "WHERE {$this->pk} = :{$this->pk}";
+
+    return [
+      'create' => [
+        'sql' => "INSERT INTO {$this->table} ( {$allFieldsStr} ) VALUES ( {$allPlaceholdersStr} )",
+        'parameters' => $this->fields
+      ],
+      'retrieveAll' => [
+        'sql' => "SELECT {$allFieldsStr} FROM {$this->table}"
+      ],
+      'retrieve' => [
+        'sql' => "SELECT {$allFieldsStr} FROM {$this->table} {$wherePk}",
+        'parameters' => [ $this->pk ]
+      ],
+      'update' => [
+        'sql' => "UPDATE {$this->table} SET {$updatePlaceholders} {$wherePk}",
+        'parameters' => $this->fields
+      ],
+      'updatePartial' => [
+        'sql' => function( $parameters ) use ( $wherePk ) {
+          $this->fields = [];
+          foreach ( $parameters as $parameter ) {
+            if ( $parameter == $this->pk ) { // Mustn't change the primary key
+              continue;
+            }
+            $this->fields[] = "{$parameter} = :{$parameter}";
+          }
+          $updateFields = implode( ', ', $this->fields );
+          $sql = "UPDATE {$this->table} SET {$updateFields} {$wherePk}";
+          return $sql;
+        }
+      ],
+      'delete' => [
+        'sql' => "DELETE FROM {$this->table} {$wherePk}",
+        'parameters' => [ $this->pk ]
+      ]
+    ];
   }
 
   protected function service( $table, $call, $multiplicity ) {
