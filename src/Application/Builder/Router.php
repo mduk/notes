@@ -9,7 +9,7 @@ use Mduk\Application\Stage\SelectRequestTranscoder as SelectRequestTranscoderSta
 use Mduk\Application\Stage\InitResponseTranscoder as InitResponseTranscoderStage;
 use Mduk\Application\Stage\DecodeRequestBody as DecodeRequestBodyStage;
 
-use Mduk\ChainBuilder;
+use Mduk\Application\Builder as AppBuilder;
 
 use Mduk\Gowi\Http\Application;
 
@@ -20,7 +20,7 @@ use Mduk\Gowi\Http\Application;
  * to get information on what kind of Application should
  * handle the routed Request.
  */
-class Router extends \Mduk\ChainBuilder {
+class Router extends AppBuilder {
 
   protected $config;
 

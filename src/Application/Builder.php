@@ -1,11 +1,11 @@
 <?php
 
-namespace Mduk;
+namespace Mduk\Application;
 
 use Mduk\Gowi\Factory;
 use Psr\Log\LoggerInterface as Logger;
 
-abstract class ChainBuilder {
+abstract class Builder {
 
   private $debug;
   private $transcoderFactory;

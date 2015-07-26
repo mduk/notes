@@ -2,9 +2,9 @@
 
 namespace Mduk\Application\Builder;
 
-use Mduk\ChainBuilder;
+use Mduk\Application\Builder as AppBuilder;
 
-class ServiceInvocation extends ChainBuilder {
+class ServiceInvocation extends AppBuilder {
   public function buildRoutes( $methodPath, $config ) {
     return [
       $methodPath[1] => [
