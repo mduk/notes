@@ -4,7 +4,9 @@ namespace Mduk\Application\Builder;
 
 use Mduk\Gowi\Factory;
 
-class WebTable {
+use Mduk\ChainBuilder;
+
+class WebTable extends ChainBuilder {
 
   protected $table;
   protected $pk;

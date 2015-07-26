@@ -14,22 +14,47 @@ use Mduk\Gowi\Factory;
 use Mduk\Gowi\Service\Shim as ServiceShim;
 use Mduk\Transcoder\Factory as TranscoderFactory;
 
+/**
+ * Start here, with an ApplicationBuilderFactory
+ */
+$applicationBuilderFactory = new Application\Builder\Factory;
+
+/**
+ * Construct a Transcoder Factory. Applications need Transcoders
+ */
 $templatesDir = dirname( __FILE__ ) . '/../templates';
 $transcoderFactory = new TranscoderFactory( $templatesDir );
+$applicationBuilderFactory->setTranscoderFactory( $transcoderFactory );
 
-$app = new Gowi\Http\Application( __DIR__ );
-$app->setConfig( 'debug', true );
+/**
+ * Set debug setting
+ */
+$applicationBuilderFactory->setDebug( true );
 
-$builder = new Application\Builder( $app );
+/**
+ * Construct a Logger, 'cause logging is useful.
+ */
+$logger = new Gowi\Logger\PhpErrorLog;
+$applicationBuilderFactory->setLogger( $logger );
 
-$builder->setBuilder( 'service-invocation', new Application\Builder\ServiceInvocation );
-$builder->setBuilder( 'webtable', new Application\Builder\WebTable );
-$builder->setBuilder( 'static-page', new Application\Builder\StaticPage );
+/**
+ * Get a Router Application Builder since we want an Application that can route HTTP requests
+ */
+$applicationBuilder = $applicationBuilderFactory->get( 'router' );
 
-$builder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
-$builder->buildRoute( 'static-page', '/about', [ 'template' => 'about' ] );
+/**
+ * Start building routes
+ */
+$applicationBuilder->buildRoute( 'card', '/tkt/card/foo', [
+  'service' => 'foo',
+  'call' => 'bar',
+  'template' => 'foobar'
+] );
 
-$builder->buildRoute( 'webtable', '/api/tables/user', [
+$applicationBuilder->buildRoute( 'static-page', '/', [ 'template' => 'index' ] );
+$applicationBuilder->buildRoute( 'static-page', '/about', [ 'template' => 'about' ] );
+
+$applicationBuilder->buildRoute( 'webtable', '/api/tables/user', [
   'connection' => [
     'dsn' => 'sqlite:/Users/daniel/dev/notes/db.sq3'
   ],
@@ -39,7 +64,7 @@ $builder->buildRoute( 'webtable', '/api/tables/user', [
 ] );
 
 
-$builder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
+$applicationBuilder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
   'transcoder' => $transcoderFactory,
   'pdo' => [
     'connections' => [
@@ -73,7 +98,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users' ], [
   ]
 ] );
 
-$builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}' ], [
+$applicationBuilder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}' ], [
   'transcoder' => $transcoderFactory,
   'pdo' => [
     'connections' => [
@@ -113,7 +138,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}' ], [
   ]
 ] );
 
-$builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ], [
+$applicationBuilder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ], [
   'transcoder' => $transcoderFactory,
   'pdo' => [
     'connections' => [
@@ -170,7 +195,7 @@ $builder->buildRoute( 'service-invocation', [ 'GET', '/users/{user_id}/notes' ],
   ]
 ] );
 
-$response = $builder->build()
+$response = $applicationBuilder->build()
   ->run();
 
 if ( $response->getStatusCode() == 404 ) {

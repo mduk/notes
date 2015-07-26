@@ -9,8 +9,7 @@ use Mduk\Gowi\Http\Response;
 
 class Builder implements Stage {
 
-  public function __construct( $builderFactory, $builder, $config, $appConfig = [] ) {
-    $this->builderFactory = $builderFactory;
+  public function __construct( $builder, $config, $appConfig = [] ) {
     $this->builder = $builder;
     $this->config = $config;
     $this->appConfig = $appConfig;
@@ -25,7 +24,8 @@ class Builder implements Stage {
       return __CLASS__ . ": Using builder config: " . print_r( $this->config, true );
     } );
 
-    $newApp = $this->builderFactory->get( $this->builder )
+    $newApp = $app->getConfig( 'application.builder' )
+      ->get( $this->builder )
       ->build( $this->config );
 
     if ( $this->appConfig != [] ) {

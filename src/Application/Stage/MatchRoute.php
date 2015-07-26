@@ -37,32 +37,20 @@ class MatchRoute implements Stage {
       }
 
       $builderConfig = $activeRoute['config']['config'];
-
       $newAppConfig = [
+
+        // Things being persisted through Applications (pending rename)
         'debug' => $app->getConfig( 'debug' ),
+
+        // Things that are new to the new appliaction
         'route' => [
           'pattern' => $activeRoute['route'],
           'parameters' => $activeRoute['params'],
         ]
+
       ];
 
-      $builderFactory = new Factory( [
-        'service-invocation' => function() {
-          return new \Mduk\Application\Builder\ServiceInvocation;
-        },
-        'webtable' => function() {
-          return new \Mduk\Application\Builder\WebTable;
-        },
-        'page' => function() {
-          return new \Mduk\Application\Builder\Page;
-        },
-        'static-page' => function() {
-          return new \Mduk\Application\Builder\StaticPage;
-        }
-      ] );
-
       return new BuilderStage(
-        $builderFactory,
         $builder,
         $builderConfig,
         $newAppConfig

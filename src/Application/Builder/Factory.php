@@ -7,11 +7,17 @@ use Psr\Log\LoggerInterface as Logger;
 
 class Factory extends GowiFactory {
 
+  protected $debug;
   protected $transcoderFactory;
   protected $logger;
 
   public function get( $builder ) {
     switch ( $builder ) {
+
+      case 'router':
+        $builder = new \Mduk\Application\Builder\Router;
+        break;
+
       case 'service-invocation':
         $builder = new \Mduk\Application\Builder\ServiceInvocation;
         break;
@@ -28,9 +34,15 @@ class Factory extends GowiFactory {
         throw new \Exception("Unknown application type: {$builder}" );
     }
 
+    $builder->setDebug( $this->getDebug() );
+    $builder->setApplicationBuilderFactory( $this );
     $builder->setTranscoderFactory( $this->getTranscoderFactory() );
     $builder->setLogger( $this->getLogger() );
     return $builder;
+  }
+
+  public function setDebug( $debug ) {
+    $this->debug = $debug;
   }
 
   public function setTranscoderFactory( GowiFactory $factory ) {
@@ -47,5 +59,9 @@ class Factory extends GowiFactory {
 
   protected function getLogger() {
     return $this->logger;
+  }
+
+  protected function getDebug() {
+    return $this->debug;
   }
 }

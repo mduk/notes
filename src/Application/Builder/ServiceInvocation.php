@@ -2,7 +2,9 @@
 
 namespace Mduk\Application\Builder;
 
-class ServiceInvocation {
+use Mduk\ChainBuilder;
+
+class ServiceInvocation extends ChainBuilder {
   public function buildRoutes( $methodPath, $config ) {
     return [
       $methodPath[1] => [
@@ -30,7 +32,12 @@ class ServiceInvocation {
     $app->addStage( new \Mduk\Application\Stage\EncodeServiceResponse );
     $app->addStage( new \Mduk\Application\Stage\Respond );
 
+    $this->getLogger()->debug( 'setting transcoder to ' . print_r( $this->getTranscoderFactory(), true ) );
+    $app->setConfig( 'transcoder', $this->getTranscoderFactory() );
+
     $app->applyConfigArray( $config );
+    $this->configure( $app );
+
     return $app;
   }
 }
