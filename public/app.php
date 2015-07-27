@@ -2,6 +2,7 @@
 
 namespace Mduk;
 
+ini_set('xdebug.collect_params', '4');
 error_reporting( E_ALL );
 
 require_once '../vendor/autoload.php';
