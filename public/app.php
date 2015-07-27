@@ -21,13 +21,6 @@ use Mduk\Transcoder\Factory as TranscoderFactory;
 $applicationBuilderFactory = new Application\Builder\Factory;
 
 /**
- * Construct a Transcoder Factory. Applications need Transcoders
- */
-$templatesDir = dirname( __FILE__ ) . '/../templates';
-$transcoderFactory = new TranscoderFactory( $templatesDir );
-$applicationBuilderFactory->setTranscoderFactory( $transcoderFactory );
-
-/**
  * Set debug setting
  */
 $applicationBuilderFactory->setDebug( true );
@@ -37,6 +30,13 @@ $applicationBuilderFactory->setDebug( true );
  */
 $logger = new Gowi\Logger\PhpErrorLog;
 $applicationBuilderFactory->setLogger( $logger );
+
+/**
+ * Construct a Transcoder Factory. Applications need Transcoders
+ */
+$templatesDir = dirname( __FILE__ ) . '/../templates';
+$transcoderFactory = new TranscoderFactory( $templatesDir );
+$applicationBuilderFactory->setTranscoderFactory( $transcoderFactory );
 
 /**
  * Get a Router Application Builder since we want an Application that can route HTTP requests
