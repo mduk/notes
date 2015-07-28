@@ -9,6 +9,7 @@ class Factory extends GowiFactory {
 
   protected $debug;
   protected $transcoderFactory;
+  protected $serviceFactory;
   protected $logger;
 
   public function get( $builder ) {
@@ -30,19 +31,28 @@ class Factory extends GowiFactory {
         $builder = new \Mduk\Application\Builder\StaticPage;
         break;
 
+      case 'card':
+        $builder = new \Mduk\Application\Builder\Card;
+        break;
+
       default:
         throw new \Exception("Unknown application type: {$builder}" );
     }
 
-    $builder->setDebug( $this->getDebug() );
+    $builder->setDebug( $this->debug );
     $builder->setApplicationBuilderFactory( $this );
-    $builder->setTranscoderFactory( $this->getTranscoderFactory() );
-    $builder->setLogger( $this->getLogger() );
+    $builder->setTranscoderFactory( $this->transcoderFactory );
+    $builder->setServiceFactory( $this->serviceFactory );
+    $builder->setLogger( $this->logger );
     return $builder;
   }
 
   public function setDebug( $debug ) {
     $this->debug = $debug;
+  }
+
+  public function setServiceFactory( GowiFactory $factory ) {
+    $this->serviceFactory = $factory;
   }
 
   public function setTranscoderFactory( GowiFactory $factory ) {
@@ -51,17 +61,5 @@ class Factory extends GowiFactory {
 
   public function setLogger( Logger $logger ) {
     $this->logger = $logger;
-  }
-
-  protected function getTranscoderFactory() {
-    return $this->transcoderFactory;
-  }
-
-  protected function getLogger() {
-    return $this->logger;
-  }
-
-  protected function getDebug() {
-    return $this->debug;
   }
 }

@@ -4,6 +4,8 @@ namespace Mduk\Application\Builder;
 
 use Mduk\Application\Builder as AppBuilder;
 
+use Mduk\Gowi\Http\Application;
+
 class ServiceInvocation extends AppBuilder {
   public function buildRoutes( $methodPath, $config ) {
     return [
@@ -16,10 +18,10 @@ class ServiceInvocation extends AppBuilder {
     ];
   }
 
-  public function build( $config, $app = null ) {
-    if ( !$app ) {
-      $app = new \Mduk\Gowi\Http\Application( '.' );
-    }
+  public function build( Application $app = null, array $config = [] ) {
+    $app = parent::build( $app, $config );
+
+    $app->applyConfigArray( $config );
 
     $app->addStage( new \Mduk\Application\Stage\SelectResponseType );
     $app->addStage( new \Mduk\Application\Stage\InitResponseTranscoder );
@@ -31,12 +33,6 @@ class ServiceInvocation extends AppBuilder {
     $app->addStage( new \Mduk\Application\Stage\Context );
     $app->addStage( new \Mduk\Application\Stage\EncodeServiceResponse );
     $app->addStage( new \Mduk\Application\Stage\Respond );
-
-    $this->getLogger()->debug( 'setting transcoder to ' . print_r( $this->getTranscoderFactory(), true ) );
-    $app->setConfig( 'transcoder', $this->getTranscoderFactory() );
-
-    $app->applyConfigArray( $config );
-    $this->configure( $app );
 
     return $app;
   }

@@ -27,7 +27,10 @@ class MatchRoute implements Stage {
         ->shift();
 
       if ( !isset( $activeRoute['config']['builder'] ) ) {
-        throw new \Exception( "Route config doesn't contain a builder name.\n" . print_r( $activeRoute['config'], true ) );
+        throw new \Exception(
+          "Route config doesn't contain a builder name.\n" .
+          print_r( $activeRoute['config'], true )
+        );
       }
 
       $builder = $activeRoute['config']['builder'];
@@ -36,25 +39,17 @@ class MatchRoute implements Stage {
         throw new \Exception( "Route config doesn't contain any builder config" );
       }
 
-      $builderConfig = $activeRoute['config']['config'];
-      $newAppConfig = [
-
-        // Things being persisted through Applications (pending rename)
-        'debug' => $app->getConfig( 'debug' ),
-
-        // Things that are new to the new appliaction
-        'route' => [
-          'pattern' => $activeRoute['route'],
-          'parameters' => $activeRoute['params'],
+      $builderConfig = array_replace_recursive(
+        $activeRoute['config']['config'], // Route config then Builder config
+        [
+          'route' => [
+            'pattern' => $activeRoute['route'],
+            'parameters' => $activeRoute['params'],
+          ]
         ]
-
-      ];
-
-      return new BuilderStage(
-        $builder,
-        $builderConfig,
-        $newAppConfig
       );
+
+      return new BuilderStage( $builder, $builderConfig );
     }
     catch ( RouterException\NotFound $e ) {
       return new NotFoundResponseStage;

@@ -49,15 +49,12 @@ class Router extends AppBuilder {
     ];
   }
 
-  public function build( $app = null ) {
-    if ( $app === null ) {
-      $app = new Application;
-    }
+  public function build( Application $app = null, array $config = [] ) {
+    $app = parent::build( $app, $config );
 
     $app->addStage( new InitRouterStage );
     $app->addStage( new MatchRouteStage );
 
-    $this->configure( $app );
     $app->setConfig( 'routes', $this->routes );
 
     return $app;

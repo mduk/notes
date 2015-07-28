@@ -2,6 +2,7 @@
 
 namespace Mduk\Application;
 
+use Mduk\Gowi\Http\Application;
 use Mduk\Gowi\Factory;
 use Psr\Log\LoggerInterface as Logger;
 
@@ -9,8 +10,10 @@ abstract class Builder {
 
   private $debug;
   private $transcoderFactory;
+  private $serviceFactory;
   private $logger;
   private $applicationBuilderFactory;
+  private $appConfig = [];
 
   public function setDebug( $debug ) {
     $this->debug = $debug;
@@ -18,6 +21,10 @@ abstract class Builder {
 
   public function setTranscoderFactory( Factory $factory ) {
     $this->transcoderFactory = $factory;
+  }
+
+  public function setServiceFactory( Factory $factory ) {
+    $this->serviceFactory = $factory;
   }
 
   public function setLogger( Logger $logger ) {
@@ -28,7 +35,17 @@ abstract class Builder {
     $this->applicationBuilderFactory = $factory;
   }
 
-  protected function configure( $app ) {
+  /*public function applyConfigArray( array $array ) {
+    $this->appConfig = array_replace_recursive( $this->appConfig, $array );
+  }*/
+
+  public function build( Application $app = null, array $config = [] ) {
+    if ( !$app ) {
+      $app = new Application;
+    }
+
+    $app->applyConfigArray( $this->appConfig );
+
     if ( $this->debug && $this->logger ) {
       $this->logger->debug( get_class( $this ) . 
         ': Configuring Application with:' );
@@ -44,6 +61,9 @@ abstract class Builder {
     $app->setConfig( 'application.builder', $this->applicationBuilderFactory );
     $app->setConfig( 'transcoder', $this->transcoderFactory );
     $app->setLogger( $this->logger );
+    $app->setServiceFactory( $this->serviceFactory );
+
+    return $app;
   }
 
   protected function getTranscoderFactory() {
