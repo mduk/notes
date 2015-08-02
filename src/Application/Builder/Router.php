@@ -24,7 +24,7 @@ class Router extends AppBuilder {
 
   protected $config;
 
-  public function buildRoute( $type, $pathMethod, $config ) {
+  public function defineRoute( $type, $pathMethod, $config ) {
     if ( is_array( $pathMethod ) && count( $pathMethod ) == 2 ) {
       $method = $pathMethod[0];
       $path = $pathMethod[1];
@@ -41,7 +41,7 @@ class Router extends AppBuilder {
 
     if ( $this->getDebug() ) {
       $this->getLogger()
-        ->debug( __CLASS__ . ": Building route: {$type} {$method} {$path}" );
+        ->debug( __CLASS__ . ": Defining route: {$type} {$method} {$path}" );
     }
 
     $this->routes[] = [
