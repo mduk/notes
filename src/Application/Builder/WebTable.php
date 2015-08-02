@@ -2,8 +2,10 @@
 
 namespace Mduk\Application\Builder;
 
-use Mduk\Gowi\Factory;
 use Mduk\Application\Builder as AppBuilder;
+
+use Mduk\Gowi\Http\Application;
+use Mduk\Gowi\Factory as GowiFactory;
 
 class WebTable extends AppBuilder {
 
@@ -14,7 +16,7 @@ class WebTable extends AppBuilder {
   protected $transcoderFactory;
 
   public function __construct( array $config = [] ) {
-    $this->transcoderFactory = new Factory( [
+    $this->transcoderFactory = new GowiFactory( [
       'generic:json' => function() {
         return new \Mduk\Gowi\Transcoder\Generic\Json;
       }
@@ -95,7 +97,7 @@ class WebTable extends AppBuilder {
     return $routes;
   }
 
-  public function build( $config, $app = null ) {
+  public function build( Application $app = null, array $config = [] ) {
     $pdo = new \PDO(
       $config['connection']['dsn'],
       isset( $config['connection']['username'] ) ? $config['connection']['username'] : '',

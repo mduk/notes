@@ -39,6 +39,20 @@ $transcoderFactory = new TranscoderFactory( $templatesDir );
 $applicationBuilderFactory->setTranscoderFactory( $transcoderFactory );
 
 /**
+ * Construct a Service factory. Applications need Services
+ */
+$serviceFactory = new Factory( [
+  'foo' => function() {
+    $s = new ServiceShim('My stub service');
+    $s->setCall( 'bar', function() {
+      return 'baz';
+    }, [], 'bar call returns baz' );
+    return $s;
+  }
+] );
+$applicationBuilderFactory->setServiceFactory( $serviceFactory );
+
+/**
  * Get a Router Application Builder since we want an Application that can route HTTP requests
  */
 $applicationBuilder = $applicationBuilderFactory->get( 'router' );
@@ -47,8 +61,11 @@ $applicationBuilder = $applicationBuilderFactory->get( 'router' );
  * Start building routes
  */
 $applicationBuilder->buildRoute( 'card', '/tkt/card/foo', [
-  'service' => 'foo',
-  'call' => 'bar',
+  'service' => [
+    'name' => 'foo',
+    'call' => 'bar',
+    'multiplicity' => 'one'
+  ],
   'template' => 'foobar'
 ] );
 

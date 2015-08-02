@@ -40,10 +40,10 @@ class Factory extends GowiFactory {
     }
 
     $builder->setDebug( $this->debug );
+    $builder->setLogger( $this->logger );
     $builder->setApplicationBuilderFactory( $this );
     $builder->setTranscoderFactory( $this->transcoderFactory );
     $builder->setServiceFactory( $this->serviceFactory );
-    $builder->setLogger( $this->logger );
     return $builder;
   }
 

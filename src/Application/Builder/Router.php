@@ -39,12 +39,14 @@ class Router extends AppBuilder {
       );
     }
 
-    if ( !isset( $this->routes[ $path ] ) ) {
-      $this->routes[ $path ] = [];
+    if ( $this->getDebug() ) {
+      $this->getLogger()
+        ->debug( __CLASS__ . ": Building route: {$type} {$method} {$path}" );
     }
 
-    $this->routes[ $path ][ $method ] = [
-      'builder' => $type,
+    $this->routes[] = [
+      'type' => $type,
+      'pathmethod' => $pathMethod,
       'config' => $config
     ];
   }
@@ -55,7 +57,15 @@ class Router extends AppBuilder {
     $app->addStage( new InitRouterStage );
     $app->addStage( new MatchRouteStage );
 
-    $app->setConfig( 'routes', $this->routes );
+    $allRoutes = [];
+
+    foreach ( $this->routes as $routeSpec ) {
+      $builtRoutes = $this->getApplicationBuilderFactory()->get( $routeSpec['type'] )
+        ->buildRoutes( $routeSpec['pathmethod'], $routeSpec['config'] );
+      $allRoutes = array_replace_recursive( $allRoutes, $builtRoutes );
+    }
+
+    $app->setConfig( 'routes', $allRoutes );
 
     return $app;
   }

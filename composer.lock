@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "068f4e264748a8aaa6ff099cb5c28f03",
+    "hash": "042edb957c16ff7250b0757036d4bcfb",
     "packages": [
         {
             "name": "guzzle/guzzle",
@@ -106,13 +106,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "/Users/daniel/dev/dot/",
-                "reference": "b43025447ea5d609ea7247481f2c4a68c40272f5"
+                "url": "https://github.com/mduk/dot.git",
+                "reference": "6f43b9c9472143a579ea42424f209f0367f58a62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mduk/dot/zipball/b43025447ea5d609ea7247481f2c4a68c40272f5",
-                "reference": "b43025447ea5d609ea7247481f2c4a68c40272f5",
+                "url": "https://api.github.com/repos/mduk/dot/zipball/6f43b9c9472143a579ea42424f209f0367f58a62",
+                "reference": "6f43b9c9472143a579ea42424f209f0367f58a62",
                 "shasum": ""
             },
             "require-dev": {
@@ -134,17 +134,24 @@
                 "source": "https://github.com/mduk/dot/tree/master",
                 "issues": "https://github.com/mduk/dot/issues"
             },
-            "time": "2015-06-25 23:21:00"
+            "time": "2015-07-27 23:46:01"
         },
         {
             "name": "mduk/gowi",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "/Users/daniel/dev/gowi/",
-                "reference": "30517bb3649e8a367afbb73318ec813e7b66f51b"
+                "url": "https://github.com/mduk/gowi.git",
+                "reference": "e7df1030df378155a12a946dd3c12e4a3f2d4264"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mduk/gowi/zipball/e7df1030df378155a12a946dd3c12e4a3f2d4264",
+                "reference": "e7df1030df378155a12a946dd3c12e4a3f2d4264",
+                "shasum": ""
             },
             "require": {
+                "mduk/dot": "dev-master",
                 "monolog/monolog": "~1.10",
                 "psr/log": "1.0.0",
                 "symfony/http-foundation": "~2.3",
@@ -171,7 +178,37 @@
                 }
             ],
             "description": "A PHP starting point for those who just want to Get On With It.",
-            "time": "2015-07-07 23:27:51"
+            "support": {
+                "source": "https://github.com/mduk/gowi/tree/master",
+                "issues": "https://github.com/mduk/gowi/issues"
+            },
+            "time": "2015-07-28 01:15:03"
+        },
+        {
+            "name": "mduk/pprintr",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mduk/pprintr.git",
+                "reference": "cbfa56378d8c1bfb94442501bb3e2246bd464aa4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mduk/pprintr/zipball/cbfa56378d8c1bfb94442501bb3e2246bd464aa4",
+                "reference": "cbfa56378d8c1bfb94442501bb3e2246bd464aa4",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/pprintr.php"
+                ]
+            },
+            "support": {
+                "source": "https://github.com/mduk/pprintr/tree/master",
+                "issues": "https://github.com/mduk/pprintr/issues"
+            },
+            "time": "2015-07-31 00:20:36"
         },
         {
             "name": "monolog/monolog",
@@ -736,16 +773,16 @@
         },
         {
             "name": "heroku/heroku-buildpack-php",
-            "version": "v70",
+            "version": "v71",
             "source": {
                 "type": "git",
                 "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "f2b37ffa3aac00ccc6cb11405325298f40904028"
+                "reference": "115ddf16d45cff621961d8dd57e14ba1ff1e41dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/f2b37ffa3aac00ccc6cb11405325298f40904028",
-                "reference": "f2b37ffa3aac00ccc6cb11405325298f40904028",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/115ddf16d45cff621961d8dd57e14ba1ff1e41dd",
+                "reference": "115ddf16d45cff621961d8dd57e14ba1ff1e41dd",
                 "shasum": ""
             },
             "bin": [
@@ -776,20 +813,20 @@
                 "nginx",
                 "php"
             ],
-            "time": "2015-07-10 16:52:56"
+            "time": "2015-07-14 00:38:23"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.1.8",
+            "version": "2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "6044546998c7627ab997501a3d0db972b3db9790"
+                "reference": "5bd48b86cd282da411bb80baac1398ce3fefac41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/6044546998c7627ab997501a3d0db972b3db9790",
-                "reference": "6044546998c7627ab997501a3d0db972b3db9790",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/5bd48b86cd282da411bb80baac1398ce3fefac41",
+                "reference": "5bd48b86cd282da411bb80baac1398ce3fefac41",
                 "shasum": ""
             },
             "require": {
@@ -838,7 +875,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-07-13 11:25:58"
+            "time": "2015-07-26 12:54:47"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -928,16 +965,16 @@
         },
         {
             "name": "phpunit/php-timer",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
-                "reference": "83fe1bdc5d47658b727595c14da140da92b3d66d"
+                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/83fe1bdc5d47658b727595c14da140da92b3d66d",
-                "reference": "83fe1bdc5d47658b727595c14da140da92b3d66d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
+                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
                 "shasum": ""
             },
             "require": {
@@ -965,7 +1002,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2015-06-13 07:35:30"
+            "time": "2015-06-21 08:01:12"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -1092,22 +1129,23 @@
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "1c330b1b6e1ea8fd15f2fbea46770576e366855c"
+                "reference": "18dfbcb81d05e2296c0bcddd4db96cade75e6f42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/1c330b1b6e1ea8fd15f2fbea46770576e366855c",
-                "reference": "1c330b1b6e1ea8fd15f2fbea46770576e366855c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/18dfbcb81d05e2296c0bcddd4db96cade75e6f42",
+                "reference": "18dfbcb81d05e2296c0bcddd4db96cade75e6f42",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "~1.0,>=1.0.2",
                 "php": ">=5.3.3",
-                "phpunit/php-text-template": "~1.2"
+                "phpunit/php-text-template": "~1.2",
+                "sebastian/exporter": "~1.2"
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.4"
@@ -1143,20 +1181,20 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2015-07-04 05:41:32"
+            "time": "2015-07-10 06:54:24"
         },
         {
             "name": "sebastian/comparator",
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/comparator.git",
-                "reference": "1dd8869519a225f7f2b9eb663e225298fade819e"
+                "reference": "937efb279bd37a375bcadf584dec0726f84dbf22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/1dd8869519a225f7f2b9eb663e225298fade819e",
-                "reference": "1dd8869519a225f7f2b9eb663e225298fade819e",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/937efb279bd37a375bcadf584dec0726f84dbf22",
+                "reference": "937efb279bd37a375bcadf584dec0726f84dbf22",
                 "shasum": ""
             },
             "require": {
@@ -1170,7 +1208,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -1207,7 +1245,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2015-01-29 16:28:08"
+            "time": "2015-07-26 15:48:44"
         },
         {
             "name": "sebastian/diff",
@@ -1263,16 +1301,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "1.2.2",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "5a8c7d31914337b69923db26c4221b81ff5a196e"
+                "reference": "4fe0a44cddd8cc19583a024bdc7374eb2fef0b87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/5a8c7d31914337b69923db26c4221b81ff5a196e",
-                "reference": "5a8c7d31914337b69923db26c4221b81ff5a196e",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/4fe0a44cddd8cc19583a024bdc7374eb2fef0b87",
+                "reference": "4fe0a44cddd8cc19583a024bdc7374eb2fef0b87",
                 "shasum": ""
             },
             "require": {
@@ -1309,20 +1347,20 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2015-01-01 10:01:08"
+            "time": "2015-07-26 06:42:57"
         },
         {
             "name": "sebastian/exporter",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "84839970d05254c73cde183a721c7af13aede943"
+                "reference": "7ae5513327cb536431847bcc0c10edba2701064e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/84839970d05254c73cde183a721c7af13aede943",
-                "reference": "84839970d05254c73cde183a721c7af13aede943",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/7ae5513327cb536431847bcc0c10edba2701064e",
+                "reference": "7ae5513327cb536431847bcc0c10edba2701064e",
                 "shasum": ""
             },
             "require": {
@@ -1375,20 +1413,20 @@
                 "export",
                 "exporter"
             ],
-            "time": "2015-01-27 07:23:06"
+            "time": "2015-06-21 07:55:53"
         },
         {
             "name": "sebastian/recursion-context",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "3989662bbb30a29d20d9faa04a846af79b276252"
+                "reference": "994d4a811bafe801fb06dccbee797863ba2792ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/3989662bbb30a29d20d9faa04a846af79b276252",
-                "reference": "3989662bbb30a29d20d9faa04a846af79b276252",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/994d4a811bafe801fb06dccbee797863ba2792ba",
+                "reference": "994d4a811bafe801fb06dccbee797863ba2792ba",
                 "shasum": ""
             },
             "require": {
@@ -1428,7 +1466,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2015-01-24 09:48:32"
+            "time": "2015-06-21 08:04:50"
         },
         {
             "name": "sebastian/version",
@@ -1519,7 +1557,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "mduk/dot": 20,
-        "mduk/gowi": 20
+        "mduk/gowi": 20,
+        "mduk/pprintr": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

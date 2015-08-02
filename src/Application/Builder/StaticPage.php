@@ -35,7 +35,7 @@ class StaticPage extends ServiceInvocation {
 
     } ) );
 
-    $app = parent::build( [], $app );
+    $app = parent::build( $app );
 
     $app->applyConfigArray( [
       'transcoder' => [

@@ -66,6 +66,10 @@ abstract class Builder {
     return $app;
   }
 
+  protected function getDebug() {
+    return $this->debug;
+  }
+
   protected function getTranscoderFactory() {
     $this->transcoderFactory;
   }
