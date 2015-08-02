@@ -29,6 +29,7 @@ $applicationBuilderFactory->setDebug( true );
  * Construct a Logger, 'cause logging is useful.
  */
 $logger = new Gowi\Logger\PhpErrorLog;
+//$logger = new HtmlReportLogger;
 $applicationBuilderFactory->setLogger( $logger );
 
 /**
