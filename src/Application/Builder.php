@@ -46,17 +46,6 @@ abstract class Builder {
 
     $app->applyConfigArray( $this->appConfig );
 
-    if ( $this->debug && $this->logger ) {
-      $this->logger->debug( get_class( $this ) . 
-        ': Configuring Application with:' );
-      $this->logger->debug( get_class( $this ) .
-        ':     debug => ' . print_r( $this->debug, true ) );
-      $this->logger->debug( get_class( $this ) .
-        ':     transcoder => ' . print_r( $this->transcoderFactory, true ) );
-      $this->logger->debug( get_class( $this ) .
-        ':     application.builder  => ' . print_r( $this->applicationBuilderFactory, true ) );
-    }
-
     $app->setConfig( 'debug', $this->debug );
     $app->setConfig( 'application.builder', $this->applicationBuilderFactory );
     $app->setConfig( 'transcoder', $this->transcoderFactory );
