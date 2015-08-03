@@ -35,10 +35,6 @@ abstract class Builder {
     $this->applicationBuilderFactory = $factory;
   }
 
-  /*public function applyConfigArray( array $array ) {
-    $this->appConfig = array_replace_recursive( $this->appConfig, $array );
-  }*/
-
   public function build( Application $app = null, array $config = [] ) {
     if ( !$app ) {
       $app = new Application;
